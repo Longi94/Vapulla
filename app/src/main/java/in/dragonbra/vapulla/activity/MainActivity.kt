@@ -1,7 +1,8 @@
-package `in`.dragonbra.vapulla
+package `in`.dragonbra.vapulla.activity
 
-import android.support.v7.app.AppCompatActivity
+import `in`.dragonbra.vapulla.R
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
