@@ -23,14 +23,14 @@ import java.util.*
 class SteamService : Service(), AnkoLogger {
 
     companion object {
-        private val ONGOING_NOTIFICATION_ID = 100
+        private const val ONGOING_NOTIFICATION_ID = 100
     }
 
     private val binder: SteamBinder = SteamBinder()
 
-    private var steamClient: SteamClient? = null;
+    private var steamClient: SteamClient? = null
 
-    private var callbackMgr: CallbackManager? = null;
+    private var callbackMgr: CallbackManager? = null
 
     private val subscriptions: MutableList<Closeable?> = LinkedList()
 
@@ -88,10 +88,10 @@ class SteamService : Service(), AnkoLogger {
                 .setSound(null)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            builder.setPriority(NotificationManager.IMPORTANCE_LOW)
+            builder.priority = NotificationManager.IMPORTANCE_LOW
         } else {
             @Suppress("DEPRECATION")
-            builder.setPriority(Notification.PRIORITY_LOW)
+            builder.priority = Notification.PRIORITY_LOW
         }
         return builder.build()
     }
@@ -103,9 +103,8 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
-    fun <TCallback : ICallbackMsg> subscribe(callbackType: Class<out TCallback>, callbackFunc: Consumer<TCallback>) : Closeable? {
-        return callbackMgr?.subscribe(callbackType, callbackFunc)
-    }
+    fun <TCallback : ICallbackMsg> subscribe(callbackType: Class<out TCallback>, callbackFunc: Consumer<TCallback>):
+            Closeable? = callbackMgr?.subscribe(callbackType, callbackFunc)
 
     private val steamThread: Runnable = Runnable {
         info("Connecting to steam...")
@@ -120,12 +119,8 @@ class SteamService : Service(), AnkoLogger {
     }
 
     inner class SteamBinder : Binder() {
-        fun getService(): SteamService {
-            return this@SteamService
-        }
+        fun getService(): SteamService = this@SteamService
     }
 
-    fun isRunning(): Boolean {
-        return isRunning
-    }
+    fun isRunning(): Boolean = isRunning
 }

@@ -25,9 +25,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private var bound = false
 
-    private var steamService: SteamService? = null;
+    private var steamService: SteamService? = null
 
-    private val subs: MutableList<Closeable?> = LinkedList();
+    private val subs: MutableList<Closeable?> = LinkedList()
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
