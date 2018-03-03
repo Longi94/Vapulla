@@ -1,9 +1,9 @@
 package `in`.dragonbra.vapulla.presenter
 
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
-import `in`.dragonbra.vapulla.extension.runOnBackgroundThread
+import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
+import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.HomeView
 import android.content.ComponentName
 import android.content.Context
@@ -23,6 +23,8 @@ class HomePresenter(val context: Context) : MvpBasePresenter<HomeView>(), AnkoLo
     private var steamService: SteamService? = null
 
     private val subs: MutableList<Closeable?> = LinkedList()
+
+    private val account = AccountManager(context)
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -47,7 +49,7 @@ class HomePresenter(val context: Context) : MvpBasePresenter<HomeView>(), AnkoLo
 
     private fun onDisconnected() {
         ifViewAttached {
-            it.showLoginScreen()
+            it.closeApp()
         }
     }
 
@@ -60,7 +62,7 @@ class HomePresenter(val context: Context) : MvpBasePresenter<HomeView>(), AnkoLo
         bound = false
     }
 
-    fun logOut() {
-        runOnBackgroundThread { steamService?.getHandler<SteamUser>()?.logOff() }
+    fun disconnect() {
+        runOnBackgroundThread { steamService?.disconnect() }
     }
 }

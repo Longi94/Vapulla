@@ -3,12 +3,10 @@ package `in`.dragonbra.vapulla.activity
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.presenter.HomePresenter
 import `in`.dragonbra.vapulla.view.HomeView
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.newTask
 
 class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView {
 
@@ -36,13 +34,19 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView {
 
     override fun onOptionsItemSelected(item: MenuItem?) = when (item?.itemId) {
         R.id.logOut -> {
-            presenter.logOut()
+            presenter.disconnect()
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun showLoginScreen() {
-        runOnUiThread { startActivity(intentFor<LoginActivity>().newTask().clearTask()) }
+    override fun closeApp() {
+        runOnUiThread {
+            val intent = Intent(Intent.ACTION_MAIN)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.addCategory(Intent.CATEGORY_HOME)
+            startActivity(intent)
+            finish()
+        }
     }
 }

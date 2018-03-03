@@ -2,10 +2,10 @@ package `in`.dragonbra.vapulla.presenter
 
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.view.LoginView
 import android.content.ComponentName
@@ -25,9 +25,9 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
 
     private val subs: MutableList<Closeable?> = LinkedList()
 
-    private var username: String? = null
+    private val logOnDetails = LogOnDetails()
 
-    private var password: String? = null
+    private val account = AccountManager(context)
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -48,6 +48,13 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
             subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
             subs.add(steamService?.subscribe<LoggedOnCallback>({ onLoggedOn(it) }))
 
+            if (account.hasLoginKey()) {
+                logOnDetails.username = account.username
+                logOnDetails.password = null
+                logOnDetails.loginKey = account.loginKey
+                startSteamService()
+            }
+
             bound = true
         }
     }
@@ -62,12 +69,7 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
     }
 
     private fun onConnected() {
-        val details = LogOnDetails()
-        details.username = username
-        details.password = password
-        details.isShouldRememberPassword = true
-
-        steamService?.getHandler<SteamUser>()?.logOn(details)
+        steamService?.logOn(logOnDetails)
 
         ifViewAttached {
             it.showLoading("Logging in...")
@@ -84,19 +86,28 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
                 // TODO SteamGuard
             } else {
                 warn { "Failed to log in ${callback.result}" }
+                ifViewAttached {
+                    it.onDisconnected()
+                }
                 return
             }
         }
 
         ifViewAttached {
+            account.username = logOnDetails.username
             it.loginSuccess()
         }
     }
 
     fun login(username: String, password: String) {
-        this.username = username
-        this.password = password
+        logOnDetails.username = username
+        logOnDetails.password = password
+        logOnDetails.loginKey = null
 
+        startSteamService()
+    }
+
+    private fun startSteamService() {
         info("Starting steam service...")
         context.startService<SteamService>()
 
@@ -109,5 +120,6 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
         } else {
             onConnected()
         }
+
     }
 }

@@ -1,6 +1,12 @@
 package `in`.dragonbra.vapulla.service
 
+import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoginKeyCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.UpdateMachineAuthCallback
 import `in`.dragonbra.javasteam.steam.steamclient.SteamClient
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
@@ -8,6 +14,7 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.manager.AccountManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
@@ -35,19 +42,10 @@ class SteamService : Service(), AnkoLogger {
 
     private val subscriptions: MutableList<Closeable?> = LinkedList()
 
+    lateinit var account: AccountManager
+
     @Volatile
     private var isRunning: Boolean = false
-
-    private val onDisconnected: Consumer<DisconnectedCallback> = Consumer {
-        info("disconnected from steam")
-        stopForeground(true)
-        isRunning = false
-    }
-
-    private val onConnected: Consumer<ConnectedCallback> = Consumer {
-        info("connected to steam")
-        startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connected to Steam"))
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +56,11 @@ class SteamService : Service(), AnkoLogger {
 
         subscriptions.add(callbackMgr?.subscribe(DisconnectedCallback::class.java, onDisconnected))
         subscriptions.add(callbackMgr?.subscribe(ConnectedCallback::class.java, onConnected))
+        subscriptions.add(callbackMgr?.subscribe(LoggedOnCallback::class.java, onLoggedOn))
+        subscriptions.add(callbackMgr?.subscribe(LoginKeyCallback::class.java, onNewLoginKey))
+        subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
+
+        account = AccountManager(this)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -105,6 +108,18 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
+    fun disconnect() {
+        steamClient?.disconnect()
+    }
+
+    fun logOn(details: LogOnDetails) {
+        details.isShouldRememberPassword = true
+        if (account.hasSentryFile()) {
+            details.sentryFileHash = account.sentry
+        }
+        getHandler<SteamUser>()?.logOn(details)
+    }
+
     inline fun <reified T : ICallbackMsg> subscribe(crossinline callbackFunc: (T) -> Unit):
             Closeable? = callbackMgr?.subscribe(T::class.java, { callbackFunc(it) })
 
@@ -127,4 +142,36 @@ class SteamService : Service(), AnkoLogger {
     fun isRunning(): Boolean = isRunning
 
     inline fun <reified T : ClientMsgHandler> getHandler() = this.steamClient?.getHandler(T::class.java)
+
+    //region Callback handlers
+
+    private val onDisconnected: Consumer<DisconnectedCallback> = Consumer {
+        info("disconnected from steam")
+        stopForeground(true)
+        isRunning = false
+    }
+
+    private val onConnected: Consumer<ConnectedCallback> = Consumer {
+        info("connected to steam")
+        startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connected to Steam"))
+    }
+
+    private val onLoggedOn: Consumer<LoggedOnCallback> = Consumer {
+        if (it.result == EResult.InvalidPassword) {
+            account.loginKey = null
+        }
+    }
+
+    private val onNewLoginKey: Consumer<LoginKeyCallback> = Consumer {
+        info { "received login key" }
+        account.loginKey = it.loginKey
+        account.uniqueId = it.uniqueID
+    }
+
+    private val onUpdateMachineAuth: Consumer<UpdateMachineAuthCallback> = Consumer {
+        info { "received sentry file called ${it.fileName}" }
+        account.sentry = it.data
+    }
+
+    //endregion
 }
