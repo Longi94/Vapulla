@@ -1,13 +1,16 @@
 package `in`.dragonbra.vapulla.activity
 
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.presenter.LoginPresenter
 import `in`.dragonbra.vapulla.view.LoginView
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.newTask
 
 class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginView {
 
@@ -52,6 +55,6 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     }
 
     override fun loginSuccess() {
-        startActivity<HomeActivity>()
+        startActivity(intentFor<HomeActivity>().newTask().clearTask())
     }
 }

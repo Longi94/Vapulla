@@ -6,7 +6,6 @@ import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
-import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.view.LoginView
 import android.content.ComponentName
@@ -45,16 +44,15 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
             val binder = service as SteamService.SteamBinder
             steamService = binder.getService()
 
-            subs.add(steamService?.subscribe(ConnectedCallback::class.java, Consumer { onConnected() }))
-            subs.add(steamService?.subscribe(DisconnectedCallback::class.java, Consumer { onDisconnected() }))
-            subs.add(steamService?.subscribe(LoggedOnCallback::class.java, Consumer { onLoggedOn(it) }))
+            subs.add(steamService?.subscribe<ConnectedCallback>({ onConnected() }))
+            subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
+            subs.add(steamService?.subscribe<LoggedOnCallback>({ onLoggedOn(it) }))
 
             bound = true
         }
     }
 
     fun onStart() {
-        info("Starting steam service...")
         context.bindService(context.intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
     }
 
@@ -99,6 +97,7 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
         this.username = username
         this.password = password
 
+        info("Starting steam service...")
         context.startService<SteamService>()
 
         if (!steamService?.isRunning()!!) {

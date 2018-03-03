@@ -31,7 +31,7 @@ class SteamService : Service(), AnkoLogger {
 
     var steamClient: SteamClient? = null
 
-    private var callbackMgr: CallbackManager? = null
+    var callbackMgr: CallbackManager? = null
 
     private val subscriptions: MutableList<Closeable?> = LinkedList()
 
@@ -105,8 +105,8 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
-    fun <T : ICallbackMsg> subscribe(callbackType: Class<out T>, callbackFunc: Consumer<T>):
-            Closeable? = callbackMgr?.subscribe(callbackType, callbackFunc)
+    inline fun <reified T : ICallbackMsg> subscribe(crossinline callbackFunc: (T) -> Unit):
+            Closeable? = callbackMgr?.subscribe(T::class.java, { callbackFunc(it) })
 
     private val steamThread: Runnable = Runnable {
         info("Connecting to steam...")
