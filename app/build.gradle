@@ -28,6 +28,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.hannesdorfmann.mosby3:mvp:3.1.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'in.dragonbra:javasteam:1.0.0-SNAPSHOT'
     implementation "org.jetbrains.anko:anko:$anko_version"

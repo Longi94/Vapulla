@@ -103,7 +103,7 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
-    fun <TCallback : ICallbackMsg> subscribe(callbackType: Class<out TCallback>, callbackFunc: Consumer<TCallback>):
+    fun <T : ICallbackMsg> subscribe(callbackType: Class<out T>, callbackFunc: Consumer<T>):
             Closeable? = callbackMgr?.subscribe(callbackType, callbackFunc)
 
     private val steamThread: Runnable = Runnable {
