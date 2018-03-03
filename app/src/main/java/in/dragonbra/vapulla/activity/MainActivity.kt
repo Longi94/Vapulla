@@ -1,123 +1,88 @@
 package `in`.dragonbra.vapulla.activity
 
-import `in`.dragonbra.javasteam.enums.EResult
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
-import `in`.dragonbra.javasteam.steam.steamclient.SteamClient
-import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
-import android.os.AsyncTask
+import `in`.dragonbra.vapulla.service.SteamService
+import android.content.ComponentName
+import android.content.Context
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import android.view.View
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.startService
+import java.io.Closeable
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AnkoLogger {
 
-    companion object {
-        val TAG = MainActivity::class.qualifiedName
+    private var bound = false
+
+    private var steamService: SteamService? = null;
+
+    private val subs: MutableList<Closeable?> = LinkedList();
+
+    private val connection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            info("Unbound from Steam service")
+
+            subs.forEach { it?.close() }
+
+            bound = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            info("Bound to Steam service")
+            val binder = service as SteamService.SteamBinder
+            steamService = binder.getService()
+
+            subs.add(steamService?.subscribe(ConnectedCallback::class.java, Consumer { runOnUiThread { onConnected() } }))
+            subs.add(steamService?.subscribe(DisconnectedCallback::class.java, Consumer { runOnUiThread { onDisconnected() } }))
+
+            if (!steamService?.isRunning()!!) {
+                steamService?.connect()
+            } else {
+                onConnected()
+            }
+
+            bound = true
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        login.setOnClickListener({
-            login()
-        })
+        info("Starting steam service...")
+        startService<SteamService>()
     }
 
-    private fun login() {
-        ConnectTask(username.text.toString(), password.text.toString()).execute()
+    override fun onStart() {
+        super.onStart()
+        bindService(intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
     }
 
-    private class ConnectTask(val username: String, val password: String) : AsyncTask<Void, Void, Void>() {
-        private var steamUser: SteamUser? = null
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
+        bound = false
+    }
 
-        private var isRunning: Boolean = false
+    fun onConnected() {
+        loading_layout.visibility = View.GONE
+        username.visibility = View.VISIBLE
+        password.visibility = View.VISIBLE
+        login.visibility = View.VISIBLE
+    }
 
-        override fun doInBackground(vararg params: Void?): Void? {
-
-            // create our steamclient instance
-            val steamClient = SteamClient()
-
-            // create the callback manager which will route callbacks to function calls
-            val manager = CallbackManager(steamClient)
-
-            // get the steamuser handler, which is used for logging on after successfully connecting
-            steamUser = steamClient.getHandler(SteamUser::class.java)
-
-            // register a few callbacks we're interested in
-            // these are registered upon creation to a callback manager, which will then route the callbacks
-            // to the functions specified
-            manager.subscribe(ConnectedCallback::class.java, this::onConnected)
-            manager.subscribe(DisconnectedCallback::class.java, this::onDisconnected)
-
-            manager.subscribe(LoggedOnCallback::class.java, this::onLoggedOn)
-            manager.subscribe(LoggedOffCallback::class.java, this::onLoggedOff)
-
-            isRunning = true
-
-            Log.d(TAG, "Connecting to steam...")
-
-            // initiate the connection
-            steamClient.connect()
-
-            // create our callback handling loop
-            while (isRunning) {
-                // in order for the callbacks to get routed, they need to be handled by the manager
-                manager.runWaitCallbacks(1000L)
-            }
-
-            return null
-        }
-
-        private fun onConnected(callback: ConnectedCallback) {
-            Log.d(TAG, "Connected to Steam! Logging in ${username}...")
-
-            val details = LogOnDetails()
-            details.username = username
-            details.password = password
-
-            steamUser?.logOn(details)
-        }
-
-        private fun onDisconnected(callback: DisconnectedCallback) {
-            Log.d(TAG, "Disconnected from Steam")
-            isRunning = false
-        }
-
-        private fun onLoggedOn(callback: LoggedOnCallback) {
-            if (callback.result != EResult.OK) {
-                if (callback.result == EResult.AccountLogonDenied) {
-                    // if we recieve AccountLogonDenied or one of it's flavors (AccountLogonDeniedNoMailSent, etc)
-                    // then the account we're logging into is SteamGuard protected
-                    // see sample 5 for how SteamGuard can be handled
-                    println("Unable to logon to Steam: This account is SteamGuard protected.")
-                    isRunning = false
-                    return
-                }
-
-                println("Unable to logon to Steam: " + callback.result)
-                isRunning = false
-                return
-
-            }
-            println("Successfully logged on!")
-
-            // at this point, we'd be able to perform actions on Steam
-
-            // for this sample we'll just log off
-            steamUser?.logOff()
-        }
-
-        private fun onLoggedOff(callback: LoggedOffCallback) {
-            Log.d(TAG, "Logged off of Steam: " + callback.result)
-            isRunning = false
-        }
+    fun onDisconnected() {
+        Toast.makeText(this, "Disconnected from Steam", Toast.LENGTH_LONG).show()
     }
 }
