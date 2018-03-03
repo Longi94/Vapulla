@@ -1,5 +1,6 @@
 package `in`.dragonbra.vapulla.service
 
+import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.steamclient.SteamClient
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
@@ -28,7 +29,7 @@ class SteamService : Service(), AnkoLogger {
 
     private val binder: SteamBinder = SteamBinder()
 
-    private var steamClient: SteamClient? = null
+    var steamClient: SteamClient? = null
 
     private var callbackMgr: CallbackManager? = null
 
@@ -75,6 +76,7 @@ class SteamService : Service(), AnkoLogger {
         super.onDestroy()
         info("onDestroy")
         subscriptions.forEach { it?.close() }
+        subscriptions.clear()
         steamClient?.disconnect()
     }
 
@@ -123,4 +125,6 @@ class SteamService : Service(), AnkoLogger {
     }
 
     fun isRunning(): Boolean = isRunning
+
+    inline fun <reified T : ClientMsgHandler> getHandler() = this.steamClient?.getHandler(T::class.java)
 }

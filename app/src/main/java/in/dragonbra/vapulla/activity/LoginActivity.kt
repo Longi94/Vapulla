@@ -6,15 +6,16 @@ import `in`.dragonbra.vapulla.view.LoginView
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import com.hannesdorfmann.mosby3.mvp.MvpActivity
-import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.AnkoLogger
+import kotlinx.android.synthetic.main.activity_login.*
+import org.jetbrains.anko.startActivity
 
-class LoginActivity : MvpActivity<LoginView, LoginPresenter>(), LoginView, AnkoLogger {
+class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_login)
+
+        login.click { presenter.login(username.text.toString(), password.text.toString()) }
     }
 
     override fun onStart() {
@@ -29,16 +30,28 @@ class LoginActivity : MvpActivity<LoginView, LoginPresenter>(), LoginView, AnkoL
 
     override fun createPresenter(): LoginPresenter = LoginPresenter(this)
 
-    override fun showLoginScreen() {
+    override fun onDisconnected() {
+        Toast.makeText(this, "Disconnected from Steam", Toast.LENGTH_LONG).show()
+
         runOnUiThread {
-            loading_layout.visibility = View.GONE
+            loadingLayout.visibility = View.GONE
             username.visibility = View.VISIBLE
             password.visibility = View.VISIBLE
             login.visibility = View.VISIBLE
         }
     }
 
-    override fun onDisconnected() {
-        Toast.makeText(this, "Disconnected from Steam", Toast.LENGTH_LONG).show()
+    override fun showLoading(text: String) {
+        runOnUiThread {
+            loadingLayout.visibility = View.VISIBLE
+            loadingText.text = text
+            username.visibility = View.GONE
+            password.visibility = View.GONE
+            login.visibility = View.GONE
+        }
+    }
+
+    override fun loginSuccess() {
+        startActivity<HomeActivity>()
     }
 }
