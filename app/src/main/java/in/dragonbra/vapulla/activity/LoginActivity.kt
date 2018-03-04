@@ -34,9 +34,8 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     override fun createPresenter(): LoginPresenter = LoginPresenter(this)
 
     override fun onDisconnected() {
-        Toast.makeText(this, "Disconnected from Steam", Toast.LENGTH_LONG).show()
-
         runOnUiThread {
+            Toast.makeText(this, "Disconnected from Steam", Toast.LENGTH_LONG).show()
             loadingLayout.visibility = View.GONE
             username.visibility = View.VISIBLE
             password.visibility = View.VISIBLE

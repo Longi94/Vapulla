@@ -4,6 +4,7 @@ import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoginKeyCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.UpdateMachineAuthCallback
@@ -45,7 +46,10 @@ class SteamService : Service(), AnkoLogger {
     lateinit var account: AccountManager
 
     @Volatile
-    private var isRunning: Boolean = false
+    var isRunning: Boolean = false
+
+    @Volatile
+    var isLoggedIn: Boolean = false
 
     override fun onCreate() {
         super.onCreate()
@@ -57,6 +61,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(DisconnectedCallback::class.java, onDisconnected))
         subscriptions.add(callbackMgr?.subscribe(ConnectedCallback::class.java, onConnected))
         subscriptions.add(callbackMgr?.subscribe(LoggedOnCallback::class.java, onLoggedOn))
+        subscriptions.add(callbackMgr?.subscribe(LoggedOffCallback::class.java, onLoggedOff))
         subscriptions.add(callbackMgr?.subscribe(LoginKeyCallback::class.java, onNewLoginKey))
         subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
 
@@ -113,6 +118,9 @@ class SteamService : Service(), AnkoLogger {
     }
 
     fun logOn(details: LogOnDetails) {
+        if (isLoggedIn) {
+            return
+        }
         details.isShouldRememberPassword = true
         if (account.hasSentryFile()) {
             details.sentryFileHash = account.sentry
@@ -139,8 +147,6 @@ class SteamService : Service(), AnkoLogger {
         fun getService(): SteamService = this@SteamService
     }
 
-    fun isRunning(): Boolean = isRunning
-
     inline fun <reified T : ClientMsgHandler> getHandler() = this.steamClient?.getHandler(T::class.java)
 
     //region Callback handlers
@@ -149,6 +155,7 @@ class SteamService : Service(), AnkoLogger {
         info("disconnected from steam")
         stopForeground(true)
         isRunning = false
+        isLoggedIn = false
     }
 
     private val onConnected: Consumer<ConnectedCallback> = Consumer {
@@ -157,9 +164,16 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private val onLoggedOn: Consumer<LoggedOnCallback> = Consumer {
-        if (it.result == EResult.InvalidPassword) {
-            account.loginKey = null
+        when (it.result) {
+            EResult.OK -> isLoggedIn = true
+            EResult.InvalidPassword -> account.loginKey = null
+            else -> {
+            }
         }
+    }
+
+    private val onLoggedOff: Consumer<LoggedOffCallback> = Consumer {
+        steamClient?.disconnect()
     }
 
     private val onNewLoginKey: Consumer<LoginKeyCallback> = Consumer {

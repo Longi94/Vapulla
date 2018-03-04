@@ -7,6 +7,7 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
+import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.LoginView
 import android.content.ComponentName
 import android.content.Context
@@ -69,7 +70,16 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
     }
 
     private fun onConnected() {
-        steamService?.logOn(logOnDetails)
+        if (steamService?.isLoggedIn!!) {
+            ifViewAttached {
+                it.loginSuccess()
+            }
+            return
+        }
+
+        runOnBackgroundThread {
+            steamService?.logOn(logOnDetails)
+        }
 
         ifViewAttached {
             it.showLoading("Logging in...")
@@ -111,7 +121,7 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
         info("Starting steam service...")
         context.startService<SteamService>()
 
-        if (!steamService?.isRunning()!!) {
+        if (!steamService?.isRunning!!) {
             steamService?.connect()
 
             ifViewAttached {
