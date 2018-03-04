@@ -12,7 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.LoginActivity">
+        <activity
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,12 +22,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.HomeActivity"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".service.SteamService"
             android:enabled="true"
             android:exported="false" />
-
-        <activity android:name=".activity.HomeActivity"></activity>
     </application>
 
 </manifest>

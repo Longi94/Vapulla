@@ -11,10 +11,15 @@ import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
+import javax.inject.Inject
 
 class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginView {
 
+    @Inject
+    lateinit var loginPresenter: LoginPresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        vapulla().graph.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
@@ -31,7 +36,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         presenter.onStop()
     }
 
-    override fun createPresenter(): LoginPresenter = LoginPresenter(this)
+    override fun createPresenter(): LoginPresenter = loginPresenter
 
     override fun onDisconnected() {
         runOnUiThread {

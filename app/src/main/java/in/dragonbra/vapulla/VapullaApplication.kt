@@ -1,6 +1,11 @@
 package `in`.dragonbra.vapulla
 
 import `in`.dragonbra.javasteam.util.log.LogManager
+import `in`.dragonbra.vapulla.component.DaggerVapullaComponent
+import `in`.dragonbra.vapulla.component.VapullaComponent
+import `in`.dragonbra.vapulla.module.AppModule
+import `in`.dragonbra.vapulla.module.PresenterModule
+import `in`.dragonbra.vapulla.module.StorageModule
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
@@ -9,10 +14,9 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 
-/**
- * Created by lngtr on 2018-03-02.
- */
 class VapullaApplication : Application() {
+
+    lateinit var graph: VapullaComponent
 
     @SuppressLint("NewApi")
     override fun onCreate() {
@@ -32,5 +36,11 @@ class VapullaApplication : Application() {
             channel.lightColor = 0
             notificationManager.createNotificationChannel(channel)
         }
+
+        graph = DaggerVapullaComponent.builder()
+                .appModule(AppModule(this))
+                .storageModule(StorageModule())
+                .presenterModule(PresenterModule())
+                .build()
     }
 }

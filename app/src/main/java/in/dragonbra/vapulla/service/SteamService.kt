@@ -19,11 +19,11 @@ import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
+import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
-import android.arch.persistence.room.Room
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
@@ -34,6 +34,7 @@ import org.jetbrains.anko.info
 import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.util.*
+import javax.inject.Inject
 
 class SteamService : Service(), AnkoLogger {
 
@@ -49,8 +50,10 @@ class SteamService : Service(), AnkoLogger {
 
     private val subscriptions: MutableList<Closeable?> = LinkedList()
 
+    @Inject
     lateinit var db: VapullaDatabase
 
+    @Inject
     lateinit var account: AccountManager
 
     @Volatile
@@ -60,6 +63,7 @@ class SteamService : Service(), AnkoLogger {
     var isLoggedIn: Boolean = false
 
     override fun onCreate() {
+        vapulla().graph.inject(this)
         super.onCreate()
         info("onCreate")
 
@@ -74,9 +78,6 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
         subscriptions.add(callbackMgr?.subscribe(PersonaStatesCallback::class.java, onPersonaState))
         subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
-
-        account = AccountManager(this)
-        db = Room.databaseBuilder(applicationContext, VapullaDatabase::class.java, VapullaDatabase.DATABASE_NAME).build()
     }
 
     override fun onBind(intent: Intent): IBinder? {

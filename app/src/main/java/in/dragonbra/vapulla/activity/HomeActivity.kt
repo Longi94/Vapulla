@@ -7,15 +7,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import javax.inject.Inject
 
 class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView {
 
+    @Inject
+    lateinit var homePresenter: HomePresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        vapulla().graph.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
     }
 
-    override fun createPresenter(): HomePresenter = HomePresenter(this)
+    override fun createPresenter(): HomePresenter = homePresenter
 
     override fun onStart() {
         super.onStart()

@@ -1,6 +1,7 @@
 package `in`.dragonbra.vapulla.presenter
 
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -16,7 +17,8 @@ import org.jetbrains.anko.intentFor
 import java.io.Closeable
 import java.util.*
 
-class HomePresenter(val context: Context) : MvpBasePresenter<HomeView>(), AnkoLogger {
+class HomePresenter(val context: Context,
+                    val steamFriendDao: SteamFriendDao) : MvpBasePresenter<HomeView>(), AnkoLogger {
 
     private var bound = false
 

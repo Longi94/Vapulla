@@ -101,6 +101,7 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
                 }
                 return
             }
+            steamService?.disconnect()
         }
 
         ifViewAttached {
