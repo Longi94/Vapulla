@@ -6,4 +6,14 @@
     android:layout_height="match_parent"
     tools:context="in.dragonbra.vapulla.activity.HomeActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/friendList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/list_friend" />
+
 </android.support.constraint.ConstraintLayout>

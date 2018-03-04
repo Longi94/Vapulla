@@ -26,16 +26,6 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         login.click { presenter.login(username.text.toString(), password.text.toString()) }
     }
 
-    override fun onStart() {
-        super.onStart()
-        presenter.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        presenter.onStop()
-    }
-
     override fun createPresenter(): LoginPresenter = loginPresenter
 
     override fun onDisconnected() {

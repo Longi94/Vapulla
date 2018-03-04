@@ -13,12 +13,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
-import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter
 import org.jetbrains.anko.*
 import java.io.Closeable
 import java.util.*
 
-class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), AnkoLogger {
+class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>(), AnkoLogger {
 
     private var bound = false
 
@@ -60,11 +59,11 @@ class LoginPresenter(val context: Context) : MvpBasePresenter<LoginView>(), Anko
         }
     }
 
-    fun onStart() {
+    override fun onStart() {
         context.bindService(context.intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
     }
 
-    fun onStop() {
+    override fun onStop() {
         context.unbindService(connection)
         bound = false
     }
