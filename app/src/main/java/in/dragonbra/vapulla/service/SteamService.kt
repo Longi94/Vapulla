@@ -2,6 +2,8 @@ package `in`.dragonbra.vapulla.service
 
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendsListCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.PersonaStatesCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
@@ -15,10 +17,13 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.data.VapullaDatabase
+import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.manager.AccountManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
+import android.arch.persistence.room.Room
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
@@ -26,6 +31,7 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
+import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.util.*
 
@@ -42,6 +48,8 @@ class SteamService : Service(), AnkoLogger {
     var callbackMgr: CallbackManager? = null
 
     private val subscriptions: MutableList<Closeable?> = LinkedList()
+
+    lateinit var db: VapullaDatabase
 
     lateinit var account: AccountManager
 
@@ -64,8 +72,11 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(LoggedOffCallback::class.java, onLoggedOff))
         subscriptions.add(callbackMgr?.subscribe(LoginKeyCallback::class.java, onNewLoginKey))
         subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
+        subscriptions.add(callbackMgr?.subscribe(PersonaStatesCallback::class.java, onPersonaState))
+        subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
 
         account = AccountManager(this)
+        db = Room.databaseBuilder(applicationContext, VapullaDatabase::class.java, VapullaDatabase.DATABASE_NAME).build()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -185,6 +196,57 @@ class SteamService : Service(), AnkoLogger {
     private val onUpdateMachineAuth: Consumer<UpdateMachineAuthCallback> = Consumer {
         info { "received sentry file called ${it.fileName}" }
         account.sentry = it.data
+    }
+
+    private val onPersonaState: Consumer<PersonaStatesCallback> = Consumer {
+        it.personaStates.forEach {
+            if (it.friendID == steamClient?.steamID) {
+                account.saveLocalUser(it)
+                return@Consumer
+            }
+
+            val dao = db.steamFriendDao()
+
+            var friend = dao.find(it.friendID.convertToUInt64())
+            var update: Boolean = true;
+
+            if (friend == null) {
+                friend = SteamFriend(it.friendID.convertToUInt64())
+                update = false
+            }
+
+            val avatarHash = Hex.toHexString(it.avatarHash)
+
+            friend.name = it.name
+            friend.avatar = avatarHash
+            friend.state = it.state.code()
+            friend.gameName = it.gameName
+            friend.lastLogOn = it.lastLogOn.time
+            friend.lastLogOff = it.lastLogOff.time
+
+            if (update) {
+                dao.update(friend)
+            } else {
+                dao.insert(friend)
+            }
+        }
+    }
+
+    private val onFriendsList: Consumer<FriendsListCallback> = Consumer {
+        val dao = db.steamFriendDao()
+        it.friendList.forEach {
+            var friend = dao.find(it.steamID.convertToUInt64())
+
+            if (friend == null) {
+                friend = SteamFriend(it.steamID.convertToUInt64())
+                friend.relation = it.relationship.code()
+                dao.insert(friend)
+            } else {
+                friend.relation = it.relationship.code()
+                dao.update(friend)
+            }
+
+        }
     }
 
     //endregion

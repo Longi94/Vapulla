@@ -1,8 +1,10 @@
 package `in`.dragonbra.vapulla.manager
 
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import org.spongycastle.util.encoders.Hex
 import java.io.*
 
 class AccountManager(private val context: Context) {
@@ -11,6 +13,8 @@ class AccountManager(private val context: Context) {
         private const val KEY_LOGIN_KEY = "account_login_key"
         private const val KEY_UNIQUE_ID = "account_unique_id"
         private const val KEY_USERNAME = "account_username"
+        private const val KEY_AVATAR_HASH = "account_avatar_hash"
+        private const val KEY_STEAM_ID = "account_avatar_hash"
 
         private const val SENTRY_FILE_NAME = "sentry.bin"
     }
@@ -31,6 +35,14 @@ class AccountManager(private val context: Context) {
         get() = prefs.getString(KEY_USERNAME, null)
         set(value) = editor.putString(KEY_USERNAME, value).apply()
 
+    var steamId: Long
+        get() = prefs.getLong(KEY_STEAM_ID, 0L)
+        set(value) = editor.putLong(KEY_STEAM_ID, value).apply()
+
+    var avatarHash: String?
+        get() = prefs.getString(KEY_AVATAR_HASH, null)
+        set(value) = editor.putString(KEY_AVATAR_HASH, value).apply()
+
     var sentry: ByteArray
         get() = readSentryFile()
         set(value) {
@@ -46,6 +58,8 @@ class AccountManager(private val context: Context) {
         editor.remove(KEY_LOGIN_KEY)
                 .remove(KEY_UNIQUE_ID)
                 .remove(KEY_USERNAME)
+                .remove(KEY_STEAM_ID)
+                .remove(KEY_AVATAR_HASH)
                 .apply()
     }
 
@@ -62,5 +76,11 @@ class AccountManager(private val context: Context) {
         bis.read(bytes)
 
         return bytes
+    }
+
+    fun saveLocalUser(state: PersonaState) {
+        avatarHash = Hex.toHexString(state.avatarHash)
+        username = state.name
+        steamId = state.friendID.convertToUInt64()
     }
 }
