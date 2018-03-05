@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0c5f00361fe14d560d9d378dbfcce743",
+    "identityHash": "d66eb60d4399571747ea4d8fd6d2a143",
     "entities": [
       {
         "tableName": "steam_friend",
@@ -65,11 +65,67 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "chat_message",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`message` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `friend_id` INTEGER NOT NULL, `from_local` INTEGER NOT NULL, `delivered` INTEGER NOT NULL, PRIMARY KEY(`message`, `timestamp`, `friend_id`, `from_local`))",
+        "fields": [
+          {
+            "fieldPath": "message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "friendId",
+            "columnName": "friend_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromLocal",
+            "columnName": "from_local",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "delivered",
+            "columnName": "delivered",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "message",
+            "timestamp",
+            "friend_id",
+            "from_local"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_chat_message_friend_id",
+            "unique": false,
+            "columnNames": [
+              "friend_id"
+            ],
+            "createSql": "CREATE  INDEX `index_chat_message_friend_id` ON `${TABLE_NAME}` (`friend_id`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0c5f00361fe14d560d9d378dbfcce743\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"d66eb60d4399571747ea4d8fd6d2a143\")"
     ]
   }
 }

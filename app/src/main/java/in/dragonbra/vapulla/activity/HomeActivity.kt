@@ -19,9 +19,10 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
+import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
-class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, PopupMenu.OnMenuItemClickListener {
+class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, PopupMenu.OnMenuItemClickListener, FriendListAdapter.OnItemSelectedListener {
 
     @Inject
     lateinit var homePresenter: HomePresenter
@@ -34,6 +35,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         setContentView(R.layout.activity_home)
 
         friendListAdapter = FriendListAdapter(this)
+        friendListAdapter.listener = this
 
         friendList.layoutManager = LinearLayoutManager(this)
         friendList.adapter = friendListAdapter
@@ -89,6 +91,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
                     .apply(Utils.avatarOptions)
                     .into(localAvatar)
         }
+    }
+
+    override fun onItemSelected(friend: SteamFriend) {
+        startActivity<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friend.id)
     }
 
     fun changeStatus(v: View) {

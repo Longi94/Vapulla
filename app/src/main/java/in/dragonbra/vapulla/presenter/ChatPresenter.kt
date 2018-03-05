@@ -1,17 +1,18 @@
 package `in`.dragonbra.vapulla.presenter
 
-import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
-import `in`.dragonbra.vapulla.activity.HomeActivity
-import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
-import `in`.dragonbra.vapulla.data.entity.SteamFriend
-import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.vapulla.activity.ChatActivity
+import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
+import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
-import `in`.dragonbra.vapulla.view.HomeView
+import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
+import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
@@ -21,9 +22,9 @@ import org.jetbrains.anko.intentFor
 import java.io.Closeable
 import java.util.*
 
-class HomePresenter(val context: Context,
-                    val steamFriendDao: SteamFriendDao,
-                    val account: AccountManager) : VapullaPresenter<HomeView>(), AccountManager.AccountManagerListener {
+class ChatPresenter(val context: Context,
+                    val chatMessageDao: ChatMessageDao,
+                    val steamId: SteamID) : VapullaPresenter<ChatView>(), Observer<PagedList<ChatMessage>> {
 
     private var bound = false
 
@@ -31,7 +32,7 @@ class HomePresenter(val context: Context,
 
     private val subs: MutableList<Closeable?> = LinkedList()
 
-    private var friendsData: LiveData<List<SteamFriend>>? = null
+    private var chatData: LiveData<PagedList<ChatMessage>>? = null
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -51,12 +52,8 @@ class HomePresenter(val context: Context,
             subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
 
             bound = true
-        }
-    }
 
-    private fun onDisconnected() {
-        ifViewAttached {
-            it.closeApp()
+            getMessageHistory()
         }
     }
 
@@ -70,37 +67,29 @@ class HomePresenter(val context: Context,
     }
 
     override fun onResume() {
-        friendsData = steamFriendDao.getAllObservable()
-        friendsData?.observe(view as HomeActivity, dataObserver)
+        if (bound) {
+            getMessageHistory()
+        }
 
-        account.addListener(this)
+        chatData = LivePagedListBuilder(chatMessageDao.findLivePaged(steamId.convertToUInt64()), 50).build()
+        chatData?.observe(view as ChatActivity, this)
 
-        ifViewAttached {
-            it.showAccount(account)
-            it.showFriends(friendsData?.value)
+        ifViewAttached { it.showChat(chatData?.value) }
+    }
+
+    override fun onChanged(t: PagedList<ChatMessage>?) {
+        ifViewAttached { it.showChat(t) }
+    }
+
+    fun getMessageHistory() {
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.requestMessageHistory(steamId)
         }
     }
 
-    override fun onPause() {
-        friendsData?.removeObserver(dataObserver)
-        account.removeListener(this)
-    }
-
-    override fun unAccountUpdate(account: AccountManager) {
-        ifViewAttached { it.showAccount(account) }
-    }
-
-    val dataObserver: Observer<List<SteamFriend>> = Observer { list ->
-        ifViewAttached { it.showFriends(list!!) }
-    }
-
-    fun disconnect() {
-        runOnBackgroundThread { steamService?.disconnect() }
-    }
-
-    fun changeStatus(state: EPersonaState) {
-        if (account.state != state) {
-            runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.personaState = state }
+    private fun onDisconnected() {
+        ifViewAttached {
+            it.closeApp()
         }
     }
 }

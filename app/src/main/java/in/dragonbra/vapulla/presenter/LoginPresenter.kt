@@ -15,11 +15,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
-import org.jetbrains.anko.*
+import org.jetbrains.anko.info
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.startService
+import org.jetbrains.anko.warn
 import java.io.Closeable
 import java.util.*
 
-class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>(), AnkoLogger {
+class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
 
     private var bound = false
 

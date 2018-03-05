@@ -2,6 +2,7 @@ package `in`.dragonbra.vapulla.service
 
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgHistoryCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendsListCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.PersonaStatesCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
@@ -18,6 +19,7 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.data.VapullaDatabase
+import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
@@ -78,6 +80,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
         subscriptions.add(callbackMgr?.subscribe(PersonaStatesCallback::class.java, onPersonaState))
         subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
+        subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistoryCallback))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -247,6 +250,24 @@ class SteamService : Service(), AnkoLogger {
                 dao.update(friend)
             }
 
+        }
+    }
+
+    private val onFriendMsgHistoryCallback: Consumer<FriendMsgHistoryCallback> = Consumer { cb ->
+        cb.messages.forEach {
+            val fromLocal = cb.steamID != it.steamID
+            val friendId = cb.steamID.convertToUInt64()
+            val message = db.chatMessageDao().find(it.message, it.timestamp.time, friendId, fromLocal)
+
+            if (message == null) {
+                db.chatMessageDao().insert(ChatMessage(
+                        it.message,
+                        it.timestamp.time,
+                        friendId,
+                        fromLocal,
+                        !it.isUnread
+                ))
+            }
         }
     }
 

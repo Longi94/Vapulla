@@ -23,6 +23,8 @@ class FriendListAdapter(val context: Context) : RecyclerView.Adapter<FriendListA
     val glideOptions = RequestOptions()
             .transform(CircleTransform())
 
+    var listener: OnItemSelectedListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.list_friend, parent, false)
         return ViewHolder(v)
@@ -50,7 +52,13 @@ class FriendListAdapter(val context: Context) : RecyclerView.Adapter<FriendListA
                     .apply(glideOptions)
                     .into(v.avatar)
 
-            v.click { }
+            v.click {
+                listener?.onItemSelected(friend)
+            }
         }
+    }
+
+    interface OnItemSelectedListener {
+        fun onItemSelected(friend: SteamFriend)
     }
 }
