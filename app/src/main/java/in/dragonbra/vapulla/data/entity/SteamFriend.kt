@@ -1,6 +1,7 @@
 package `in`.dragonbra.vapulla.data.entity
 
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.vapulla.util.Utils
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
@@ -21,11 +22,7 @@ data class SteamFriend(
     @Ignore
     constructor(id: Long) : this(id, null, null, null, null, null, null, null)
 
-    fun getAvatarUrl() = if (avatar == null || avatar == "0000000000000000000000000000000000000000") {
-        "http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg"
-    } else {
-        "http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/${avatar?.substring(0, 2)}/${avatar}_full.jpg"
-    }
+    fun getAvatarUrl() = Utils.getAvatarUrl(avatar)
 
     fun getSteamId() = SteamID(id)
 }

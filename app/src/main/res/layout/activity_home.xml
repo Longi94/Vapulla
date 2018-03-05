@@ -6,10 +6,167 @@
     android:layout_height="match_parent"
     tools:context="in.dragonbra.vapulla.activity.HomeActivity">
 
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="72dp">
+
+            <ImageView
+                android:id="@+id/localAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@color/colorPrimary" />
+
+            <TextView
+                android:id="@+id/localUsername"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="88dp"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/statusButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Name" />
+
+            <TextView
+                android:id="@+id/localStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="88dp"
+                app:layout_constraintEnd_toStartOf="@+id/statusButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/localUsername"
+                tools:text="Status" />
+
+            <ImageView
+                android:id="@+id/moreButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_more_vert_white_24dp" />
+
+            <ImageView
+                android:id="@+id/statusButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/moreButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_arrow_drop_down_white_24dp" />
+
+            <LinearLayout
+                android:id="@+id/statusLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="72dp"
+                android:paddingBottom="12dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/onlineButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Online"
+                    android:onClick="changeStatus" />
+
+                <TextView
+                    android:id="@+id/awayButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Away"
+                    android:onClick="changeStatus" />
+
+                <TextView
+                    android:id="@+id/busyButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Busy"
+                    android:onClick="changeStatus" />
+
+                <TextView
+                    android:id="@+id/lookingToPlayButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Looking to Play"
+                    android:onClick="changeStatus" />
+
+                <TextView
+                    android:id="@+id/lookingToTradeButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Looking to Trade"
+                    android:onClick="changeStatus" />
+
+                <TextView
+                    android:id="@+id/offlineButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Offline"
+                    android:onClick="changeStatus"/>
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.design.widget.AppBarLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/friendList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

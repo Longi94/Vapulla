@@ -1,5 +1,6 @@
 package `in`.dragonbra.vapulla.manager
 
+import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import android.content.Context
 import android.content.SharedPreferences
@@ -14,7 +15,8 @@ class AccountManager(private val context: Context) {
         private const val KEY_UNIQUE_ID = "account_unique_id"
         private const val KEY_USERNAME = "account_username"
         private const val KEY_AVATAR_HASH = "account_avatar_hash"
-        private const val KEY_STEAM_ID = "account_avatar_hash"
+        private const val KEY_STEAM_ID = "account_steam_id"
+        private const val KEY_STATE = "account_state"
 
         private const val SENTRY_FILE_NAME = "sentry.bin"
     }
@@ -22,6 +24,8 @@ class AccountManager(private val context: Context) {
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     private val editor: SharedPreferences.Editor = prefs.edit()
+
+    private val listeners = mutableSetOf<AccountManagerListener>()
 
     var loginKey: String?
         get() = prefs.getString(KEY_LOGIN_KEY, null)
@@ -42,6 +46,10 @@ class AccountManager(private val context: Context) {
     var avatarHash: String?
         get() = prefs.getString(KEY_AVATAR_HASH, null)
         set(value) = editor.putString(KEY_AVATAR_HASH, value).apply()
+
+    var state: EPersonaState
+        get() = EPersonaState.from(prefs.getInt(KEY_STATE, 0))
+        set(value) = editor.putInt(KEY_STATE, value.code()).apply()
 
     var sentry: ByteArray
         get() = readSentryFile()
@@ -82,5 +90,18 @@ class AccountManager(private val context: Context) {
         avatarHash = Hex.toHexString(state.avatarHash)
         username = state.name
         steamId = state.friendID.convertToUInt64()
+        this.state = state.state
+
+        listeners.forEach {
+            it.unAccountUpdate(this@AccountManager)
+        }
+    }
+
+    fun addListener(l: AccountManagerListener) = listeners.add(l)
+
+    fun removeListener(l: AccountManagerListener) = listeners.remove(l)
+
+    interface AccountManagerListener {
+        fun unAccountUpdate(account: AccountManager)
     }
 }

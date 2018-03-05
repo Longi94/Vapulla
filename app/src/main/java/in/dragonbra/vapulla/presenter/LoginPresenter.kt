@@ -1,6 +1,8 @@
 package `in`.dragonbra.vapulla.presenter
 
+import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.enums.EResult
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
@@ -98,9 +100,13 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>(), Anko
                 ifViewAttached {
                     it.onDisconnected()
                 }
-                return
             }
             steamService?.disconnect()
+            return
+        }
+
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.personaState = EPersonaState.Online
         }
 
         ifViewAttached {

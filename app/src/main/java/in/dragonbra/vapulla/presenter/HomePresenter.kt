@@ -1,5 +1,7 @@
 package `in`.dragonbra.vapulla.presenter
 
+import `in`.dragonbra.javasteam.enums.EPersonaState
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
@@ -21,15 +23,14 @@ import java.io.Closeable
 import java.util.*
 
 class HomePresenter(val context: Context,
-                    val steamFriendDao: SteamFriendDao) : VapullaPresenter<HomeView>(), AnkoLogger {
+                    val steamFriendDao: SteamFriendDao,
+                    val account: AccountManager) : VapullaPresenter<HomeView>(), AnkoLogger, AccountManager.AccountManagerListener {
 
     private var bound = false
 
     private var steamService: SteamService? = null
 
     private val subs: MutableList<Closeable?> = LinkedList()
-
-    private val account = AccountManager(context)
 
     private var friendsData: LiveData<List<SteamFriend>>? = null
 
@@ -73,11 +74,21 @@ class HomePresenter(val context: Context,
         friendsData = steamFriendDao.getAllObservable()
         friendsData?.observe(view as HomeActivity, dataObserver)
 
-        ifViewAttached { it.showFriends(friendsData?.value) }
+        account.addListener(this)
+
+        ifViewAttached {
+            it.showAccount(account)
+            it.showFriends(friendsData?.value)
+        }
     }
 
     override fun onPause() {
         friendsData?.removeObserver(dataObserver)
+        account.removeListener(this)
+    }
+
+    override fun unAccountUpdate(account: AccountManager) {
+        ifViewAttached { it.showAccount(account) }
     }
 
     val dataObserver: Observer<List<SteamFriend>> = Observer { list ->
@@ -86,5 +97,11 @@ class HomePresenter(val context: Context,
 
     fun disconnect() {
         runOnBackgroundThread { steamService?.disconnect() }
+    }
+
+    fun changeStatus(state: EPersonaState) {
+        if (account.state != state) {
+            runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.personaState = state }
+        }
     }
 }
