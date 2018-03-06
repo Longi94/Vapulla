@@ -3,7 +3,7 @@ package `in`.dragonbra.vapulla.activity
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.FriendListAdapter
-import `in`.dragonbra.vapulla.data.entity.SteamFriend
+import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
@@ -76,7 +76,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
     }
 
-    override fun showFriends(list: List<SteamFriend>?) {
+    override fun showFriends(list: List<FriendListItem>?) {
         friendListAdapter.swap(list)
     }
 
@@ -93,7 +93,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
     }
 
-    override fun onItemSelected(friend: SteamFriend) {
+    override fun onItemSelected(friend: FriendListItem) {
         startActivity<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friend.id)
     }
 

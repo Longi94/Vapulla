@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e0c5eeda9503f21e85fc67b2a2bdd3dc",
+    "identityHash": "2eb758ed92eae68751db82030577bfa9",
     "entities": [
       {
         "tableName": "steam_friend",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER, `state` INTEGER, `game_name` TEXT, `last_log_on` INTEGER, `last_log_off` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER NOT NULL, `state` INTEGER, `game_name` TEXT, `last_log_on` INTEGER NOT NULL, `last_log_off` INTEGER NOT NULL, `state_flags` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -30,7 +30,7 @@
             "fieldPath": "relation",
             "columnName": "relation",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "state",
@@ -48,13 +48,19 @@
             "fieldPath": "lastLogOn",
             "columnName": "last_log_on",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "lastLogOff",
             "columnName": "last_log_off",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateFlags",
+            "columnName": "state_flags",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -134,7 +140,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e0c5eeda9503f21e85fc67b2a2bdd3dc\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2eb758ed92eae68751db82030577bfa9\")"
     ]
   }
 }

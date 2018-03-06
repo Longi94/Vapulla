@@ -1,6 +1,7 @@
 package `in`.dragonbra.vapulla.service
 
 import `in`.dragonbra.javasteam.enums.EChatEntryType
+import `in`.dragonbra.javasteam.enums.EPersonaStateFlag
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
@@ -272,6 +273,7 @@ class SteamService : Service(), AnkoLogger {
             friend.gameName = it.gameName
             friend.lastLogOn = it.lastLogOn.time
             friend.lastLogOff = it.lastLogOff.time
+            friend.stateFlags = EPersonaStateFlag.code(it.stateFlags)
 
             if (update) {
                 dao.update(friend)

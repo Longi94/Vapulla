@@ -1,12 +1,9 @@
-package `in`.dragonbra.vapulla.data.entity
+package `in`.dragonbra.vapulla.adapter
 
 import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 
-@Entity(tableName = "steam_friend")
-data class SteamFriend (
+data class FriendListItem(
         @PrimaryKey var id: Long,
         @ColumnInfo(name = "name") var name: String?,
         @ColumnInfo(name = "avatar") var avatar: String?,
@@ -15,8 +12,7 @@ data class SteamFriend (
         @ColumnInfo(name = "game_name") var gameName: String?,
         @ColumnInfo(name = "last_log_on") var lastLogOn: Long,
         @ColumnInfo(name = "last_log_off") var lastLogOff: Long,
-        @ColumnInfo(name = "state_flags") var stateFlags: Int
-) {
-    @Ignore
-    constructor(id: Long) : this(id, null, null, 0, null, null, 0, 0, 0)
-}
+        @ColumnInfo(name = "state_flags") var stateFlags: Int,
+        @ColumnInfo(name = "last_message") var lastMessage: String?,
+        @ColumnInfo(name = "last_message_time") var lastMessageTime: Long?
+)

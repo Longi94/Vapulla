@@ -4,8 +4,8 @@ import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.vapulla.activity.HomeActivity
+import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
-import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -22,8 +22,8 @@ import java.io.Closeable
 import java.util.*
 
 class HomePresenter(val context: Context,
-                    val steamFriendDao: SteamFriendDao,
-                    val account: AccountManager) : VapullaPresenter<HomeView>(), AccountManager.AccountManagerListener {
+                    private val steamFriendDao: SteamFriendDao,
+                    private val account: AccountManager) : VapullaPresenter<HomeView>(), AccountManager.AccountManagerListener {
 
     private var bound = false
 
@@ -31,7 +31,7 @@ class HomePresenter(val context: Context,
 
     private val subs: MutableList<Closeable?> = LinkedList()
 
-    private var friendsData: LiveData<List<SteamFriend>>? = null
+    private var friendsData: LiveData<List<FriendListItem>>? = null
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -77,7 +77,7 @@ class HomePresenter(val context: Context,
             steamService?.isActivityRunning = true
         }
 
-        friendsData = steamFriendDao.getAllObservable()
+        friendsData = steamFriendDao.getLive()
         friendsData?.observe(view as HomeActivity, dataObserver)
 
         account.addListener(this)
@@ -101,8 +101,8 @@ class HomePresenter(val context: Context,
         ifViewAttached { it.showAccount(account) }
     }
 
-    val dataObserver: Observer<List<SteamFriend>> = Observer { list ->
-        ifViewAttached { it.showFriends(list!!) }
+    private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
+        ifViewAttached { it.showFriends(list) }
     }
 
     fun disconnect() {

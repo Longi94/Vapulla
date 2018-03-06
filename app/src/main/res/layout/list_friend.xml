@@ -12,10 +12,18 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@color/colorPrimary" />
+
+    <ImageView
+        android:id="@+id/statusIndicator"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/avatar"
+        app:layout_constraintEnd_toEndOf="@+id/avatar"
+        app:srcCompat="@drawable/status_indicator" />
 
     <TextView
         android:id="@+id/username"
@@ -23,21 +31,38 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="88dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:lines="1"
         android:textColor="@color/textPrimary"
         android:textSize="16sp"
+        app:layout_constraintEnd_toEnd
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Name" />
 
+    <ImageView
+        android:id="@+id/mobileIndicator"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        app:layout_constraintStart_toEndOf="@+id/status"
+        app:layout_constraintTop_toTopOf="@+id/status"
+        app:srcCompat="@drawable/ic_cellphone_grey600_18dp" />
+
+    <ImageView
+        android:id="@+id/webIndicator"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        app:layout_constraintStart_toEndOf="@+id/status"
+        app:layout_constraintTop_toTopOf="@+id/status"
+        app:srcCompat="@drawable/ic_web_grey600_18dp" />
+
     <TextView
         android:id="@+id/status"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="88dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username"
         tools:text="Status" />
@@ -48,6 +73,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="88dp"
+        android:ellipsize="end"
+        android:lines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/status"
