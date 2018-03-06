@@ -18,8 +18,10 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
@@ -27,14 +29,15 @@ import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.info
+import android.support.v4.app.NotificationManagerCompat
+import org.jetbrains.anko.*
 import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.util.*
@@ -60,11 +63,23 @@ class SteamService : Service(), AnkoLogger {
     @Inject
     lateinit var account: AccountManager
 
+    @Inject
+    lateinit var notificationManager: NotificationManagerCompat
+
     @Volatile
     var isRunning: Boolean = false
 
     @Volatile
     var isLoggedIn: Boolean = false
+
+    @Volatile
+    var isActivityRunning: Boolean = false
+
+    /**
+     * id of the friend whose chat is currently open, null if no chat open
+     */
+    @Volatile
+    var chatFriendId: Long? = null
 
     override fun onCreate() {
         vapulla().graph.inject(this)
@@ -144,6 +159,33 @@ class SteamService : Service(), AnkoLogger {
             details.sentryFileHash = account.sentry
         }
         getHandler<SteamUser>()?.logOn(details)
+    }
+
+    private fun postMessageNotification(friendId: SteamID, message: String) {
+        val intent = intentFor<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friendId.convertToUInt64())
+                .newTask().clearTask()
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val friend = db.steamFriendDao().find(friendId.convertToUInt64())
+        val notification = NotificationCompat.Builder(this, "vapulla-message")
+                .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
+                .setContentTitle(friend?.name)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.ic_chat_bubble_white_24dp)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .build()
+
+        notificationManager.notify(friendId.convertToUInt64().toInt(), notification)
+
+        if (isActivityRunning) {
+            // TODO delayed notification remove?
+            //removeNotifications()
+        }
+    }
+
+    fun removeNotifications() {
+        notificationManager.cancelAll()
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(crossinline callbackFunc: (T) -> Unit):
@@ -301,6 +343,10 @@ class SteamService : Service(), AnkoLogger {
                         true,
                         false
                 ))
+
+                if (it.sender.convertToUInt64() != chatFriendId) {
+                    postMessageNotification(it.sender, it.message)
+                }
             }
             else -> {
             }

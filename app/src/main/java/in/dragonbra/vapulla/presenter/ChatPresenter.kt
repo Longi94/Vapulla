@@ -63,6 +63,9 @@ class ChatPresenter(val context: Context,
             subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
 
             bound = true
+            steamService?.removeNotifications()
+            steamService?.isActivityRunning = true
+            steamService?.chatFriendId = steamId.convertToUInt64()
 
             getMessageHistory()
         }
@@ -79,6 +82,9 @@ class ChatPresenter(val context: Context,
 
     override fun onResume() {
         if (bound) {
+            steamService?.removeNotifications()
+            steamService?.isActivityRunning = true
+            steamService?.chatFriendId = steamId.convertToUInt64()
             getMessageHistory()
         }
 
@@ -86,6 +92,14 @@ class ChatPresenter(val context: Context,
         chatData?.observe(view as ChatActivity, this)
 
         ifViewAttached { it.showChat(chatData?.value) }
+    }
+
+    override fun onPause() {
+        if (bound) {
+            steamService?.isActivityRunning = false
+            steamService?.chatFriendId = null
+        }
+
     }
 
     override fun onChanged(t: PagedList<ChatMessage>?) {

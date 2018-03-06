@@ -8,6 +8,7 @@ import `in`.dragonbra.vapulla.module.PresenterModule
 import `in`.dragonbra.vapulla.module.StorageModule
 import android.annotation.SuppressLint
 import android.app.Application
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -28,13 +29,22 @@ class VapullaApplication : Application() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channel = NotificationChannel("vapulla-service",
+            val serviceChannel = NotificationChannel("vapulla-service",
                     "Vapulla",
                     NotificationManager.IMPORTANCE_DEFAULT)
-            channel.vibrationPattern = longArrayOf(-1L)
-            channel.importance = NotificationManager.IMPORTANCE_LOW
-            channel.lightColor = 0
-            notificationManager.createNotificationChannel(channel)
+            serviceChannel.enableVibration(false)
+            serviceChannel.importance = NotificationManager.IMPORTANCE_LOW
+            serviceChannel.enableLights(false)
+            notificationManager.createNotificationChannel(serviceChannel)
+
+
+            val messageChannel = NotificationChannel("vapulla-message", "Vapulla",
+                    NotificationManager.IMPORTANCE_HIGH)
+
+            messageChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            messageChannel.lightColor = 0xffffffff.toInt()
+
+            notificationManager.createNotificationChannel(messageChannel)
         }
 
         graph = DaggerVapullaComponent.builder()

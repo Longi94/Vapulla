@@ -51,6 +51,8 @@ class HomePresenter(val context: Context,
             subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
 
             bound = true
+            steamService?.removeNotifications()
+            steamService?.isActivityRunning = true
         }
     }
 
@@ -70,6 +72,11 @@ class HomePresenter(val context: Context,
     }
 
     override fun onResume() {
+        if (bound) {
+            steamService?.removeNotifications()
+            steamService?.isActivityRunning = true
+        }
+
         friendsData = steamFriendDao.getAllObservable()
         friendsData?.observe(view as HomeActivity, dataObserver)
 
@@ -82,6 +89,10 @@ class HomePresenter(val context: Context,
     }
 
     override fun onPause() {
+        if (bound) {
+            steamService?.isActivityRunning = false
+        }
+
         friendsData?.removeObserver(dataObserver)
         account.removeListener(this)
     }

@@ -1,6 +1,7 @@
 package `in`.dragonbra.vapulla.activity
 
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.ChatAdapter
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
@@ -64,8 +65,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
     fun sendMessage(v: View) {
         val message = messageBox.text.toString()
 
-        messageBox.setText("")
+        if (!Strings.isNullOrEmpty(message)) {
+            messageBox.setText("")
+            presenter.sendMessage(message)
+        }
 
-        presenter.sendMessage(message)
     }
 }
