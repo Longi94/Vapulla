@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2eb758ed92eae68751db82030577bfa9",
+    "identityHash": "738adf4c96f5e3e18c8a8f20cb7ff12d",
     "entities": [
       {
         "tableName": "steam_friend",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER NOT NULL, `state` INTEGER, `game_name` TEXT, `last_log_on` INTEGER NOT NULL, `last_log_off` INTEGER NOT NULL, `state_flags` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER NOT NULL, `state` INTEGER, `game_app_id` INTEGER NOT NULL, `game_name` TEXT, `last_log_on` INTEGER NOT NULL, `last_log_off` INTEGER NOT NULL, `state_flags` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -37,6 +37,12 @@
             "columnName": "state",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "gameAppId",
+            "columnName": "game_app_id",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "gameName",
@@ -140,7 +146,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2eb758ed92eae68751db82030577bfa9\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"738adf4c96f5e3e18c8a8f20cb7ff12d\")"
     ]
   }
 }

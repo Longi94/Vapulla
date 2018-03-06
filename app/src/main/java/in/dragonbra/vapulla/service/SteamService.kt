@@ -271,6 +271,7 @@ class SteamService : Service(), AnkoLogger {
             friend.avatar = avatarHash
             friend.state = it.state.code()
             friend.gameName = it.gameName
+            friend.gameAppId = it.gameAppID
             friend.lastLogOn = it.lastLogOn.time
             friend.lastLogOff = it.lastLogOff.time
             friend.stateFlags = EPersonaStateFlag.code(it.stateFlags)

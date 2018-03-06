@@ -41,7 +41,6 @@
                 android:lines="1"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toEnd
                 app:layout_constraintEnd_toStartOf="@+id/statusButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

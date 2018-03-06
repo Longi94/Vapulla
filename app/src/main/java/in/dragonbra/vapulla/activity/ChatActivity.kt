@@ -12,7 +12,6 @@ import android.arch.paging.PagedList
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.View
 import kotlinx.android.synthetic.main.activity_chat.*
 import javax.inject.Inject
 
@@ -62,7 +61,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
         chatAdapter.submitList(list)
     }
 
-    fun sendMessage(v: View) {
+    fun sendMessage() {
         val message = messageBox.text.toString()
 
         if (!Strings.isNullOrEmpty(message)) {
