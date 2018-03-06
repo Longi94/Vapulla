@@ -19,8 +19,7 @@ interface SteamFriendDao {
     @Query("SELECT " +
             "  sf.*, " +
             "  cm.message as last_message, " +
-            "  cm.timestamp as last_message_time, " +
-            "  ifnull(max(cm.id), 0) as lm " +
+            "  max(cm.timestamp) as last_message_time " +
             "FROM steam_friend sf " +
             "LEFT JOIN chat_message cm " +
             "ON sf.id = cm.friend_id " +
@@ -28,7 +27,9 @@ interface SteamFriendDao {
             "   OR sf.relation = 3 " +
             "GROUP BY sf.id " +
             "ORDER BY relation ASC, " +
-            "         lm DESC, " +
-            "         last_log_on DESC")
+            "         last_message_time IS NULL ASC, " +
+            "         last_message_time DESC, " +
+            "         state = 0 ASC, " +
+            "         name COLLATE NOCASE ASC")
     fun getLive(): LiveData<List<FriendListItem>>
 }

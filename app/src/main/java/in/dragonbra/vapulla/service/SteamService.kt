@@ -1,7 +1,6 @@
 package `in`.dragonbra.vapulla.service
 
 import `in`.dragonbra.javasteam.enums.EChatEntryType
-import `in`.dragonbra.javasteam.enums.EPersonaStateFlag
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
@@ -28,6 +27,7 @@ import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.vapulla.util.PersonaStateBuffer
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -39,7 +39,6 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import org.jetbrains.anko.*
-import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.util.*
 import javax.inject.Inject
@@ -67,6 +66,8 @@ class SteamService : Service(), AnkoLogger {
     @Inject
     lateinit var notificationManager: NotificationManagerCompat
 
+    lateinit var stateBuffer: PersonaStateBuffer
+
     @Volatile
     var isRunning: Boolean = false
 
@@ -87,6 +88,7 @@ class SteamService : Service(), AnkoLogger {
         super.onCreate()
         info("onCreate")
 
+        stateBuffer = PersonaStateBuffer(db.steamFriendDao())
         steamClient = SteamClient()
         callbackMgr = CallbackManager(steamClient)
 
@@ -142,6 +144,7 @@ class SteamService : Service(), AnkoLogger {
 
     fun connect() {
         if (!isRunning) {
+            stateBuffer.start()
             Thread(steamThread, "Steam Thread").start()
             startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connecting to Steam..."))
         }
@@ -217,6 +220,7 @@ class SteamService : Service(), AnkoLogger {
         stopForeground(true)
         isRunning = false
         isLoggedIn = false
+        stateBuffer.stop()
     }
 
     private val onConnected: Consumer<ConnectedCallback> = Consumer {
@@ -259,32 +263,7 @@ class SteamService : Service(), AnkoLogger {
                 return@forEach
             }
 
-            val dao = db.steamFriendDao()
-
-            var friend = dao.find(it.friendID.convertToUInt64())
-            var update = true
-
-            if (friend == null) {
-                friend = SteamFriend(it.friendID.convertToUInt64())
-                update = false
-            }
-
-            val avatarHash = Hex.toHexString(it.avatarHash)
-
-            friend.name = it.name
-            friend.avatar = avatarHash
-            friend.state = it.state.code()
-            friend.gameName = it.gameName
-            friend.gameAppId = it.gameAppID
-            friend.lastLogOn = it.lastLogOn.time
-            friend.lastLogOff = it.lastLogOff.time
-            friend.stateFlags = EPersonaStateFlag.code(it.stateFlags)
-
-            if (update) {
-                dao.update(friend)
-            } else {
-                dao.insert(friend)
-            }
+            stateBuffer.push(it)
         }
     }
 
