@@ -24,6 +24,8 @@ interface SteamFriendDao {
             "FROM steam_friend sf " +
             "LEFT JOIN chat_message cm " +
             "ON sf.id = cm.friend_id " +
+            "WHERE sf.relation = 2 " +
+            "   OR sf.relation = 3 " +
             "GROUP BY sf.id " +
             "ORDER BY relation ASC, " +
             "         lm DESC, " +

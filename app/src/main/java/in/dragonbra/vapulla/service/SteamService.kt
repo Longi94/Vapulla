@@ -250,6 +250,10 @@ class SteamService : Service(), AnkoLogger {
 
     private val onPersonaState: Consumer<PersonaStatesCallback> = Consumer {
         it.personaStates.forEach {
+            if (!it.friendID.isIndividualAccount) {
+                return@forEach
+            }
+
             if (it.friendID == steamClient?.steamID) {
                 account.saveLocalUser(it)
                 return@forEach
@@ -258,7 +262,7 @@ class SteamService : Service(), AnkoLogger {
             val dao = db.steamFriendDao()
 
             var friend = dao.find(it.friendID.convertToUInt64())
-            var update: Boolean = true;
+            var update = true
 
             if (friend == null) {
                 friend = SteamFriend(it.friendID.convertToUInt64())
@@ -287,6 +291,10 @@ class SteamService : Service(), AnkoLogger {
     private val onFriendsList: Consumer<FriendsListCallback> = Consumer {
         val dao = db.steamFriendDao()
         it.friendList.forEach {
+            if (!it.steamID.isIndividualAccount) {
+                return@forEach
+            }
+
             var friend = dao.find(it.steamID.convertToUInt64())
 
             if (friend == null) {

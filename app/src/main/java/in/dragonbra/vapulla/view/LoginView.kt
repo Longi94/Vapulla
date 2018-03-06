@@ -8,4 +8,6 @@ interface LoginView : MvpView {
     fun showLoading(text: String)
 
     fun loginSuccess()
+
+    fun showSteamGuard()
 }

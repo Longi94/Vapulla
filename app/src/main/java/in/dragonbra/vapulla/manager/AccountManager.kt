@@ -14,6 +14,7 @@ class AccountManager(private val context: Context) {
         private const val KEY_LOGIN_KEY = "account_login_key"
         private const val KEY_UNIQUE_ID = "account_unique_id"
         private const val KEY_USERNAME = "account_username"
+        private const val KEY_NICKNAME = "account_nickname"
         private const val KEY_AVATAR_HASH = "account_avatar_hash"
         private const val KEY_STEAM_ID = "account_steam_id"
         private const val KEY_STATE = "account_state"
@@ -38,6 +39,10 @@ class AccountManager(private val context: Context) {
     var username: String?
         get() = prefs.getString(KEY_USERNAME, null)
         set(value) = editor.putString(KEY_USERNAME, value).apply()
+
+    var nickname: String?
+        get() = prefs.getString(KEY_NICKNAME, null)
+        set(value) = editor.putString(KEY_NICKNAME, value).apply()
 
     var steamId: Long
         get() = prefs.getLong(KEY_STEAM_ID, 0L)
@@ -68,6 +73,7 @@ class AccountManager(private val context: Context) {
                 .remove(KEY_USERNAME)
                 .remove(KEY_STEAM_ID)
                 .remove(KEY_AVATAR_HASH)
+                .remove(KEY_NICKNAME)
                 .apply()
     }
 
@@ -88,7 +94,7 @@ class AccountManager(private val context: Context) {
 
     fun saveLocalUser(state: PersonaState) {
         avatarHash = Hex.toHexString(state.avatarHash)
-        username = state.name
+        nickname = state.name
         steamId = state.friendID.convertToUInt64()
         this.state = state.state
 

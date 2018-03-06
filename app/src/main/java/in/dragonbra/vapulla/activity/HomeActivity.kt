@@ -82,7 +82,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
     override fun showAccount(account: AccountManager) {
         runOnUiThread {
-            localUsername.text = account.username
+            localUsername.text = account.nickname
             localStatus.text = account.state.toString()
 
             Glide.with(this@HomeActivity)

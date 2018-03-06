@@ -34,6 +34,10 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
 
     private val account = AccountManager(context)
 
+    private var is2Fa = false
+
+    private var expectSteamGuard = false
+
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             info("Unbound from Steam service")
@@ -91,23 +95,29 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
     }
 
     private fun onDisconnected() {
-        ifViewAttached { it.onDisconnected() }
+        if (!expectSteamGuard) {
+            ifViewAttached { it.onDisconnected() }
+        }
     }
 
     private fun onLoggedOn(callback: LoggedOnCallback) {
         if (callback.result != EResult.OK) {
-            if (callback.result == EResult.AccountLogonDenied) {
-                // TODO SteamGuard
+            if (callback.result == EResult.AccountLogonDenied || callback.result == EResult.AccountLoginDeniedNeedTwoFactor) {
+                is2Fa = callback.result == EResult.AccountLoginDeniedNeedTwoFactor
+                expectSteamGuard = true
+                ifViewAttached {
+                    it.showSteamGuard()
+                }
             } else {
                 warn { "Failed to log in ${callback.result}" }
-                ifViewAttached {
-                    it.onDisconnected()
-                }
+                expectSteamGuard = false
+                ifViewAttached { it.onDisconnected() }
             }
             steamService?.disconnect()
             return
         }
 
+        expectSteamGuard = false
         runOnBackgroundThread {
             steamService?.getHandler<SteamFriends>()?.personaState = EPersonaState.Online
         }
@@ -122,6 +132,16 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
         logOnDetails.username = username
         logOnDetails.password = password
         logOnDetails.loginKey = null
+
+        startSteamService()
+    }
+
+    fun login(steamGuardCode: String) {
+        if (is2Fa) {
+            logOnDetails.twoFactorCode = steamGuardCode
+        } else {
+            logOnDetails.authCode = steamGuardCode
+        }
 
         startSteamService()
     }
