@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d66eb60d4399571747ea4d8fd6d2a143",
+    "identityHash": "e0c5eeda9503f21e85fc67b2a2bdd3dc",
     "entities": [
       {
         "tableName": "steam_friend",
@@ -68,8 +68,14 @@
       },
       {
         "tableName": "chat_message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`message` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `friend_id` INTEGER NOT NULL, `from_local` INTEGER NOT NULL, `delivered` INTEGER NOT NULL, PRIMARY KEY(`message`, `timestamp`, `friend_id`, `from_local`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `friend_id` INTEGER NOT NULL, `from_local` INTEGER NOT NULL, `delivered` INTEGER NOT NULL, `timestamp_confirmed` INTEGER NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "message",
             "columnName": "message",
@@ -99,16 +105,19 @@
             "columnName": "delivered",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "timestampConfirmed",
+            "columnName": "timestamp_confirmed",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "message",
-            "timestamp",
-            "friend_id",
-            "from_local"
+            "id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -125,7 +134,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"d66eb60d4399571747ea4d8fd6d2a143\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e0c5eeda9503f21e85fc67b2a2bdd3dc\")"
     ]
   }
 }

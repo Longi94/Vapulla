@@ -1,5 +1,7 @@
 package `in`.dragonbra.vapulla.presenter
 
+import `in`.dragonbra.javasteam.enums.EChatEntryType
+import `in`.dragonbra.javasteam.enums.EClientPersonaStateFlag
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.types.SteamID
@@ -25,6 +27,15 @@ import java.util.*
 class ChatPresenter(val context: Context,
                     val chatMessageDao: ChatMessageDao,
                     val steamId: SteamID) : VapullaPresenter<ChatView>(), Observer<PagedList<ChatMessage>> {
+
+    companion object {
+        val REQUESTED_INFO = EClientPersonaStateFlag.code(EnumSet.of(
+                EClientPersonaStateFlag.Status,
+                EClientPersonaStateFlag.LastSeen,
+                EClientPersonaStateFlag.PlayerName,
+                EClientPersonaStateFlag.Presence
+        ))
+    }
 
     private var bound = false
 
@@ -90,6 +101,21 @@ class ChatPresenter(val context: Context,
     private fun onDisconnected() {
         ifViewAttached {
             it.closeApp()
+        }
+    }
+
+    fun sendMessage(message: String) {
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.ChatMsg, message)
+
+            chatMessageDao.insert(ChatMessage(
+                    message,
+                    System.currentTimeMillis(),
+                    steamId.convertToUInt64(),
+                    true,
+                    true,
+                    false
+            ))
         }
     }
 }

@@ -11,6 +11,7 @@ import android.arch.paging.PagedList
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import kotlinx.android.synthetic.main.activity_chat.*
 import javax.inject.Inject
 
@@ -35,7 +36,9 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
 
         chatAdapter = ChatAdapter()
 
-        chatList.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.reverseLayout = true
+        chatList.layoutManager = layoutManager
         chatList.adapter = chatAdapter
     }
 
@@ -56,5 +59,13 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
 
     override fun showChat(list: PagedList<ChatMessage>?) {
         chatAdapter.submitList(list)
+    }
+
+    fun sendMessage(v: View) {
+        val message = messageBox.text.toString()
+
+        messageBox.setText("")
+
+        presenter.sendMessage(message)
     }
 }

@@ -29,13 +29,35 @@
         android:id="@+id/chatList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/messageBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:reverseLayout="true"
-        app:stackFromEnd="true"
-        tools:listitem="@layout/list_chat" />
+        tools:listitem="@layout/list_chat_received">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <EditText
+        android:id="@+id/messageBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Type a message..."
+        android:inputType="textCapSentences|textMultiLine"
+        android:maxLines="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/sendButton"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/sendButton"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="11dp"
+        android:onClick="sendMessage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_send_white_24dp" />
 
 </android.support.constraint.ConstraintLayout>

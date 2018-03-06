@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.list_chat.view.*
+import kotlinx.android.synthetic.main.list_chat_received.view.*
 
 /**
  * Created by lngtr on 2018-03-05.
@@ -16,6 +16,8 @@ import kotlinx.android.synthetic.main.list_chat.view.*
 class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     companion object {
+        const val VIEW_TYPE_RECEIVED = 0
+        const val VIEW_TYPE_SENT = 1
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ChatMessage>() {
             override fun areItemsTheSame(oldItem: ChatMessage?, newItem: ChatMessage?): Boolean {
                 return oldItem?.message == newItem?.message &&
@@ -31,7 +33,12 @@ class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_C
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.list_chat, parent, false)
+        val layoutRes = when (viewType) {
+            VIEW_TYPE_RECEIVED -> R.layout.list_chat_received
+            VIEW_TYPE_SENT -> R.layout.list_chat_sent
+            else -> R.layout.list_chat_received
+        }
+        val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
         return ViewHolder(v)
     }
 
@@ -41,6 +48,15 @@ class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_C
             holder.bind(message)
         } else {
             holder.clear()
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        val message = getItem(position)
+        if (message == null || !message.fromLocal) {
+            return VIEW_TYPE_RECEIVED
+        } else {
+            return VIEW_TYPE_SENT
         }
     }
 

@@ -1,7 +1,9 @@
 package `in`.dragonbra.vapulla.service
 
+import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgHistoryCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendsListCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.PersonaStatesCallback
@@ -80,7 +82,8 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
         subscriptions.add(callbackMgr?.subscribe(PersonaStatesCallback::class.java, onPersonaState))
         subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
-        subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistoryCallback))
+        subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
+        subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -206,7 +209,7 @@ class SteamService : Service(), AnkoLogger {
         it.personaStates.forEach {
             if (it.friendID == steamClient?.steamID) {
                 account.saveLocalUser(it)
-                return@Consumer
+                return@forEach
             }
 
             val dao = db.steamFriendDao()
@@ -253,20 +256,53 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
-    private val onFriendMsgHistoryCallback: Consumer<FriendMsgHistoryCallback> = Consumer { cb ->
+    private val onFriendMsgHistory: Consumer<FriendMsgHistoryCallback> = Consumer { cb ->
         cb.messages.forEach {
             val fromLocal = cb.steamID != it.steamID
             val friendId = cb.steamID.convertToUInt64()
-            val message = db.chatMessageDao().find(it.message, it.timestamp.time, friendId, fromLocal)
+            val timestamp = it.timestamp.time
+            val confirmedMessage = db.chatMessageDao().find(it.message, timestamp, friendId, fromLocal, true)
 
-            if (message == null) {
+            if (confirmedMessage != null) {
+                return@forEach
+            }
+
+            val unconfirmedMessages = db.chatMessageDao().find(it.message, friendId, fromLocal, false)
+                    .sortedWith(kotlin.Comparator { o1, o2 ->
+                        (Math.abs(timestamp - o1.timestamp) - Math.abs(timestamp - o2.timestamp)).toInt()
+                    })
+
+            if (unconfirmedMessages.isNotEmpty()) {
+                unconfirmedMessages[0].timestamp = timestamp
+                unconfirmedMessages[0].timestampConfirmed = true
+
+                db.chatMessageDao().update(unconfirmedMessages[0])
+            } else {
                 db.chatMessageDao().insert(ChatMessage(
                         it.message,
-                        it.timestamp.time,
+                        timestamp,
                         friendId,
                         fromLocal,
-                        !it.isUnread
+                        !it.isUnread,
+                        true
                 ))
+            }
+        }
+    }
+
+    private val onFriendMsg: Consumer<FriendMsgCallback> = Consumer {
+        when (it.entryType) {
+            EChatEntryType.ChatMsg -> {
+                db.chatMessageDao().insert(ChatMessage(
+                        it.message,
+                        System.currentTimeMillis(),
+                        it.sender.convertToUInt64(),
+                        it.sender == steamClient?.steamID,
+                        true,
+                        false
+                ))
+            }
+            else -> {
             }
         }
     }
