@@ -18,29 +18,31 @@ object Utils {
         "http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/${avatar.substring(0, 2)}/${avatar}_full.jpg"
     }
 
-    fun getStatusColor(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?) = if (gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
-        when (state) {
-            EPersonaState.Online -> ContextCompat.getColor(context, R.color.statusOnline)
-            EPersonaState.Busy -> ContextCompat.getColor(context, R.color.statusBusy)
-            EPersonaState.Away, EPersonaState.Snooze -> ContextCompat.getColor(context, R.color.statusAway)
-            EPersonaState.LookingToTrade, EPersonaState.LookingToPlay -> ContextCompat.getColor(context, R.color.statusLookingTo)
-            else -> ContextCompat.getColor(context, R.color.statusOffline)
-        }
-    } else {
-        ContextCompat.getColor(context, R.color.statusInGame)
-    }
+    fun getStatusColor(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?) =
+            if (state == EPersonaState.Offline || gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
+                when (state) {
+                    EPersonaState.Online -> ContextCompat.getColor(context, R.color.statusOnline)
+                    EPersonaState.Busy -> ContextCompat.getColor(context, R.color.statusBusy)
+                    EPersonaState.Away, EPersonaState.Snooze -> ContextCompat.getColor(context, R.color.statusAway)
+                    EPersonaState.LookingToTrade, EPersonaState.LookingToPlay -> ContextCompat.getColor(context, R.color.statusLookingTo)
+                    else -> ContextCompat.getColor(context, R.color.statusOffline)
+                }
+            } else {
+                ContextCompat.getColor(context, R.color.statusInGame)
+            }
 
-    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?, lastLogOff: Long) = if (gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
-        when (state) {
-            EPersonaState.Online -> context.getString(R.string.statusOnline)
-            EPersonaState.Busy -> context.getString(R.string.statusBusy)
-            EPersonaState.Away -> context.getString(R.string.statusAway)
-            EPersonaState.Snooze -> context.getString(R.string.statusSnooze)
-            EPersonaState.LookingToTrade -> context.getString(R.string.statusLookingTrade)
-            EPersonaState.LookingToPlay -> context.getString(R.string.statusLookingPlay)
-            else -> context.getString(R.string.statusOffline, DateUtils.getRelativeTimeSpanString(lastLogOff))
-        }
-    } else {
-        context.getString(R.string.statusPlaying, if (gameName == null) "" else gameName)
-    }
+    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?, lastLogOff: Long) =
+            if (state == EPersonaState.Offline || gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
+                when (state) {
+                    EPersonaState.Online -> context.getString(R.string.statusOnline)
+                    EPersonaState.Busy -> context.getString(R.string.statusBusy)
+                    EPersonaState.Away -> context.getString(R.string.statusAway)
+                    EPersonaState.Snooze -> context.getString(R.string.statusSnooze)
+                    EPersonaState.LookingToTrade -> context.getString(R.string.statusLookingTrade)
+                    EPersonaState.LookingToPlay -> context.getString(R.string.statusLookingPlay)
+                    else -> context.getString(R.string.statusOffline, DateUtils.getRelativeTimeSpanString(lastLogOff))
+                }
+            } else {
+                context.getString(R.string.statusPlaying, if (gameName == null) "" else gameName)
+            }
 }
