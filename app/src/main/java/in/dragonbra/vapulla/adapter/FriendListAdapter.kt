@@ -11,6 +11,7 @@ import `in`.dragonbra.vapulla.util.CircleTransform
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -31,9 +32,9 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         const val VIEW_TYPE_FRIEND_REQUEST = 1
     }
 
-    var friendList: List<FriendListItem>? = null
+    var friendList: List<FriendListItem> = emptyList()
 
-    var requestCount = 0
+    private var requestCount = 0
 
     val glideOptions = RequestOptions()
             .transform(CircleTransform())
@@ -49,27 +50,37 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         return ViewHolder(v)
     }
 
-    override fun getItemCount(): Int = if (friendList == null) 0 else friendList?.size!!
+    override fun getItemCount(): Int = friendList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        friendList?.get(position)?.let {
+        friendList[position].let {
             holder.bind(it, requestCount > 0 && position == 0, requestCount > 0 && position == requestCount - 1)
         }
     }
 
-    override fun getItemViewType(position: Int) = when (friendList?.get(position)?.relation) {
+    override fun getItemViewType(position: Int) = when (friendList[position].relation) {
         EFriendRelationship.RequestRecipient.code() -> VIEW_TYPE_FRIEND_REQUEST
         else -> VIEW_TYPE_FRIEND
     }
 
-    fun swap(list: List<FriendListItem>?) {
+    fun swap(list: List<FriendListItem>) {
+        val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    list[newItemPosition].id == friendList[oldItemPosition].id
+
+            override fun getOldListSize() = friendList.size
+
+            override fun getNewListSize() = list.size
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    list[newItemPosition] == friendList[oldItemPosition]
+        })
         friendList = list
-        val filter = list?.filter { it.relation == EFriendRelationship.RequestRecipient.code() }
-        requestCount = if (filter != null) filter.size else 0
-        notifyDataSetChanged()
+        requestCount = list.count { it.relation == EFriendRelationship.RequestRecipient.code() }
+        result.dispatchUpdatesTo(this)
     }
 
-    inner class ViewHolder(val v: View) : RecyclerView.ViewHolder(v) {
+    inner class ViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
         fun bind(friend: FriendListItem, header: Boolean, footer: Boolean) {
 
             when (friend.relation) {

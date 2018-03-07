@@ -31,7 +31,7 @@ class HomePresenter(val context: Context,
 
     private val subs: MutableList<Closeable?> = LinkedList()
 
-    private var friendsData: LiveData<List<FriendListItem>>? = null
+    private lateinit var friendsData: LiveData<List<FriendListItem>>
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -78,13 +78,17 @@ class HomePresenter(val context: Context,
         }
 
         friendsData = steamFriendDao.getLive()
-        friendsData?.observe(view as HomeActivity, dataObserver)
+        friendsData.observe(view as HomeActivity, dataObserver)
 
         account.addListener(this)
 
         ifViewAttached {
             it.showAccount(account)
-            it.showFriends(friendsData?.value)
+            if (friendsData.value == null) {
+                it.showFriends(emptyList())
+            } else {
+                it.showFriends(friendsData.value!!)
+            }
         }
     }
 
@@ -93,7 +97,7 @@ class HomePresenter(val context: Context,
             steamService?.isActivityRunning = false
         }
 
-        friendsData?.removeObserver(dataObserver)
+        friendsData.removeObserver(dataObserver)
         account.removeListener(this)
     }
 
@@ -102,7 +106,7 @@ class HomePresenter(val context: Context,
     }
 
     private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
-        ifViewAttached { it.showFriends(list) }
+        ifViewAttached { it.showFriends(list!!) }
     }
 
     fun disconnect() {

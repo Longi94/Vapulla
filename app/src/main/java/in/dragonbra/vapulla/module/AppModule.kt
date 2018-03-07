@@ -2,7 +2,7 @@ package `in`.dragonbra.vapulla.module
 
 import `in`.dragonbra.vapulla.data.dao.GameSchemaDao
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
-import `in`.dragonbra.vapulla.retrofit.ISteamUserStats
+import `in`.dragonbra.vapulla.retrofit.StoreFront
 import android.content.Context
 import android.support.v4.app.NotificationManagerCompat
 import dagger.Module
@@ -22,6 +22,6 @@ class AppModule(val context: Context) {
 
     @Provides
     @Singleton
-    fun provideGameSchemaManager(gameSchemaDao: GameSchemaDao, steamUserStats: ISteamUserStats)
-            = GameSchemaManager(gameSchemaDao, steamUserStats)
+    fun provideGameSchemaManager(gameSchemaDao: GameSchemaDao, storeFront: StoreFront)
+            = GameSchemaManager(gameSchemaDao, storeFront)
 }

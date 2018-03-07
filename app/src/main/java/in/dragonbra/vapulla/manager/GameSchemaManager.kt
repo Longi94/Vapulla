@@ -2,9 +2,9 @@ package `in`.dragonbra.vapulla.manager
 
 import `in`.dragonbra.vapulla.data.dao.GameSchemaDao
 import `in`.dragonbra.vapulla.data.entity.GameSchema
-import `in`.dragonbra.vapulla.retrofit.ISteamUserStats
+import `in`.dragonbra.vapulla.retrofit.StoreFront
 
-class GameSchemaManager(val gameSchemaDao: GameSchemaDao, private val steamUserStats: ISteamUserStats) {
+class GameSchemaManager(val gameSchemaDao: GameSchemaDao, private val storeFront: StoreFront) {
 
     companion object {
         const val UPDATE_INTERVAL = 604800000L
@@ -22,10 +22,10 @@ class GameSchemaManager(val gameSchemaDao: GameSchemaDao, private val steamUserS
         if (schema == null || schema.modifyDate < System.currentTimeMillis() - UPDATE_INTERVAL) {
             fetchingIds.add(id)
 
-            val resp = steamUserStats.getSchemaForGame(id).execute()
+            val resp = storeFront.getAppDetails(id).execute()
 
             if (resp.isSuccessful) {
-                val name = resp.body()?.game?.gameName
+                val name = resp.body()?.get(id)?.data?.name
 
                 if (name != null) {
                     gameSchemaDao.insert(GameSchema(id, name, System.currentTimeMillis()))

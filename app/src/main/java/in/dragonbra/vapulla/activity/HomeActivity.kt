@@ -97,7 +97,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
     }
 
-    override fun showFriends(list: List<FriendListItem>?) {
+    override fun showFriends(list: List<FriendListItem>) {
         friendListAdapter.swap(list)
     }
 
