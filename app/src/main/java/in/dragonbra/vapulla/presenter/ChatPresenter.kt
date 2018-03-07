@@ -7,7 +7,9 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
+import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.ChatView
@@ -18,6 +20,7 @@ import android.arch.paging.PagedList
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
 import org.jetbrains.anko.info
 import org.jetbrains.anko.intentFor
@@ -25,8 +28,9 @@ import java.io.Closeable
 import java.util.*
 
 class ChatPresenter(val context: Context,
-                    val chatMessageDao: ChatMessageDao,
-                    val steamId: SteamID) : VapullaPresenter<ChatView>(), Observer<PagedList<ChatMessage>> {
+                    private val chatMessageDao: ChatMessageDao,
+                    private val steamFriendsDao: SteamFriendDao,
+                    val steamId: SteamID) : VapullaPresenter<ChatView>() {
 
     companion object {
         val REQUESTED_INFO = EClientPersonaStateFlag.code(EnumSet.of(
@@ -35,6 +39,8 @@ class ChatPresenter(val context: Context,
                 EClientPersonaStateFlag.PlayerName,
                 EClientPersonaStateFlag.Presence
         ))
+
+        const val UPDATE_INTERVAL = 60000L
     }
 
     private var bound = false
@@ -43,7 +49,19 @@ class ChatPresenter(val context: Context,
 
     private val subs: MutableList<Closeable?> = LinkedList()
 
-    private var chatData: LiveData<PagedList<ChatMessage>>? = null
+    private lateinit var chatData: LiveData<PagedList<ChatMessage>>
+
+    private lateinit var friendData: LiveData<SteamFriend>
+
+    private val updateHandler: Handler = Handler()
+
+    private val chatObserver = Observer<PagedList<ChatMessage>> { list ->
+        ifViewAttached { it.showChat(list) }
+    }
+
+    private val friendObserver = Observer<SteamFriend> { friend ->
+        ifViewAttached { it.updateFriendData(friend) }
+    }
 
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -89,9 +107,15 @@ class ChatPresenter(val context: Context,
         }
 
         chatData = LivePagedListBuilder(chatMessageDao.findLivePaged(steamId.convertToUInt64()), 50).build()
-        chatData?.observe(view as ChatActivity, this)
+        chatData.observe(view as ChatActivity, chatObserver)
 
-        ifViewAttached { it.showChat(chatData?.value) }
+        friendData = steamFriendsDao.findLive(steamId.convertToUInt64())
+        friendData.observe(view as ChatActivity, friendObserver)
+
+        ifViewAttached { it.showChat(chatData.value) }
+        ifViewAttached { it.updateFriendData(friendData.value) }
+
+        updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
     }
 
     override fun onPause() {
@@ -100,10 +124,15 @@ class ChatPresenter(val context: Context,
             steamService?.chatFriendId = null
         }
 
+        chatData.removeObserver(chatObserver)
+        friendData.removeObserver(friendObserver)
+
+        updateHandler.removeCallbacksAndMessages(null)
     }
 
-    override fun onChanged(t: PagedList<ChatMessage>?) {
-        ifViewAttached { it.showChat(t) }
+    private fun updateFriend() {
+        ifViewAttached { it.updateFriendData(friendData.value) }
+        updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
     }
 
     fun getMessageHistory() {

@@ -23,8 +23,6 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        setSupportActionBar(toolbar)
-
         login.click { presenter.login(username.text.toString(), password.text.toString()) }
 
         steamGuardButton.click {

@@ -13,6 +13,9 @@ interface SteamFriendDao {
     @Query("SELECT * FROM steam_friend WHERE id = :id")
     fun find(id: Long): SteamFriend?
 
+    @Query("SELECT * FROM steam_friend WHERE id = :id")
+    fun findLive(id: Long): LiveData<SteamFriend>
+
     @Update
     fun update(vararg steamFriends: SteamFriend)
 

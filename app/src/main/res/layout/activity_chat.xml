@@ -16,12 +16,154 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="wrap_content"
+            android:minHeight="56dp">
+
+            <ImageView
+                android:id="@+id/friendAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="28dp"
+                android:layout_marginTop="8dp"
+                android:onClick="navigateUp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@color/colorPrimary" />
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:onClick="navigateUp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_chevron_left_white_24dp" />
+
+            <TextView
+                android:id="@+id/friendUsername"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="76dp"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/moreButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Name" />
+
+            <TextView
+                android:id="@+id/friendStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="76dp"
+                app:layout_constraintEnd_toStartOf="@+id/moreButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/friendUsername"
+                tools:text="Status" />
+
+            <ImageView
+                android:id="@+id/moreButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_more_vert_white_24dp" />
+
+            <LinearLayout
+                android:id="@+id/statusLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="72dp"
+                android:orientation="vertical"
+                android:paddingBottom="12dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/onlineButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Online" />
+
+                <TextView
+                    android:id="@+id/awayButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Away" />
+
+                <TextView
+                    android:id="@+id/busyButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Busy" />
+
+                <TextView
+                    android:id="@+id/lookingToPlayButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Looking to Play" />
+
+                <TextView
+                    android:id="@+id/lookingToTradeButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Looking to Trade" />
+
+                <TextView
+                    android:id="@+id/offlineButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="changeStatus"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="88dp"
+                    android:paddingTop="12dp"
+                    android:text="Offline" />
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -41,20 +183,29 @@
         android:id="@+id/messageBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@drawable/bubble_input"
         android:ems="10"
         android:hint="Type a message..."
         android:inputType="textCapSentences|textMultiLine"
         android:maxLines="3"
+        android:paddingBottom="11dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="11dp"
+        android:textColor="@color/textPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/sendButton"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/sendButton"
         android:layout_width="46dp"
         android:layout_height="46dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="11dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
         android:onClick="sendMessage"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
