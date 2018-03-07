@@ -263,6 +263,8 @@ class SteamService : Service(), AnkoLogger {
                 return@forEach
             }
 
+            info("${it.state} - ${it.name} - ${it.lastLogOff.time} - ${it.lastLogOn.time}")
+
             stateBuffer.push(it)
         }
     }

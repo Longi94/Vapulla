@@ -5,6 +5,8 @@ import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.enums.EPersonaStateFlag
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.manager.GameSchemaManager
+import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.CircleTransform
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
@@ -22,7 +24,7 @@ import kotlinx.android.synthetic.main.list_friend_request.view.*
 import org.jetbrains.anko.find
 
 
-class FriendListAdapter(val context: Context) : RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
+class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager) : RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
 
     companion object {
         const val VIEW_TYPE_FRIEND = 0
@@ -76,6 +78,12 @@ class FriendListAdapter(val context: Context) : RecyclerView.Adapter<FriendListA
                     v.footer.visibility = if (footer) View.VISIBLE else View.GONE
                 }
                 else -> {
+                    if (friend.gameAppId > 0) {
+                        runOnBackgroundThread {
+                            schemaManager.touch(friend.gameAppId)
+                        }
+                    }
+
                     val state = friend.state?.let { EPersonaState.from(it) }
                     v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
                     v.lastMessage.text = friend.lastMessage

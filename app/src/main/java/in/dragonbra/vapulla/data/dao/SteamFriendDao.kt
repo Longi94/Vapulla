@@ -19,10 +19,13 @@ interface SteamFriendDao {
     @Query("SELECT " +
             "  sf.*, " +
             "  cm.message as last_message, " +
-            "  max(cm.timestamp) as last_message_time " +
+            "  max(cm.timestamp) as last_message_time, " +
+            "  ifnull(gs.name, sf.game_name) as playing_game_name " +
             "FROM steam_friend sf " +
             "LEFT JOIN chat_message cm " +
             "ON sf.id = cm.friend_id " +
+            "LEFT JOIN game_schema gs " +
+            "ON gs.id = sf.game_app_id " +
             "WHERE sf.relation = 2 " +
             "   OR sf.relation = 3 " +
             "GROUP BY sf.id " +

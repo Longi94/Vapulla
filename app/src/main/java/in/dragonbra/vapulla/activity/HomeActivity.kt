@@ -6,6 +6,7 @@ import `in`.dragonbra.vapulla.adapter.FriendListAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.HomeView
@@ -32,6 +33,9 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     @Inject
     lateinit var homePresenter: HomePresenter
 
+    @Inject
+    lateinit var gameSchemaManager: GameSchemaManager
+
     lateinit var friendListAdapter: FriendListAdapter
 
     private val updateHandler: Handler = Handler()
@@ -41,7 +45,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        friendListAdapter = FriendListAdapter(this)
+        friendListAdapter = FriendListAdapter(this, gameSchemaManager)
         friendListAdapter.listener = this
 
         friendList.layoutManager = LinearLayoutManager(this)
