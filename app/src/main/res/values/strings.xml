@@ -2,7 +2,7 @@
     <string name="app_name">Vapulla</string>
 
     <string name="statusOnline">Online</string>
-    <string name="statusOffline">Offline</string>
+    <string name="statusOffline">Last seen %1$s</string>
     <string name="statusAway">Away</string>
     <string name="statusSnooze">Snooze</string>
     <string name="statusBusy">Busy</string>

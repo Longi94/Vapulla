@@ -5,6 +5,7 @@ import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import android.content.Context
 import android.support.v4.content.ContextCompat
+import android.text.format.DateUtils
 import com.bumptech.glide.request.RequestOptions
 
 object Utils {
@@ -29,7 +30,7 @@ object Utils {
         ContextCompat.getColor(context, R.color.statusInGame)
     }
 
-    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?) = if (gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
+    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?, lastLogOff: Long) = if (gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
         when (state) {
             EPersonaState.Online -> context.getString(R.string.statusOnline)
             EPersonaState.Busy -> context.getString(R.string.statusBusy)
@@ -37,7 +38,7 @@ object Utils {
             EPersonaState.Snooze -> context.getString(R.string.statusSnooze)
             EPersonaState.LookingToTrade -> context.getString(R.string.statusLookingTrade)
             EPersonaState.LookingToPlay -> context.getString(R.string.statusLookingPlay)
-            else -> context.getString(R.string.statusOffline)
+            else -> context.getString(R.string.statusOffline, DateUtils.getRelativeTimeSpanString(lastLogOff))
         }
     } else {
         context.getString(R.string.statusPlaying, if (gameName == null) "" else gameName)

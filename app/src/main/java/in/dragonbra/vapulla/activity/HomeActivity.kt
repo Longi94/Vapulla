@@ -11,6 +11,7 @@ import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.HomeView
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.view.Menu
@@ -24,10 +25,16 @@ import javax.inject.Inject
 
 class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, PopupMenu.OnMenuItemClickListener, FriendListAdapter.OnItemSelectedListener {
 
+    companion object {
+        const val UPDATE_INTERVAL = 60000L
+    }
+
     @Inject
     lateinit var homePresenter: HomePresenter
 
     lateinit var friendListAdapter: FriendListAdapter
+
+    private val updateHandler: Handler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -50,6 +57,16 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         statusButton.click {
             statusLayout.visibility = if (statusLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateHandler.postDelayed({ updateList() }, UPDATE_INTERVAL)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        updateHandler.removeCallbacksAndMessages(null)
     }
 
     override fun createPresenter(): HomePresenter = homePresenter
@@ -107,5 +124,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
             R.id.offlineButton -> EPersonaState.Offline
             else -> throw IllegalArgumentException("change status called by unknown view")
         })
+    }
+
+    private fun updateList() {
+        friendListAdapter.notifyDataSetChanged()
+        updateHandler.postDelayed({ updateList() }, UPDATE_INTERVAL)
     }
 }

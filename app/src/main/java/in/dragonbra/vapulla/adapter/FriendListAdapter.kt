@@ -77,7 +77,7 @@ class FriendListAdapter(val context: Context) : RecyclerView.Adapter<FriendListA
                 }
                 else -> {
                     val state = friend.state?.let { EPersonaState.from(it) }
-                    v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName)
+                    v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
                     v.lastMessage.text = friend.lastMessage
 
                     (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
