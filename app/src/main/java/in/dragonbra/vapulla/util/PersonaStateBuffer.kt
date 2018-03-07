@@ -34,8 +34,7 @@ class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
             if (map.contains(state.friendID)) {
                 val old = map[state.friendID]
 
-                if (old?.lastLogOn == state.lastLogOn && state.lastLogOn > state.lastLogOff && state.state != EPersonaState.Offline ||
-                        old?.lastLogOn!! < state.lastLogOn) {
+                if (state.state != EPersonaState.Offline || state.lastLogOff > old?.lastLogOff) {
                     map[state.friendID] = state
                 }
             } else {
@@ -57,10 +56,15 @@ class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
 
                 var friend = steamFriendDao.find(id.convertToUInt64())
 
-                if (friend != null && !(friend.lastLogOn == state.lastLogOn.time && state.lastLogOn > state.lastLogOff &&
-                                state.state != EPersonaState.Offline || friend.lastLogOn < state.lastLogOn.time)) {
-                    null
-                } else {
+                var insert = false
+
+                if (friend == null) {
+                    insert = true
+                } else if (state.state != EPersonaState.Offline || state.lastLogOff.time > friend.lastLogOff) {
+                    insert = true
+                }
+
+                if (insert) {
                     if (friend == null) {
                         friend = SteamFriend(id.convertToUInt64())
                     }
@@ -77,6 +81,8 @@ class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
                     friend.stateFlags = EPersonaStateFlag.code(state.stateFlags)
 
                     friend
+                } else {
+                    null
                 }
             }.toTypedArray()
             map.clear()
