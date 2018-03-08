@@ -18,6 +18,7 @@ import android.support.v7.widget.PopupMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.AnimationUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
@@ -59,6 +60,13 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
 
         statusButton.click {
+
+            if (statusLayout.visibility == View.VISIBLE) {
+                statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_close))
+            } else {
+                statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_open))
+            }
+
             statusLayout.visibility = if (statusLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
     }
