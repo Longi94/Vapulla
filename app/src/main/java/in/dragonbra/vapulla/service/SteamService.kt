@@ -33,20 +33,19 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
-import android.os.Build
-import android.os.IBinder
+import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import org.jetbrains.anko.*
 import java.io.Closeable
-import java.util.*
 import javax.inject.Inject
 
 class SteamService : Service(), AnkoLogger {
 
     companion object {
         private const val ONGOING_NOTIFICATION_ID = 100
+
+        private const val MAX_RETRY_COUNT = 5
     }
 
     private val binder: SteamBinder = SteamBinder()
@@ -55,7 +54,13 @@ class SteamService : Service(), AnkoLogger {
 
     var callbackMgr: CallbackManager? = null
 
-    private val subscriptions: MutableList<Closeable?> = LinkedList()
+    private val subscriptions: MutableSet<Closeable?> = mutableSetOf()
+
+    val disconnectedSubs: MutableSet<(DisconnectedCallback) -> Unit> = mutableSetOf()
+
+    private val handlerThread = HandlerThread("SteamService Handler")
+
+    private lateinit var handler: Handler
 
     @Inject
     lateinit var db: VapullaDatabase
@@ -77,6 +82,11 @@ class SteamService : Service(), AnkoLogger {
     @Volatile
     var isActivityRunning: Boolean = false
 
+    @Volatile
+    var expectDisconnect = false
+
+    var retryCount = 0
+
     /**
      * id of the friend whose chat is currently open, null if no chat open
      */
@@ -87,6 +97,9 @@ class SteamService : Service(), AnkoLogger {
         vapulla().graph.inject(this)
         super.onCreate()
         info("onCreate")
+
+        handlerThread.start()
+        handler = Handler(handlerThread.looper)
 
         stateBuffer = PersonaStateBuffer(db.steamFriendDao())
         steamClient = SteamClient()
@@ -122,6 +135,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.forEach { it?.close() }
         subscriptions.clear()
         steamClient?.disconnect()
+        handlerThread.quit()
     }
 
     private fun getNotification(text: String): Notification {
@@ -144,6 +158,8 @@ class SteamService : Service(), AnkoLogger {
 
     fun connect() {
         if (!isRunning) {
+            expectDisconnect = false
+            retryCount = 0
             stateBuffer.start()
             Thread(steamThread, "Steam Thread").start()
             startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connecting to Steam..."))
@@ -151,6 +167,7 @@ class SteamService : Service(), AnkoLogger {
     }
 
     fun disconnect() {
+        expectDisconnect = true
         steamClient?.disconnect()
     }
 
@@ -192,8 +209,17 @@ class SteamService : Service(), AnkoLogger {
         notificationManager.cancelAll()
     }
 
-    inline fun <reified T : ICallbackMsg> subscribe(crossinline callbackFunc: (T) -> Unit):
-            Closeable? = callbackMgr?.subscribe(T::class.java, { callbackFunc(it) })
+    inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =
+            when (T::class) {
+                DisconnectedCallback::class -> {
+                    @Suppress("UNCHECKED_CAST")
+                    disconnectedSubs.add(callbackFunc as (DisconnectedCallback) -> Unit)
+                    Closeable {
+                        disconnectedSubs.remove(callbackFunc)
+                    }
+                }
+                else -> callbackMgr?.subscribe(T::class.java, { callbackFunc(it) })
+            }
 
     private val steamThread: Runnable = Runnable {
         info("Connecting to steam...")
@@ -215,16 +241,24 @@ class SteamService : Service(), AnkoLogger {
 
     //region Callback handlers
 
-    private val onDisconnected: Consumer<DisconnectedCallback> = Consumer {
-        info("disconnected from steam")
-        stopForeground(true)
-        isRunning = false
-        isLoggedIn = false
-        stateBuffer.stop()
+    private val onDisconnected: Consumer<DisconnectedCallback> = Consumer { cb ->
+        if (expectDisconnect || retryCount >= MAX_RETRY_COUNT) {
+            info("disconnected from steam")
+            stopForeground(true)
+            isRunning = false
+            isLoggedIn = false
+            expectDisconnect = false
+            stateBuffer.stop()
+            disconnectedSubs.forEach { it.invoke(cb) }
+        } else {
+            info("failed to connect to steam ${++retryCount} times, trying again...")
+            handler.postDelayed({ steamClient?.connect() }, 1000L)
+        }
     }
 
     private val onConnected: Consumer<ConnectedCallback> = Consumer {
         info("connected to steam")
+        retryCount = 0
         startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connected to Steam"))
     }
 

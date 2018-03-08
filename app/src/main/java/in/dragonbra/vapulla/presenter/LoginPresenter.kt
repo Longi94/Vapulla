@@ -109,7 +109,7 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
                     it.showSteamGuard()
                 }
             } else {
-                warn { "Failed to log in ${callback.result}" }
+                warn { "Failed to log in ${callback.result} / ${callback.extendedResult}" }
                 expectSteamGuard = false
                 ifViewAttached { it.onDisconnected() }
             }
