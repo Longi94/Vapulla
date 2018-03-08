@@ -22,6 +22,7 @@ import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
+import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
@@ -138,11 +139,12 @@ class SteamService : Service(), AnkoLogger {
         handlerThread.quit()
     }
 
-    private fun getNotification(text: String): Notification {
+    private fun setNotification(text: String) {
         val builder = NotificationCompat.Builder(this, "vapulla-service")
                 .setDefaults(0)
                 .setContentTitle("Vapulla")
                 .setContentText(text)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
                 .setSmallIcon(R.drawable.ic_chat_bubble_white_24dp)
                 .setVibrate(longArrayOf(-1L))
                 .setSound(null)
@@ -153,7 +155,8 @@ class SteamService : Service(), AnkoLogger {
             @Suppress("DEPRECATION")
             builder.priority = Notification.PRIORITY_LOW
         }
-        return builder.build()
+
+        startForeground(ONGOING_NOTIFICATION_ID, builder.build())
     }
 
     fun connect() {
@@ -162,7 +165,7 @@ class SteamService : Service(), AnkoLogger {
             retryCount = 0
             stateBuffer.start()
             Thread(steamThread, "Steam Thread").start()
-            startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connecting to Steam..."))
+            setNotification("Connecting to Steam...")
         }
     }
 
@@ -253,13 +256,14 @@ class SteamService : Service(), AnkoLogger {
         } else {
             info("failed to connect to steam ${++retryCount} times, trying again...")
             handler.postDelayed({ steamClient?.connect() }, 1000L)
+            setNotification("Lost connection to Steam, reconnecting...")
         }
     }
 
     private val onConnected: Consumer<ConnectedCallback> = Consumer {
         info("connected to steam")
         retryCount = 0
-        startForeground(ONGOING_NOTIFICATION_ID, getNotification("Connected to Steam"))
+        setNotification("Connected to Steam")
     }
 
     private val onLoggedOn: Consumer<LoggedOnCallback> = Consumer {
