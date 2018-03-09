@@ -65,9 +65,10 @@
                 android:layout_marginTop="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
+                android:src="@drawable/ic_dots_vertical"
+                android:tint="#fff"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_more_vert_white_24dp" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/statusButton"
@@ -76,9 +77,10 @@
                 android:layout_marginTop="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
+                android:src="@drawable/ic_arrow_drop_down"
+                android:tint="#fff"
                 app:layout_constraintEnd_toStartOf="@+id/moreButton"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_arrow_drop_down_white_24dp" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
                 android:id="@+id/statusLayout"

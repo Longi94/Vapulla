@@ -145,7 +145,7 @@ class SteamService : Service(), AnkoLogger {
                 .setContentTitle("Vapulla")
                 .setContentText(text)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
-                .setSmallIcon(R.drawable.ic_chat_bubble_white_24dp)
+                .setSmallIcon(R.drawable.ic_message)
                 .setVibrate(longArrayOf(-1L))
                 .setSound(null)
 
@@ -194,7 +194,7 @@ class SteamService : Service(), AnkoLogger {
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setContentTitle(friend?.name)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_chat_bubble_white_24dp)
+                .setSmallIcon(R.drawable.ic_message)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(Notification.PRIORITY_HIGH)

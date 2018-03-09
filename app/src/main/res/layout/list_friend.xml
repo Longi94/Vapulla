@@ -45,17 +45,19 @@
         android:id="@+id/mobileIndicator"
         android:layout_width="18dp"
         android:layout_height="18dp"
+        android:src="@drawable/ic_cellphone"
+        android:tint="@android:color/secondary_text_dark"
         app:layout_constraintStart_toEndOf="@+id/status"
-        app:layout_constraintTop_toTopOf="@+id/status"
-        app:srcCompat="@drawable/ic_cellphone_grey600_18dp" />
+        app:layout_constraintTop_toTopOf="@+id/status" />
 
     <ImageView
         android:id="@+id/webIndicator"
         android:layout_width="18dp"
         android:layout_height="18dp"
+        android:src="@drawable/ic_web"
+        android:tint="@android:color/secondary_text_dark"
         app:layout_constraintStart_toEndOf="@+id/status"
-        app:layout_constraintTop_toTopOf="@+id/status"
-        app:srcCompat="@drawable/ic_web_grey600_18dp" />
+        app:layout_constraintTop_toTopOf="@+id/status" />
 
     <TextView
         android:id="@+id/status"
