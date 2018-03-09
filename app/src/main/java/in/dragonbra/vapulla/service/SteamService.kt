@@ -3,6 +3,7 @@ package `in`.dragonbra.vapulla.service
 import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgHistoryCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendsListCallback
@@ -23,11 +24,15 @@ import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.activity.HomeActivity
+import `in`.dragonbra.vapulla.broadcastreceiver.LogOutReceiver
+import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver
+import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver.Companion.KEY_TEXT_REPLY
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.PersonaStateBuffer
 import android.app.Notification
 import android.app.NotificationManager
@@ -36,17 +41,23 @@ import android.app.Service
 import android.content.Intent
 import android.os.*
 import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.MessagingStyle.Message
 import android.support.v4.app.NotificationManagerCompat
+import android.support.v4.app.RemoteInput
 import org.jetbrains.anko.*
 import java.io.Closeable
+import java.util.*
 import javax.inject.Inject
 
 class SteamService : Service(), AnkoLogger {
 
     companion object {
         private const val ONGOING_NOTIFICATION_ID = 100
-
         private const val MAX_RETRY_COUNT = 5
+
+        const val EXTRA_ACTION = "action"
+        const val EXTRA_MESSAGE = "message"
+        const val EXTRA_ID = "id"
     }
 
     private val binder: SteamBinder = SteamBinder()
@@ -56,6 +67,8 @@ class SteamService : Service(), AnkoLogger {
     var callbackMgr: CallbackManager? = null
 
     private val subscriptions: MutableSet<Closeable?> = mutableSetOf()
+
+    private val newMessages: MutableMap<SteamID, MutableList<Message>> = mutableMapOf()
 
     val disconnectedSubs: MutableSet<(DisconnectedCallback) -> Unit> = mutableSetOf()
 
@@ -92,7 +105,9 @@ class SteamService : Service(), AnkoLogger {
      * id of the friend whose chat is currently open, null if no chat open
      */
     @Volatile
-    var chatFriendId: Long? = null
+    private var chatFriendId: Long? = null
+
+    lateinit var remoteInput: RemoteInput
 
     override fun onCreate() {
         vapulla().graph.inject(this)
@@ -116,6 +131,10 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
         subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
         subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
+
+        remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
+                .setLabel("Reply")
+                .build()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -127,19 +146,47 @@ class SteamService : Service(), AnkoLogger {
         super.onStartCommand(intent, flags, startId)
         info("onStartCommand")
 
+        if (isRunning && intent != null && intent.hasExtra(EXTRA_ACTION)) {
+            when (intent.getStringExtra(EXTRA_ACTION)) {
+                "reply" -> {
+                    val id = SteamID(intent.getLongExtra(EXTRA_ID, 0L))
+                    val message = intent.getStringExtra(EXTRA_MESSAGE)
+
+                    runOnBackgroundThread {
+                        db.chatMessageDao().insert(ChatMessage(
+                                message,
+                                System.currentTimeMillis(),
+                                id.convertToUInt64(),
+                                true,
+                                true,
+                                false
+                        ))
+
+                        getHandler<SteamFriends>()?.sendChatMessage(id, EChatEntryType.ChatMsg, message)
+                    }
+
+                    notificationManager.cancel(id.convertToUInt64().toInt())
+                }
+                "stop" -> {
+                    stopSelf()
+                }
+            }
+        }
+
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
         info("onDestroy")
-        subscriptions.forEach { it?.close() }
-        subscriptions.clear()
-        steamClient?.disconnect()
+        disconnect()
         handlerThread.quit()
     }
 
     private fun setNotification(text: String) {
+        val logOutIntent = intentFor<LogOutReceiver>()
+        val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, logOutIntent, 0)
+
         val builder = NotificationCompat.Builder(this, "vapulla-service")
                 .setDefaults(0)
                 .setContentTitle("Vapulla")
@@ -148,6 +195,7 @@ class SteamService : Service(), AnkoLogger {
                 .setSmallIcon(R.drawable.ic_message)
                 .setVibrate(longArrayOf(-1L))
                 .setSound(null)
+                .addAction(R.drawable.ic_exit_to_app, "LOG OUT", pendingIntent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             builder.priority = NotificationManager.IMPORTANCE_LOW
@@ -186,18 +234,49 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private fun postMessageNotification(friendId: SteamID, message: String) {
+        val friend = db.steamFriendDao().find(friendId.convertToUInt64())
+
+        if (friend == null) {
+            return
+        }
+
+        if (!newMessages.containsKey(friendId)) {
+            newMessages[friendId] = LinkedList()
+        }
+
+        val newMessage = Message(message, System.currentTimeMillis(), friend.name)
+        newMessages[friendId]?.add(newMessage)
+
+        val style = NotificationCompat.MessagingStyle(if (friend.name == null) "" else friend.name!!)
+
+        newMessages[friendId]?.forEach {
+            style.addMessage(it)
+        }
+
+        val replyPendingIntent = PendingIntent.getBroadcast(
+                applicationContext,
+                friendId.convertToUInt64().toInt(),
+                getMessageReplyIntent(friendId.convertToUInt64()),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val replyAction = NotificationCompat.Action.Builder(
+                R.drawable.ic_send,
+                "REPLY",
+                replyPendingIntent
+        ).addRemoteInput(remoteInput).build()
+
         val intent = intentFor<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friendId.convertToUInt64())
                 .newTask().clearTask()
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
-        val friend = db.steamFriendDao().find(friendId.convertToUInt64())
         val notification = NotificationCompat.Builder(this, "vapulla-message")
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
-                .setContentTitle(friend?.name)
-                .setContentText(message)
+                .setStyle(style)
                 .setSmallIcon(R.drawable.ic_message)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(Notification.PRIORITY_HIGH)
+                .addAction(replyAction)
                 .build()
 
         notificationManager.notify(friendId.convertToUInt64().toInt(), notification)
@@ -208,8 +287,19 @@ class SteamService : Service(), AnkoLogger {
         }
     }
 
-    fun removeNotifications() {
-        notificationManager.cancelAll()
+    private fun getMessageReplyIntent(id: Long): Intent =
+            intentFor<ReplyReceiver>(ReplyReceiver.EXTRA_ID to id)
+
+    fun setChatFriendId(id: SteamID) {
+        chatFriendId = id.convertToUInt64()
+        newMessages[id]?.clear()
+        newMessages.remove(id)
+
+        notificationManager.cancel(id.convertToUInt64().toInt())
+    }
+
+    fun removeChatFriendId() {
+        chatFriendId = null
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =

@@ -39,6 +39,15 @@
             android:name=".service.SteamService"
             android:enabled="true"
             android:exported="false" />
+
+        <receiver
+            android:name=".broadcastreceiver.ReplyReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name=".broadcastreceiver.LogOutReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
