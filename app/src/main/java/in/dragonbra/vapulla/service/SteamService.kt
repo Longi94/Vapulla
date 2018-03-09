@@ -34,19 +34,23 @@ import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.PersonaStateBuffer
+import `in`.dragonbra.vapulla.util.Utils
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.*
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.MessagingStyle.Message
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
+import com.bumptech.glide.Glide
 import org.jetbrains.anko.*
 import java.io.Closeable
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SteamService : Service(), AnkoLogger {
@@ -234,11 +238,7 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private fun postMessageNotification(friendId: SteamID, message: String) {
-        val friend = db.steamFriendDao().find(friendId.convertToUInt64())
-
-        if (friend == null) {
-            return
-        }
+        val friend = db.steamFriendDao().find(friendId.convertToUInt64()) ?: return
 
         if (!newMessages.containsKey(friendId)) {
             newMessages[friendId] = LinkedList()
@@ -251,6 +251,18 @@ class SteamService : Service(), AnkoLogger {
 
         newMessages[friendId]?.forEach {
             style.addMessage(it)
+        }
+
+        var bitmap: Bitmap? = null
+
+        try {
+            bitmap = Glide.with(applicationContext)
+                    .asBitmap()
+                    .load(Utils.getAvatarUrl(friend.avatar))
+                    .apply(Utils.avatarOptions)
+                    .submit()
+                    .get(5, TimeUnit.SECONDS)
+        } catch (ignored: Exception) {
         }
 
         val replyPendingIntent = PendingIntent.getBroadcast(
@@ -273,6 +285,7 @@ class SteamService : Service(), AnkoLogger {
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setStyle(style)
                 .setSmallIcon(R.drawable.ic_message)
+                .setLargeIcon(bitmap)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(Notification.PRIORITY_HIGH)
