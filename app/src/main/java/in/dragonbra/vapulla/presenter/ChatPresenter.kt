@@ -5,11 +5,12 @@ import `in`.dragonbra.javasteam.enums.EClientPersonaStateFlag
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.ChatActivity
+import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
-import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.ChatView
@@ -40,10 +41,13 @@ class ChatPresenter(val context: Context,
                 EClientPersonaStateFlag.Presence
         ))
 
-        const val UPDATE_INTERVAL = 60000L
+        const val UPDATE_INTERVAL = 1000L
+        const val TYPING_INTERVAL = 20000L
     }
 
     private var bound = false
+
+    private var lastTypingMessage = 0L
 
     private var steamService: SteamService? = null
 
@@ -51,7 +55,7 @@ class ChatPresenter(val context: Context,
 
     private lateinit var chatData: LiveData<PagedList<ChatMessage>>
 
-    private lateinit var friendData: LiveData<SteamFriend>
+    private lateinit var friendData: LiveData<FriendListItem>
 
     private val updateHandler: Handler = Handler()
 
@@ -59,7 +63,7 @@ class ChatPresenter(val context: Context,
         ifViewAttached { it.showChat(list) }
     }
 
-    private val friendObserver = Observer<SteamFriend> { friend ->
+    private val friendObserver = Observer<FriendListItem> { friend ->
         ifViewAttached { it.updateFriendData(friend) }
     }
 
@@ -148,6 +152,11 @@ class ChatPresenter(val context: Context,
     }
 
     fun sendMessage(message: String) {
+        if (Strings.isNullOrEmpty(message)) {
+            return
+        }
+        lastTypingMessage = 0L
+
         runOnBackgroundThread {
             steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.ChatMsg, message)
 
@@ -159,6 +168,16 @@ class ChatPresenter(val context: Context,
                     true,
                     false
             ))
+        }
+    }
+
+    fun typing() {
+        if (lastTypingMessage < System.currentTimeMillis() - TYPING_INTERVAL) {
+            lastTypingMessage = System.currentTimeMillis()
+
+            runOnBackgroundThread {
+                steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.Typing, "")
+            }
         }
     }
 }

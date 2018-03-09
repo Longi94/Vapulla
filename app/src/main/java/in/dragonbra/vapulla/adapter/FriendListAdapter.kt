@@ -10,7 +10,9 @@ import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.CircleTransform
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.support.v4.content.ContextCompat
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -23,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.list_friend.view.*
 import kotlinx.android.synthetic.main.list_friend_request.view.*
 import org.jetbrains.anko.find
+import org.jetbrains.anko.textColor
 
 
 class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager) : RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
@@ -96,7 +99,17 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
 
                     val state = friend.state?.let { EPersonaState.from(it) }
-                    v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
+
+                    if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
+                            && friend.typingTs > System.currentTimeMillis() - 20000L) {
+                        v.status.text = context.getString(R.string.statusTyping)
+                        v.status.textColor = ContextCompat.getColor(context, R.color.colorAccent)
+                        v.status.setTypeface(v.status.typeface, Typeface.BOLD)
+                    } else {
+                        v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
+                        v.status.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
+                        v.status.setTypeface(Typeface.create(v.status.typeface, Typeface.NORMAL), Typeface.NORMAL)
+                    }
                     v.lastMessage.text = friend.lastMessage
 
                     (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))

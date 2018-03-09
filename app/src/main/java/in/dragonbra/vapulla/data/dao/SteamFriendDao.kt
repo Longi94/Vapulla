@@ -13,8 +13,8 @@ interface SteamFriendDao {
     @Query("SELECT * FROM steam_friend WHERE id = :id")
     fun find(id: Long): SteamFriend?
 
-    @Query("SELECT * FROM steam_friend WHERE id = :id")
-    fun findLive(id: Long): LiveData<SteamFriend>
+    @Query("SELECT sf.*, max(cm.timestamp) as last_message_time FROM steam_friend sf LEFT JOIN chat_message cm ON sf.id = cm.friend_id WHERE sf.id = :id")
+    fun findLive(id: Long): LiveData<FriendListItem>
 
     @Update
     fun update(vararg steamFriends: SteamFriend)

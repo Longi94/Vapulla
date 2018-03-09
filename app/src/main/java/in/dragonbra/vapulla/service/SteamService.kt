@@ -378,6 +378,14 @@ class SteamService : Service(), AnkoLogger {
                     postMessageNotification(it.sender, it.message)
                 }
             }
+            EChatEntryType.Typing -> {
+                val friend = db.steamFriendDao().find(it.sender.convertToUInt64())
+
+                if (friend != null) {
+                    friend.typingTs = System.currentTimeMillis()
+                    db.steamFriendDao().update(friend)
+                }
+            }
             else -> {
             }
         }

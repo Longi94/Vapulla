@@ -5,25 +5,30 @@ import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.ChatAdapter
+import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
-import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.paging.PagedList
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.NavUtils
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_chat.*
+import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
-class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
+class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher {
 
     companion object {
         const val INTENT_STEAM_ID = "steam_id"
@@ -48,6 +53,8 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
         layoutManager.reverseLayout = true
         chatList.layoutManager = layoutManager
         chatList.adapter = chatAdapter
+
+        messageBox.addTextChangedListener(this)
     }
 
     override fun createPresenter(): ChatPresenter {
@@ -69,14 +76,24 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
         chatAdapter.submitList(list)
     }
 
-    override fun updateFriendData(friend: SteamFriend?) {
+    override fun updateFriendData(friend: FriendListItem?) {
         if (friend == null) {
             return
         }
         runOnUiThread {
             val state = if (friend.state == null) EPersonaState.Offline else EPersonaState.from(friend.state!!)
             friendUsername.text = friend.name
-            friendStatus.text = Utils.getStatusText(this@ChatActivity, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
+
+            if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
+                    && friend.typingTs > System.currentTimeMillis() - 20000L) {
+                friendStatus.text = getString(R.string.statusTyping)
+                friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, R.color.colorAccent)
+                friendStatus.setTypeface(friendStatus.typeface, Typeface.BOLD)
+            } else {
+                friendStatus.text = Utils.getStatusText(this@ChatActivity, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
+                friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, android.R.color.secondary_text_dark)
+                friendStatus.setTypeface(Typeface.create(friendStatus.typeface, Typeface.NORMAL), Typeface.NORMAL)
+            }
 
             Glide.with(this@ChatActivity)
                     .load(Utils.getAvatarUrl(friend.avatar))
@@ -84,6 +101,16 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView {
                     .apply(Utils.avatarOptions)
                     .into(friendAvatar)
         }
+    }
+
+    override fun afterTextChanged(s: Editable?) {
+        presenter.typing()
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
     }
 
     @Suppress("UNUSED_PARAMETER")

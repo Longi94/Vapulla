@@ -28,7 +28,7 @@ import javax.inject.Inject
 class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, PopupMenu.OnMenuItemClickListener, FriendListAdapter.OnItemSelectedListener {
 
     companion object {
-        const val UPDATE_INTERVAL = 60000L
+        const val UPDATE_INTERVAL = 1000L
     }
 
     @Inject

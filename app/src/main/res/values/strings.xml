@@ -9,4 +9,5 @@
     <string name="statusPlaying">Playing %1$s</string>
     <string name="statusLookingTrade">Looking to Trade</string>
     <string name="statusLookingPlay">Looking to Play</string>
+    <string name="statusTyping">Typing…</string>
 </resources>
