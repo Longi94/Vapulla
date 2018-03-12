@@ -31,7 +31,7 @@ object Utils {
                 ContextCompat.getColor(context, R.color.statusInGame)
             }
 
-    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?, lastLogOff: Long) =
+    fun getStatusText(context: Context, state: EPersonaState?, gameAppId: Int, gameName: String?, lastLogOff: Long): String =
             if (state == EPersonaState.Offline || gameAppId == 0 && Strings.isNullOrEmpty(gameName)) {
                 when (state) {
                     EPersonaState.Online -> context.getString(R.string.statusOnline)

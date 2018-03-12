@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Vapulla</string>
 
+    <!--Activity titles-->
+    <string name="title_activity_settings">Settings</string>
+
+    <!--Statuses-->
+
     <string name="statusOnline">Online</string>
     <string name="statusOffline">Last seen %1$s</string>
     <string name="statusAway">Away</string>
@@ -10,4 +15,11 @@
     <string name="statusLookingTrade">Looking to Trade</string>
     <string name="statusLookingPlay">Looking to Play</string>
     <string name="statusTyping">Typing…</string>
+
+    <!--Preference titles-->
+
+    <string name="pref_title_chat_bubble">Chat Bubbles</string>
+
+    <!--Preference descriptions-->
+
 </resources>

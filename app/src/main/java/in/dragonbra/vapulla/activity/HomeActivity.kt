@@ -92,6 +92,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
             presenter.disconnect()
             true
         }
+        R.id.settings -> {
+            startActivity<SettingsActivity>()
+            true
+        }
         else -> false
     }
 
