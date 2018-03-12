@@ -11,6 +11,7 @@ import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.util.Utils
+import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.paging.PagedList
 import android.content.Intent
@@ -53,6 +54,12 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         layoutManager.reverseLayout = true
         chatList.layoutManager = layoutManager
         chatList.adapter = chatAdapter
+
+        chatAdapter.registerAdapterDataObserver(ChatAdapterDataObserver(
+                chatAdapter,
+                layoutManager,
+                chatList
+        ))
 
         messageBox.addTextChangedListener(this)
     }
