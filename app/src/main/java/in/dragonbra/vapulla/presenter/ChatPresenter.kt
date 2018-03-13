@@ -87,6 +87,7 @@ class ChatPresenter(val context: Context,
             bound = true
             steamService?.setChatFriendId(steamId)
             steamService?.isActivityRunning = true
+            steamService?.closeBubbles()
 
             getMessageHistory()
         }
@@ -105,6 +106,7 @@ class ChatPresenter(val context: Context,
         if (bound) {
             steamService?.setChatFriendId(steamId)
             steamService?.isActivityRunning = true
+            steamService?.closeBubbles()
             getMessageHistory()
         }
 
@@ -177,5 +179,10 @@ class ChatPresenter(val context: Context,
                 steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.Typing, "")
             }
         }
+    }
+
+    fun openBubbles() {
+        steamService?.openBubbles(steamId.convertToUInt64(), friendData, chatData)
+        ifViewAttached { it.closeApp() }
     }
 }

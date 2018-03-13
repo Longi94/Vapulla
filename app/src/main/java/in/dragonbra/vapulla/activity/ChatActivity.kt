@@ -9,6 +9,7 @@ import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
@@ -20,16 +21,20 @@ import android.os.Bundle
 import android.support.v4.app.NavUtils
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_chat.*
+import org.jetbrains.anko.find
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
-class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher {
+class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher, PopupMenu.OnMenuItemClickListener {
 
     companion object {
         const val INTENT_STEAM_ID = "steam_id"
@@ -62,6 +67,13 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         ))
 
         messageBox.addTextChangedListener(this)
+
+        find<ImageView>(R.id.moreButton).click {
+            val popup = PopupMenu(this@ChatActivity, it)
+            popup.menuInflater.inflate(R.menu.menu_chat, popup.menu)
+            popup.show()
+            popup.setOnMenuItemClickListener(this@ChatActivity)
+        }
     }
 
     override fun createPresenter(): ChatPresenter {
@@ -88,7 +100,6 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             return
         }
         runOnUiThread {
-            val state = if (friend.state == null) EPersonaState.Offline else EPersonaState.from(friend.state!!)
             friendUsername.text = friend.name
 
             if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
@@ -97,7 +108,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, R.color.colorAccent)
                 friendStatus.setTypeface(friendStatus.typeface, Typeface.BOLD)
             } else {
-                friendStatus.text = Utils.getStatusText(this@ChatActivity, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
+                friendStatus.text = Utils.getStatusText(this@ChatActivity, EPersonaState.from(friend.state ?: 0), friend.gameAppId, friend.gameName, friend.lastLogOff)
                 friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, android.R.color.secondary_text_dark)
                 friendStatus.setTypeface(Typeface.create(friendStatus.typeface, Typeface.NORMAL), Typeface.NORMAL)
             }
@@ -118,6 +129,14 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+    }
+
+    override fun onMenuItemClick(item: MenuItem?) = when (item?.itemId) {
+        R.id.bubble -> {
+            presenter.openBubbles()
+            true
+        }
+        else -> false
     }
 
     @Suppress("UNUSED_PARAMETER")

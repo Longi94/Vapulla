@@ -52,6 +52,7 @@ class HomePresenter(val context: Context,
 
             bound = true
             steamService?.isActivityRunning = true
+            steamService?.closeBubbles()
         }
     }
 
@@ -73,6 +74,7 @@ class HomePresenter(val context: Context,
     override fun onResume() {
         if (bound) {
             steamService?.isActivityRunning = true
+            steamService?.closeBubbles()
         }
 
         friendsData = steamFriendDao.getLive()

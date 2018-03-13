@@ -24,6 +24,7 @@ import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.activity.HomeActivity
+import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.broadcastreceiver.LogOutReceiver
 import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver
 import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver.Companion.KEY_TEXT_REPLY
@@ -32,13 +33,16 @@ import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.vapulla.overlay.BubbleManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.PersonaStateBuffer
 import `in`.dragonbra.vapulla.util.Utils
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
+import android.arch.lifecycle.LifecycleService
+import android.arch.lifecycle.LiveData
+import android.arch.paging.PagedList
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.*
@@ -53,7 +57,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class SteamService : Service(), AnkoLogger {
+class SteamService : LifecycleService(), AnkoLogger {
 
     companion object {
         private const val ONGOING_NOTIFICATION_ID = 100
@@ -89,7 +93,10 @@ class SteamService : Service(), AnkoLogger {
     @Inject
     lateinit var notificationManager: NotificationManagerCompat
 
-    lateinit var stateBuffer: PersonaStateBuffer
+    @Inject
+    lateinit var bubbleManager: BubbleManager;
+
+    private lateinit var stateBuffer: PersonaStateBuffer
 
     @Volatile
     var isRunning: Boolean = false
@@ -142,6 +149,7 @@ class SteamService : Service(), AnkoLogger {
     }
 
     override fun onBind(intent: Intent): IBinder? {
+        super.onBind(intent)
         info("onBind")
         return binder
     }
@@ -313,6 +321,14 @@ class SteamService : Service(), AnkoLogger {
 
     fun removeChatFriendId() {
         chatFriendId = null
+    }
+
+    fun openBubbles(id: Long, friend: LiveData<FriendListItem>, chatData: LiveData<PagedList<ChatMessage>>) {
+        bubbleManager.create(id, friend, chatData, this)
+    }
+
+    fun closeBubbles() {
+        bubbleManager.close()
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =

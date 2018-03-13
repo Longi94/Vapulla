@@ -1,15 +1,14 @@
 package `in`.dragonbra.vapulla.activity
 
 import `in`.dragonbra.vapulla.R
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.preference.*
-import android.provider.Settings
 import android.support.v4.app.NavUtils
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.view.ViewGroup
+import io.mattcarroll.hover.overlay.OverlayPermission
 import org.jetbrains.anko.find
 
 /**
@@ -56,11 +55,11 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         val chatBubble = findPreference("pref_chat_bubble") as SwitchPreference
 
         chatBubble.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newVal ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (newVal as Boolean && !Settings.canDrawOverlays(this@SettingsActivity)) {
-                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
-                    return@OnPreferenceChangeListener false
+            if (OverlayPermission.hasRuntimePermissionToDrawOverlay(this@SettingsActivity)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    startActivity(OverlayPermission.createIntentToRequestOverlayPermission(this@SettingsActivity))
                 }
+                return@OnPreferenceChangeListener false
             }
             true
         }

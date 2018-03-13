@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="in.dragonbra.vapulla.activity.ChatActivity">
+    android:theme="@style/Theme.AppCompat">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -21,36 +21,12 @@
             android:layout_height="wrap_content"
             android:minHeight="56dp">
 
-            <ImageView
-                android:id="@+id/friendAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="28dp"
-                android:layout_marginTop="8dp"
-                android:onClick="navigateUp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@color/colorPrimary" />
-
-            <ImageView
-                android:id="@+id/backButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:onClick="navigateUp"
-                android:padding="8dp"
-                android:src="@drawable/ic_chevron_left"
-                android:tint="#fff"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/friendUsername"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="76dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:ellipsize="end"
                 android:lines="1"
@@ -66,7 +42,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginStart="76dp"
+                android:layout_marginStart="16dp"
                 app:layout_constraintEnd_toStartOf="@+id/moreButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/friendUsername"
@@ -128,7 +104,6 @@
         android:layout_height="46dp"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
-        android:onClick="sendMessage"
         android:src="@drawable/ic_send"
         android:tint="#fff"
         app:layout_constraintBottom_toBottomOf="parent"

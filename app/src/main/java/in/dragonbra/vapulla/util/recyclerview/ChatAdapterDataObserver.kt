@@ -9,6 +9,11 @@ class ChatAdapterDataObserver(private val adapter: ChatAdapter, private val layo
 
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
         super.onItemRangeInserted(positionStart, itemCount)
+
+        if (adapter.currentList == null || adapter.currentList?.isEmpty()!!) {
+            return
+        }
+
         val fromLocal = adapter.currentList?.get(0)?.fromLocal ?: false
         val findVisiblePosition = layoutManager.findFirstVisibleItemPosition()
 
