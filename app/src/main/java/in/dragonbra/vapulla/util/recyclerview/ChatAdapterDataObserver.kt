@@ -8,8 +8,6 @@ class ChatAdapterDataObserver(private val adapter: ChatAdapter, private val layo
                               private val recyclerView: RecyclerView) : RecyclerView.AdapterDataObserver() {
 
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-        super.onItemRangeInserted(positionStart, itemCount)
-
         if (adapter.currentList == null || adapter.currentList?.isEmpty()!!) {
             return
         }
