@@ -9,4 +9,7 @@ interface ChatView : MvpView {
     fun closeApp()
     fun showChat(list: PagedList<ChatMessage>?)
     fun updateFriendData(friend: FriendListItem?)
+    fun showRemoveFriendDialog(name: String)
+    fun navigateUp()
+    fun showBlockFriendDialog(name: String)
 }

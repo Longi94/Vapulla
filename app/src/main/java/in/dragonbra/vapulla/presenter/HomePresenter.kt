@@ -3,6 +3,7 @@ package `in`.dragonbra.vapulla.presenter
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
@@ -114,6 +115,24 @@ class HomePresenter(val context: Context,
     fun changeStatus(state: EPersonaState) {
         if (account.state != state) {
             runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.personaState = state }
+        }
+    }
+
+    fun acceptRequest(friend: FriendListItem) {
+        runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.addFriend(SteamID(friend.id)) }
+    }
+
+    fun ignoreRequest(friend: FriendListItem) {
+        runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.removeFriend(SteamID(friend.id)) }
+    }
+
+    fun blockRequest(friend: FriendListItem) {
+        ifViewAttached { it.showBlockFriendDialog(friend) }
+    }
+
+    fun confirmBlockFriend(friend: FriendListItem) {
+        runOnBackgroundThread {
+            runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.ignoreFriend(SteamID(friend.id)) }
         }
     }
 }

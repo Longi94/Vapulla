@@ -8,4 +8,5 @@ interface HomeView : MvpView{
     fun closeApp()
     fun showFriends(list: List<FriendListItem>)
     fun showAccount(account: AccountManager)
+    fun showBlockFriendDialog(friend: FriendListItem)
 }

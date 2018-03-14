@@ -13,6 +13,7 @@ import `in`.dragonbra.vapulla.view.HomeView
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.view.Menu
@@ -128,6 +129,30 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
     override fun onItemSelected(friend: FriendListItem) {
         startActivity<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friend.id)
+    }
+
+    override fun onRequestAccept(friend: FriendListItem) {
+        presenter.acceptRequest(friend)
+    }
+
+    override fun onRequestIgnore(friend: FriendListItem) {
+        presenter.ignoreRequest(friend)
+    }
+
+    override fun onRequestBlock(friend: FriendListItem) {
+        presenter.blockRequest(friend)
+    }
+
+    override fun showBlockFriendDialog(friend: FriendListItem) {
+        val name = friend.name ?: ""
+        val builder = AlertDialog.Builder(this)
+
+        builder.setMessage("Are you sure you want to block $name? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.")
+                .setTitle("Block all interactions with $name")
+                .setPositiveButton("Yes", { _, _ -> presenter.confirmBlockFriend(friend) })
+                .setNegativeButton("No", null)
+
+        builder.create().show()
     }
 
     fun changeStatus(v: View) {

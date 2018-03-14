@@ -14,6 +14,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.support.v4.content.ContextCompat
 import android.support.v7.util.DiffUtil
+import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -90,6 +91,30 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                 EFriendRelationship.RequestRecipient.code() -> {
                     v.header.visibility = if (header) View.VISIBLE else View.GONE
                     v.footer.visibility = if (footer) View.VISIBLE else View.GONE
+
+                    v.moreButton.click {
+
+                        val popup = PopupMenu(context, it)
+                        popup.menuInflater.inflate(R.menu.menu_friend_request, popup.menu)
+                        popup.setOnMenuItemClickListener { item ->
+                            when (item.itemId) {
+                                R.id.accept -> {
+                                    listener?.onRequestAccept(friend)
+                                    true
+                                }
+                                R.id.ignore -> {
+                                    listener?.onRequestIgnore(friend)
+                                    true
+                                }
+                                R.id.block -> {
+                                    listener?.onRequestBlock(friend)
+                                    true
+                                }
+                                else -> false
+                            }
+                        }
+                        popup.show()
+                    }
                 }
                 else -> {
                     if (friend.gameAppId > 0) {
@@ -141,5 +166,8 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
     interface OnItemSelectedListener {
         fun onItemSelected(friend: FriendListItem)
+        fun onRequestAccept(friend: FriendListItem)
+        fun onRequestIgnore(friend: FriendListItem)
+        fun onRequestBlock(friend: FriendListItem)
     }
 }

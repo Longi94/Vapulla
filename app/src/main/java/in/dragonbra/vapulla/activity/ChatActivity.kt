@@ -19,9 +19,12 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.NavUtils
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -29,7 +32,7 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
-class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher {
+class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher, PopupMenu.OnMenuItemClickListener {
 
     companion object {
         const val INTENT_STEAM_ID = "steam_id"
@@ -62,6 +65,13 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         ))
 
         messageBox.addTextChangedListener(this)
+
+        moreButton.setOnClickListener {
+            val popup = PopupMenu(this@ChatActivity, it)
+            popup.menuInflater.inflate(R.menu.menu_chat, popup.menu)
+            popup.show()
+            popup.setOnMenuItemClickListener(this@ChatActivity)
+        }
     }
 
     override fun createPresenter(): ChatPresenter {
@@ -110,6 +120,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         }
     }
 
+    override fun navigateUp() {
+        NavUtils.navigateUpFromSameTask(this)
+    }
+
     override fun afterTextChanged(s: Editable?) {
         presenter.typing()
     }
@@ -118,6 +132,40 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+    }
+
+    override fun onMenuItemClick(item: MenuItem) = when (item.itemId) {
+        R.id.removeFriend -> {
+            presenter.removeFriend()
+            true
+        }
+        R.id.blockFriend -> {
+            presenter.blockFriend()
+            true
+        }
+        else -> false
+    }
+
+    override fun showRemoveFriendDialog(name: String) {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setMessage("Are you sure you want to remove $name from you friends list?")
+                .setTitle("Remove $name")
+                .setPositiveButton("Yes", { _, _ -> presenter.confirmRemoveFriend() })
+                .setNegativeButton("No", null)
+
+        builder.create().show()
+    }
+
+    override fun showBlockFriendDialog(name: String) {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setMessage("Are you sure you want to block $name? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.")
+                .setTitle("Block all interactions with $name")
+                .setPositiveButton("Yes", { _, _ -> presenter.confirmBlockFriend() })
+                .setNegativeButton("No", null)
+
+        builder.create().show()
     }
 
     @Suppress("UNUSED_PARAMETER")

@@ -2,6 +2,7 @@ package `in`.dragonbra.vapulla.presenter
 
 import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EClientPersonaStateFlag
+import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.types.SteamID
@@ -64,7 +65,15 @@ class ChatPresenter(val context: Context,
     }
 
     private val friendObserver = Observer<FriendListItem> { friend ->
-        ifViewAttached { it.updateFriendData(friend) }
+        ifViewAttached { v ->
+            friend?.let {
+                if (it.relation == EFriendRelationship.Friend.code()) {
+                    v.updateFriendData(friend)
+                } else {
+                    v.navigateUp()
+                }
+            }
+        }
     }
 
     private val connection: ServiceConnection = object : ServiceConnection {
@@ -176,6 +185,26 @@ class ChatPresenter(val context: Context,
             runOnBackgroundThread {
                 steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.Typing, "")
             }
+        }
+    }
+
+    fun removeFriend() {
+        ifViewAttached { it.showRemoveFriendDialog(friendData.value?.name ?: "") }
+    }
+
+    fun confirmRemoveFriend() {
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.removeFriend(steamId)
+        }
+    }
+
+    fun blockFriend() {
+        ifViewAttached { it.showBlockFriendDialog(friendData.value?.name ?: "") }
+    }
+
+    fun confirmBlockFriend() {
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.ignoreFriend(steamId)
         }
     }
 }
