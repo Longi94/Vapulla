@@ -12,21 +12,21 @@ abstract class VapullaBaseActivity<V : MvpView, P : MvpPresenter<V>> : MvpActivi
 
     override fun onStart() {
         super.onStart()
-        (presenter as VapullaPresenter<*>).onStart()
+        (presenter as? VapullaPresenter<*>)?.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        (presenter as VapullaPresenter<*>).onResume()
+        (presenter as? VapullaPresenter<*>)?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        (presenter as VapullaPresenter<*>).onPause()
+        (presenter as? VapullaPresenter<*>)?.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        (presenter as VapullaPresenter<*>).onStop()
+        (presenter as? VapullaPresenter<*>)?.onStop()
     }
 }
