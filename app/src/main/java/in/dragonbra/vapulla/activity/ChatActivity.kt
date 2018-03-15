@@ -104,7 +104,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             return
         }
         runOnUiThread {
-            val state = if (friend.state == null) EPersonaState.Offline else EPersonaState.from(friend.state!!)
+            val state = EPersonaState.from(friend.state ?: 0)
             friendUsername.text = friend.name
 
             if (Strings.isNullOrEmpty(friend.nickname)) {

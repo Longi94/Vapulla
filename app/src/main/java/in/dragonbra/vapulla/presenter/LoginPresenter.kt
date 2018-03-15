@@ -44,7 +44,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
     }
 
     override fun onConnected() {
-        if (steamService?.isLoggedIn!!) {
+        if (steamService?.isLoggedIn == true) {
             ifViewAttached {
                 it.loginSuccess()
             }
@@ -116,7 +116,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
         info("Starting steam service...")
         context.startService<SteamService>()
 
-        if (!steamService?.isRunning!!) {
+        if (steamService?.isRunning != true) {
             steamService?.connect()
 
             ifViewAttached {

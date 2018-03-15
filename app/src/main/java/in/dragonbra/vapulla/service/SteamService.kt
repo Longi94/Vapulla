@@ -271,7 +271,7 @@ class SteamService : Service(), AnkoLogger {
         val newMessage = Message(message, System.currentTimeMillis(), friend.name)
         newMessages[friendId]?.add(newMessage)
 
-        val style = NotificationCompat.MessagingStyle(if (friend.name == null) "" else friend.name!!)
+        val style = NotificationCompat.MessagingStyle(friend.name ?: "")
 
         newMessages[friendId]?.forEach {
             style.addMessage(it)

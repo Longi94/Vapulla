@@ -72,7 +72,7 @@ class HomePresenter(context: Context,
     }
 
     private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
-        ifViewAttached { it.showFriends(list!!) }
+        ifViewAttached { it.showFriends(list ?: listOf()) }
     }
 
     fun disconnect() {
