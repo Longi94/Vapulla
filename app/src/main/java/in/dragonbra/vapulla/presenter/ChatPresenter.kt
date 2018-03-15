@@ -3,6 +3,8 @@ package `in`.dragonbra.vapulla.presenter
 import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.AliasHistoryCallback
+import `in`.dragonbra.javasteam.types.JobID
 import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.ChatActivity
@@ -18,7 +20,6 @@ import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.content.ComponentName
 import android.content.Context
-import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
 import org.jetbrains.anko.info
@@ -34,6 +35,8 @@ class ChatPresenter(context: Context,
     }
 
     private var lastTypingMessage = 0L
+
+    private var aliasJobId: JobID? = null
 
     private lateinit var chatData: LiveData<PagedList<ChatMessage>>
 
@@ -57,17 +60,18 @@ class ChatPresenter(context: Context,
         }
     }
 
-    private val connection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            info("Unbound from Steam service")
-        }
+    override fun onServiceDisconnected(name: ComponentName) {
+        info("Unbound from Steam service")
+    }
 
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            info("Bound to Steam service")
-            steamService?.setChatFriendId(steamId)
-            steamService?.isActivityRunning = true
-            getMessageHistory()
-        }
+    override fun onServiceConnected(name: ComponentName, service: IBinder) {
+        info("Bound to Steam service")
+
+        subscribe(steamService?.subscribe<AliasHistoryCallback> { onAliasHistory(it) })
+
+        steamService?.setChatFriendId(steamId)
+        steamService?.isActivityRunning = true
+        getMessageHistory()
     }
 
     override fun onResume() {
@@ -115,6 +119,17 @@ class ChatPresenter(context: Context,
     override fun onDisconnected() {
         ifViewAttached {
             it.closeApp()
+        }
+    }
+
+    fun onAliasHistory(callback: AliasHistoryCallback) {
+        if (aliasJobId == callback.jobID) {
+            ifViewAttached {
+                val list = callback.responses[0].names.toMutableList()
+                list.sortByDescending { it.nameSince }
+                val names = list.map { it.name }
+                it.showAliases(names)
+            }
         }
     }
 
@@ -186,5 +201,9 @@ class ChatPresenter(context: Context,
 
     fun viewAccountMenuClicked() {
         ifViewAttached { it.browseUrl("http://steamcommunity.com/profiles/${steamId.convertToUInt64()}") }
+    }
+
+    fun viewAliasesMenuClicked() {
+        runOnBackgroundThread { aliasJobId = steamService?.getHandler<SteamFriends>()?.requestAliasHistory(steamId) }
     }
 }

@@ -165,6 +165,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             presenter.viewAccountMenuClicked()
             true
         }
+        R.id.viewAliases -> {
+            presenter.viewAliasesMenuClicked()
+            true
+        }
         else -> false
     }
 
@@ -205,6 +209,18 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     override fun browseUrl(url: String) {
         browse(url)
+    }
+
+    override fun showAliases(names: List<String>) {
+        runOnUiThread {
+            val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Past aliases")
+                    .setItems(names.toTypedArray(), null)
+                    .setNegativeButton("Close", null)
+
+            builder.create().show()
+        }
     }
 
     @Suppress("UNUSED_PARAMETER")

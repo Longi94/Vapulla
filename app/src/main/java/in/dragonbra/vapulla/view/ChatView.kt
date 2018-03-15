@@ -14,4 +14,5 @@ interface ChatView : MvpView {
     fun showBlockFriendDialog(name: String)
     fun showNicknameDialog(nickname: String)
     fun browseUrl(url: String)
+    fun showAliases(names: List<String>)
 }

@@ -6,6 +6,10 @@
         android:title="Set nickname"
         app:showAsAction="never" />
     <item
+        android:id="@+id/viewAliases"
+        android:title="View aliases"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/viewAccount"
         android:title="View account"
         app:showAsAction="never" />
