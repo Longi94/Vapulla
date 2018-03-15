@@ -217,6 +217,7 @@ class SteamService : Service(), AnkoLogger {
 
         val builder = NotificationCompat.Builder(this, "vapulla-service")
                 .setDefaults(0)
+                .setShowWhen(false)
                 .setContentTitle("Vapulla")
                 .setContentText(text)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
@@ -307,7 +308,6 @@ class SteamService : Service(), AnkoLogger {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
         val notification = NotificationCompat.Builder(this, "vapulla-message")
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
-                .setShowWhen(false)
                 .setStyle(style)
                 .setSmallIcon(R.drawable.ic_message)
                 .setLargeIcon(bitmap)
