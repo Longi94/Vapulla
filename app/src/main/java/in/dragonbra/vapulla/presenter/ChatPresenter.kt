@@ -183,4 +183,8 @@ class ChatPresenter(context: Context,
             }
         }
     }
+
+    fun viewAccountMenuClicked() {
+        ifViewAttached { it.browseUrl("http://steamcommunity.com/profiles/${steamId.convertToUInt64()}") }
+    }
 }

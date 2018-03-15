@@ -34,6 +34,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.dialog_nickname.view.*
+import org.jetbrains.anko.browse
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
@@ -160,6 +161,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             presenter.nicknameMenuClicked()
             true
         }
+        R.id.viewAccount -> {
+            presenter.viewAccountMenuClicked()
+            true
+        }
         else -> false
     }
 
@@ -196,6 +201,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 .setNegativeButton("Cancel", null)
 
         builder.create().show()
+    }
+
+    override fun browseUrl(url: String) {
+        browse(url)
     }
 
     @Suppress("UNUSED_PARAMETER")
