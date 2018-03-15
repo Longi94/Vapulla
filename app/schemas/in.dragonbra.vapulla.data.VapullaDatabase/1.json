@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3c7b2a6bf708934cd1f3bc33077ee11a",
+    "identityHash": "8e6b4a61ba698659e1ffaf3be6a7258b",
     "entities": [
       {
         "tableName": "steam_friend",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER NOT NULL, `state` INTEGER, `game_app_id` INTEGER NOT NULL, `game_name` TEXT, `last_log_on` INTEGER NOT NULL, `last_log_off` INTEGER NOT NULL, `state_flags` INTEGER NOT NULL, `typing_timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `avatar` TEXT, `relation` INTEGER NOT NULL, `state` INTEGER, `game_app_id` INTEGER NOT NULL, `game_name` TEXT, `last_log_on` INTEGER NOT NULL, `last_log_off` INTEGER NOT NULL, `state_flags` INTEGER NOT NULL, `typing_timestamp` INTEGER NOT NULL, `nickname` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -73,6 +73,12 @@
             "columnName": "typing_timestamp",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "nickname",
+            "columnName": "nickname",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -184,7 +190,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3c7b2a6bf708934cd1f3bc33077ee11a\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8e6b4a61ba698659e1ffaf3be6a7258b\")"
     ]
   }
 }

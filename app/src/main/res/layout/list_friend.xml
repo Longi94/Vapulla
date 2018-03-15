@@ -25,21 +25,39 @@
         app:layout_constraintEnd_toEndOf="@+id/avatar"
         app:srcCompat="@drawable/status_indicator" />
 
-    <TextView
-        android:id="@+id/username"
+    <RelativeLayout
+        android:id="@+id/nameLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="88dp"
         android:layout_marginTop="8dp"
-        android:ellipsize="end"
-        android:lines="1"
-        android:textColor="@color/textPrimary"
-        android:textSize="16sp"
+        android:gravity="left"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Name" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/nickname"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@color/textPrimary"
+            android:textSize="16sp"
+            tools:text="Name" />
+
+        <TextView
+            android:id="@+id/nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="4dp"
+            android:textSize="16sp"
+            tools:text="(nickname)" />
+
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/mobileIndicator"
@@ -65,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="88dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username"
+        app:layout_constraintTop_toBottomOf="@+id/nameLayout"
         tools:text="Status" />
 
     <TextView

@@ -45,21 +45,39 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/friendUsername"
+            <RelativeLayout
+                android:id="@+id/nameLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="76dp"
                 android:layout_marginTop="8dp"
-                android:ellipsize="end"
-                android:lines="1"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@+id/moreButton"
+                android:gravity="left"
+                app:layout_constraintEnd_toStartOf="@id/moreButton"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Name" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/friendUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@id/friendNickname"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp"
+                    tools:text="Name" />
+
+                <TextView
+                    android:id="@+id/friendNickname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginLeft="4dp"
+                    android:textSize="16sp"
+                    tools:text="(nickname)" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/friendStatus"
@@ -69,7 +87,7 @@
                 android:layout_marginStart="76dp"
                 app:layout_constraintEnd_toStartOf="@+id/moreButton"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/friendUsername"
+                app:layout_constraintTop_toBottomOf="@+id/nameLayout"
                 tools:text="Status" />
 
             <ImageView

@@ -17,8 +17,9 @@ data class SteamFriend (
         @ColumnInfo(name = "last_log_on") var lastLogOn: Long,
         @ColumnInfo(name = "last_log_off") var lastLogOff: Long,
         @ColumnInfo(name = "state_flags") var stateFlags: Int,
-        @ColumnInfo(name = "typing_timestamp") var typingTs: Long
+        @ColumnInfo(name = "typing_timestamp") var typingTs: Long,
+        @ColumnInfo(name = "nickname") var nickname: String?
 ) {
     @Ignore
-    constructor(id: Long) : this(id, null, null, 0, null, 0, null, 0, 0, 0, 0L)
+    constructor(id: Long) : this(id, null, null, 0, null, 0, null, 0, 0, 0, 0L, null)
 }

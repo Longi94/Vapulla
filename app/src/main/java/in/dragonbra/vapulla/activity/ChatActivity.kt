@@ -24,13 +24,16 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_chat.*
+import kotlinx.android.synthetic.main.dialog_nickname.view.*
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
+
 
 class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher, PopupMenu.OnMenuItemClickListener {
 
@@ -101,6 +104,13 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             val state = if (friend.state == null) EPersonaState.Offline else EPersonaState.from(friend.state!!)
             friendUsername.text = friend.name
 
+            if (Strings.isNullOrEmpty(friend.nickname)) {
+                friendNickname.visibility = View.GONE
+            } else {
+                friendNickname.visibility = View.VISIBLE
+                friendNickname.text = "(${friend.nickname})"
+            }
+
             if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
                     && friend.typingTs > System.currentTimeMillis() - 20000L) {
                 friendStatus.text = getString(R.string.statusTyping)
@@ -143,6 +153,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             presenter.blockFriend()
             true
         }
+        R.id.setNickname -> {
+            presenter.nicknameMenuClicked()
+            true
+        }
         else -> false
     }
 
@@ -164,6 +178,19 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 .setTitle("Block all interactions with $name")
                 .setPositiveButton("Yes", { _, _ -> presenter.confirmBlockFriend() })
                 .setNegativeButton("No", null)
+
+        builder.create().show()
+    }
+
+    override fun showNicknameDialog(nickname: String) {
+        val v = LayoutInflater.from(this).inflate(R.layout.dialog_nickname, null)
+        v.nickname.setText(nickname)
+
+        val builder = AlertDialog.Builder(this)
+                .setTitle("Set nickname")
+                .setView(v)
+                .setPositiveButton("Set", { _, _ -> presenter.setNickname(v.nickname.text.toString()) })
+                .setNegativeButton("Cancel", null)
 
         builder.create().show()
     }

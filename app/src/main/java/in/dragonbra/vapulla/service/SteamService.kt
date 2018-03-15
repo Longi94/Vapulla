@@ -6,10 +6,7 @@ import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
-import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgHistoryCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendsListCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.PersonaStatesCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
@@ -139,6 +136,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
         subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
         subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
+        subscriptions.add(callbackMgr?.subscribe(NicknameListCallback::class.java, onNicknameList))
 
         remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
                 .setLabel("Reply")
@@ -583,6 +581,19 @@ class SteamService : Service(), AnkoLogger {
                 }
             }
             else -> {
+            }
+        }
+    }
+
+    private val onNicknameList: Consumer<NicknameListCallback> = Consumer {
+        db.steamFriendDao().clearNicknames()
+
+        it.nicknames.forEach {
+            val friend = db.steamFriendDao().find(it.steamID.convertToUInt64())
+
+            if (friend != null) {
+                friend.nickname = it.nickname
+                db.steamFriendDao().update(friend)
             }
         }
     }

@@ -207,4 +207,20 @@ class ChatPresenter(val context: Context,
             steamService?.getHandler<SteamFriends>()?.ignoreFriend(steamId)
         }
     }
+
+    fun nicknameMenuClicked() {
+        ifViewAttached { it.showNicknameDialog(friendData.value?.nickname ?: "") }
+    }
+
+    fun setNickname(nickname: String) {
+        runOnBackgroundThread {
+            steamService?.getHandler<SteamFriends>()?.setFriendNickname(steamId, nickname)
+            val friend = steamFriendsDao.find(steamId.convertToUInt64())
+
+            if (friend != null) {
+                friend.nickname = nickname
+                steamFriendsDao.update(friend)
+            }
+        }
+    }
 }

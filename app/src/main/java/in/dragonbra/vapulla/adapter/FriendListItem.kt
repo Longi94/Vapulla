@@ -16,5 +16,6 @@ data class FriendListItem(
         @ColumnInfo(name = "state_flags") var stateFlags: Int,
         @ColumnInfo(name = "typing_timestamp") var typingTs: Long,
         @ColumnInfo(name = "last_message") var lastMessage: String?,
-        @ColumnInfo(name = "last_message_time") var lastMessageTime: Long?
+        @ColumnInfo(name = "last_message_time") var lastMessageTime: Long?,
+        @ColumnInfo(name = "nickname") var nickname: String?
 )

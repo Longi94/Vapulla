@@ -12,4 +12,5 @@ interface ChatView : MvpView {
     fun showRemoveFriendDialog(name: String)
     fun navigateUp()
     fun showBlockFriendDialog(name: String)
+    fun showNicknameDialog(nickname: String)
 }

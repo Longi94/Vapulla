@@ -38,4 +38,7 @@ interface SteamFriendDao {
             "         state = 0 ASC, " +
             "         name COLLATE NOCASE ASC")
     fun getLive(): LiveData<List<FriendListItem>>
+
+    @Query("UPDATE steam_friend SET nickname = NULL")
+    fun clearNicknames()
 }
