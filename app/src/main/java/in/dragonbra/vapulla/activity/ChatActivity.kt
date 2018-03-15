@@ -9,13 +9,16 @@ import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.extension.bold
+import `in`.dragonbra.vapulla.extension.hide
+import `in`.dragonbra.vapulla.extension.normal
+import `in`.dragonbra.vapulla.extension.show
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.paging.PagedList
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.NavUtils
 import android.support.v4.content.ContextCompat
@@ -105,9 +108,9 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             friendUsername.text = friend.name
 
             if (Strings.isNullOrEmpty(friend.nickname)) {
-                friendNickname.visibility = View.GONE
+                friendNickname.hide()
             } else {
-                friendNickname.visibility = View.VISIBLE
+                friendNickname.show()
                 friendNickname.text = "(${friend.nickname})"
             }
 
@@ -115,11 +118,11 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                     && friend.typingTs > System.currentTimeMillis() - 20000L) {
                 friendStatus.text = getString(R.string.statusTyping)
                 friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, R.color.colorAccent)
-                friendStatus.setTypeface(friendStatus.typeface, Typeface.BOLD)
+                friendStatus.bold()
             } else {
                 friendStatus.text = Utils.getStatusText(this@ChatActivity, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
                 friendStatus.textColor = ContextCompat.getColor(this@ChatActivity, android.R.color.secondary_text_dark)
-                friendStatus.setTypeface(Typeface.create(friendStatus.typeface, Typeface.NORMAL), Typeface.NORMAL)
+                friendStatus.normal()
             }
 
             Glide.with(this@ChatActivity)

@@ -2,11 +2,12 @@ package `in`.dragonbra.vapulla.activity
 
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.extension.hide
+import `in`.dragonbra.vapulla.extension.show
 import `in`.dragonbra.vapulla.presenter.LoginPresenter
 import `in`.dragonbra.vapulla.view.LoginView
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.view.View
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
@@ -42,22 +43,22 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     override fun onDisconnected() {
         runOnUiThread {
             Snackbar.make(steamGuardLayout, "Disconnected from Steam", Snackbar.LENGTH_LONG).show()
-            loadingLayout.visibility = View.GONE
-            username.visibility = View.VISIBLE
-            password.visibility = View.VISIBLE
-            login.visibility = View.VISIBLE
-            steamGuardLayout.visibility = View.GONE
+            loadingLayout.hide()
+            username.show()
+            password.show()
+            login.show()
+            steamGuardLayout.hide()
         }
     }
 
     override fun showLoading(text: String) {
         runOnUiThread {
-            loadingLayout.visibility = View.VISIBLE
+            loadingLayout.show()
             loadingText.text = text
-            username.visibility = View.GONE
-            password.visibility = View.GONE
-            login.visibility = View.GONE
-            steamGuardLayout.visibility = View.GONE
+            username.hide()
+            password.hide()
+            login.hide()
+            steamGuardLayout.hide()
         }
     }
 
@@ -67,11 +68,11 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
 
     override fun showSteamGuard() {
         runOnUiThread {
-            loadingLayout.visibility = View.GONE
-            username.visibility = View.GONE
-            password.visibility = View.GONE
-            login.visibility = View.GONE
-            steamGuardLayout.visibility = View.VISIBLE
+            loadingLayout.hide()
+            username.hide()
+            password.hide()
+            login.hide()
+            steamGuardLayout.show()
         }
     }
 }

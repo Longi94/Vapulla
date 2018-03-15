@@ -5,13 +5,12 @@ import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.enums.EPersonaStateFlag
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
-import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.CircleTransform
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
-import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.support.v4.content.ContextCompat
 import android.support.v7.util.DiffUtil
@@ -125,9 +124,9 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
 
                     if (Strings.isNullOrEmpty(friend.nickname)) {
-                        v.nickname.visibility = View.GONE
+                        v.nickname.hide()
                     } else {
-                        v.nickname.visibility = View.VISIBLE
+                        v.nickname.show()
                         v.nickname.text = "(${friend.nickname})"
                     }
 
@@ -137,23 +136,23 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                             && friend.typingTs > System.currentTimeMillis() - 20000L) {
                         v.status.text = context.getString(R.string.statusTyping)
                         v.status.textColor = ContextCompat.getColor(context, R.color.colorAccent)
-                        v.status.setTypeface(v.status.typeface, Typeface.BOLD)
+                        v.status.bold()
                     } else {
                         v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
                         v.status.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
-                        v.status.setTypeface(Typeface.create(v.status.typeface, Typeface.NORMAL), Typeface.NORMAL)
+                        v.status.normal()
                     }
                     v.lastMessage.text = friend.lastMessage
 
                     (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
 
-                    v.mobileIndicator.visibility = View.GONE
-                    v.webIndicator.visibility = View.GONE
+                    v.mobileIndicator.hide()
+                    v.webIndicator.hide()
                     val flags = EPersonaStateFlag.from(friend.stateFlags)
                     if (flags.contains(EPersonaStateFlag.ClientTypeMobile)) {
-                        v.mobileIndicator.visibility = View.VISIBLE
+                        v.mobileIndicator.show()
                     } else if (flags.contains(EPersonaStateFlag.ClientTypeWeb)) {
-                        v.webIndicator.visibility = View.VISIBLE
+                        v.webIndicator.show()
                     }
 
                     v.click {

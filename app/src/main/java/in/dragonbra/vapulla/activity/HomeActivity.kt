@@ -5,6 +5,8 @@ import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.FriendListAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.extension.isVisible
+import `in`.dragonbra.vapulla.extension.toggleVisibility
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
@@ -62,13 +64,13 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
         statusButton.click {
 
-            if (statusLayout.visibility == View.VISIBLE) {
+            if (statusLayout.isVisible()) {
                 statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_close))
             } else {
                 statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_open))
             }
 
-            statusLayout.visibility = if (statusLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            statusLayout.toggleVisibility()
         }
     }
 
