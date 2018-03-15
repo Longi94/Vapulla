@@ -1,10 +1,8 @@
 package `in`.dragonbra.vapulla.presenter
 
 import `in`.dragonbra.javasteam.enums.EChatEntryType
-import `in`.dragonbra.javasteam.enums.EClientPersonaStateFlag
 import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
-import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.ChatActivity
@@ -12,7 +10,6 @@ import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
-import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.lifecycle.LiveData
@@ -25,34 +22,18 @@ import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
 import org.jetbrains.anko.info
-import org.jetbrains.anko.intentFor
-import java.io.Closeable
-import java.util.*
 
-class ChatPresenter(val context: Context,
+class ChatPresenter(context: Context,
                     private val chatMessageDao: ChatMessageDao,
                     private val steamFriendsDao: SteamFriendDao,
-                    val steamId: SteamID) : VapullaPresenter<ChatView>() {
+                    val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
 
     companion object {
-        val REQUESTED_INFO = EClientPersonaStateFlag.code(EnumSet.of(
-                EClientPersonaStateFlag.Status,
-                EClientPersonaStateFlag.LastSeen,
-                EClientPersonaStateFlag.PlayerName,
-                EClientPersonaStateFlag.Presence
-        ))
-
         const val UPDATE_INTERVAL = 1000L
         const val TYPING_INTERVAL = 20000L
     }
 
-    private var bound = false
-
     private var lastTypingMessage = 0L
-
-    private var steamService: SteamService? = null
-
-    private val subs: MutableList<Closeable?> = LinkedList()
 
     private lateinit var chatData: LiveData<PagedList<ChatMessage>>
 
@@ -79,35 +60,14 @@ class ChatPresenter(val context: Context,
     private val connection: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             info("Unbound from Steam service")
-
-            subs.forEach { it?.close() }
-            subs.clear()
-
-            bound = false
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             info("Bound to Steam service")
-            val binder = service as SteamService.SteamBinder
-            steamService = binder.getService()
-
-            subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
-
-            bound = true
             steamService?.setChatFriendId(steamId)
             steamService?.isActivityRunning = true
-
             getMessageHistory()
         }
-    }
-
-    override fun onStart() {
-        context.bindService(context.intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun onStop() {
-        context.unbindService(connection)
-        bound = false
     }
 
     override fun onResume() {
@@ -152,7 +112,7 @@ class ChatPresenter(val context: Context,
         }
     }
 
-    private fun onDisconnected() {
+    override fun onDisconnected() {
         ifViewAttached {
             it.closeApp()
         }

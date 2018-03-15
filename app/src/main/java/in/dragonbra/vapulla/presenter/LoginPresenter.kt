@@ -5,30 +5,18 @@ import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
-import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
-import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.LoginView
 import android.content.ComponentName
 import android.content.Context
-import android.content.ServiceConnection
 import android.os.IBinder
 import org.jetbrains.anko.info
-import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.startService
 import org.jetbrains.anko.warn
-import java.io.Closeable
-import java.util.*
 
-class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
-
-    private var bound = false
-
-    private var steamService: SteamService? = null
-
-    private val subs: MutableList<Closeable?> = LinkedList()
+class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
 
     private val logOnDetails = LogOnDetails()
 
@@ -38,46 +26,24 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
 
     private var expectSteamGuard = false
 
-    private val connection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            info("Unbound from Steam service")
+    override fun onServiceDisconnected(name: ComponentName) {
+        info("Unbound from Steam service")
+    }
 
-            subs.forEach { it?.close() }
-            subs.clear()
+    override fun onServiceConnected(name: ComponentName, service: IBinder) {
+        info("Bound to Steam service")
 
-            bound = false
-        }
+        subscribe(steamService?.subscribe<LoggedOnCallback>({ onLoggedOn(it) }))
 
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            info("Bound to Steam service")
-            val binder = service as SteamService.SteamBinder
-            steamService = binder.getService()
-
-            subs.add(steamService?.subscribe<ConnectedCallback>({ onConnected() }))
-            subs.add(steamService?.subscribe<DisconnectedCallback>({ onDisconnected() }))
-            subs.add(steamService?.subscribe<LoggedOnCallback>({ onLoggedOn(it) }))
-
-            if (account.hasLoginKey()) {
-                logOnDetails.username = account.username
-                logOnDetails.password = null
-                logOnDetails.loginKey = account.loginKey
-                startSteamService()
-            }
-
-            bound = true
+        if (account.hasLoginKey()) {
+            logOnDetails.username = account.username
+            logOnDetails.password = null
+            logOnDetails.loginKey = account.loginKey
+            startSteamService()
         }
     }
 
-    override fun onStart() {
-        context.bindService(context.intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
-    }
-
-    override fun onStop() {
-        context.unbindService(connection)
-        bound = false
-    }
-
-    private fun onConnected() {
+    override fun onConnected() {
         if (steamService?.isLoggedIn!!) {
             ifViewAttached {
                 it.loginSuccess()
@@ -94,7 +60,7 @@ class LoginPresenter(val context: Context) : VapullaPresenter<LoginView>() {
         }
     }
 
-    private fun onDisconnected() {
+    override fun onDisconnected() {
         if (!expectSteamGuard) {
             ifViewAttached { it.onDisconnected() }
         }
