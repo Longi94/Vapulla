@@ -31,11 +31,19 @@ class VapullaApplication : Application() {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val serviceChannel = NotificationChannel("vapulla-service",
                     "Vapulla",
-                    NotificationManager.IMPORTANCE_DEFAULT)
+                    NotificationManager.IMPORTANCE_LOW)
             serviceChannel.enableVibration(false)
             serviceChannel.importance = NotificationManager.IMPORTANCE_LOW
             serviceChannel.enableLights(false)
             notificationManager.createNotificationChannel(serviceChannel)
+
+            val friendRequestChannel = NotificationChannel("vapulla-friend-request",
+                    "Friend request",
+                    NotificationManager.IMPORTANCE_DEFAULT)
+            friendRequestChannel.importance = NotificationManager.IMPORTANCE_DEFAULT
+            friendRequestChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            friendRequestChannel.lightColor = 0xffffffff.toInt()
+            notificationManager.createNotificationChannel(friendRequestChannel)
 
 
             val messageChannel = NotificationChannel("vapulla-message", "Vapulla",

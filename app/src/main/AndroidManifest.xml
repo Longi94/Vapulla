@@ -58,6 +58,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.dragonbra.vapulla.activity.HomeActivity" />
         </activity>
+
+        <receiver
+            android:name=".broadcastreceiver.AcceptRequestReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".broadcastreceiver.BlockRequestReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".broadcastreceiver.IgnoreRequestReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

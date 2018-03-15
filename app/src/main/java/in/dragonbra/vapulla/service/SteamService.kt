@@ -1,8 +1,10 @@
 package `in`.dragonbra.vapulla.service
 
 import `in`.dragonbra.javasteam.enums.EChatEntryType
+import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.FriendMsgHistoryCallback
@@ -24,8 +26,7 @@ import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.activity.HomeActivity
-import `in`.dragonbra.vapulla.broadcastreceiver.LogOutReceiver
-import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver
+import `in`.dragonbra.vapulla.broadcastreceiver.*
 import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver.Companion.KEY_TEXT_REPLY
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
@@ -48,6 +49,7 @@ import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import com.bumptech.glide.Glide
 import org.jetbrains.anko.*
+import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -75,6 +77,8 @@ class SteamService : Service(), AnkoLogger {
     private val newMessages: MutableMap<SteamID, MutableList<Message>> = mutableMapOf()
 
     val disconnectedSubs: MutableSet<(DisconnectedCallback) -> Unit> = mutableSetOf()
+
+    private val requestsToNotify: MutableSet<SteamID> =  mutableSetOf()
 
     private val handlerThread = HandlerThread("SteamService Handler")
 
@@ -151,9 +155,13 @@ class SteamService : Service(), AnkoLogger {
         info("onStartCommand")
 
         if (isRunning && intent != null && intent.hasExtra(EXTRA_ACTION)) {
+            val id = SteamID(intent.getLongExtra(EXTRA_ID, 0L))
+            val action = intent.getStringExtra(EXTRA_ACTION)
+
+            info("Received $action action message")
+
             when (intent.getStringExtra(EXTRA_ACTION)) {
                 "reply" -> {
-                    val id = SteamID(intent.getLongExtra(EXTRA_ID, 0L))
                     val message = intent.getStringExtra(EXTRA_MESSAGE)
 
                     runOnBackgroundThread {
@@ -173,6 +181,24 @@ class SteamService : Service(), AnkoLogger {
                 }
                 "stop" -> {
                     stopSelf()
+                }
+                "accept_request" -> {
+                    runOnBackgroundThread {
+                        getHandler<SteamFriends>()?.addFriend(id)
+                    }
+                    notificationManager.cancel(id.convertToUInt64().toInt())
+                }
+                "ignore_request" -> {
+                    runOnBackgroundThread {
+                        getHandler<SteamFriends>()?.removeFriend(id)
+                    }
+                    notificationManager.cancel(id.convertToUInt64().toInt())
+                }
+                "block_request" -> {
+                    runOnBackgroundThread {
+                        getHandler<SteamFriends>()?.ignoreFriend(id)
+                    }
+                    notificationManager.cancel(id.convertToUInt64().toInt())
                 }
             }
         }
@@ -283,6 +309,7 @@ class SteamService : Service(), AnkoLogger {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
         val notification = NotificationCompat.Builder(this, "vapulla-message")
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
+                .setShowWhen(false)
                 .setStyle(style)
                 .setSmallIcon(R.drawable.ic_message)
                 .setLargeIcon(bitmap)
@@ -298,6 +325,63 @@ class SteamService : Service(), AnkoLogger {
             // TODO delayed notification remove?
             //removeNotifications()
         }
+    }
+
+    private fun postFriendRequestNotification(state: PersonaState) {
+        var bitmap: Bitmap? = null
+
+        try {
+            bitmap = Glide.with(applicationContext)
+                    .asBitmap()
+                    .load(Utils.getAvatarUrl(Hex.toHexString(state.avatarHash)))
+                    .apply(Utils.avatarOptions)
+                    .submit()
+                    .get(5, TimeUnit.SECONDS)
+        } catch (ignored: Exception) {
+        }
+
+        val acceptPendingIntent = PendingIntent.getBroadcast(
+                applicationContext,
+                state.friendID.convertToUInt64().toInt(),
+                intentFor<AcceptRequestReceiver>(
+                        AcceptRequestReceiver.EXTRA_ID to state.friendID.convertToUInt64()
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val ignorePendingIntent = PendingIntent.getBroadcast(
+                applicationContext,
+                state.friendID.convertToUInt64().toInt(),
+                intentFor<IgnoreRequestReceiver>(
+                        IgnoreRequestReceiver.EXTRA_ID to state.friendID.convertToUInt64()
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val blockPendingIntent = PendingIntent.getBroadcast(
+                applicationContext,
+                state.friendID.convertToUInt64().toInt(),
+                intentFor<BlockRequestReceiver>(
+                        IgnoreRequestReceiver.EXTRA_ID to state.friendID.convertToUInt64()
+                ),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = NotificationCompat.Builder(this, "vapulla-friend-request")
+                .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
+                .setSmallIcon(R.drawable.ic_add_friend)
+                .setLargeIcon(bitmap)
+                .setContentText("${state.name} has added to their friends list!")
+                .setContentTitle("New friend request")
+                .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
+                .addAction(R.drawable.ic_check, "ACCEPT", acceptPendingIntent)
+                .addAction(R.drawable.ic_close, "IGNORE", ignorePendingIntent)
+                .addAction(R.drawable.ic_block, "BLOCK", blockPendingIntent)
+                .build()
+
+        notificationManager.notify(state.friendID.convertToUInt64().toInt(), notification)
     }
 
     private fun getMessageReplyIntent(id: Long): Intent =
@@ -407,11 +491,17 @@ class SteamService : Service(), AnkoLogger {
             info("${it.state} - ${it.name} - ${it.lastLogOff.time} - ${it.lastLogOn.time}")
 
             stateBuffer.push(it)
+
+            if (requestsToNotify.contains(it.friendID)) {
+                postFriendRequestNotification(it)
+                requestsToNotify.remove(it.friendID)
+            }
         }
     }
 
     private val onFriendsList: Consumer<FriendsListCallback> = Consumer {
         val dao = db.steamFriendDao()
+        val inc = it.isIncremental
         it.friendList.forEach {
             if (!it.steamID.isIndividualAccount) {
                 return@forEach
@@ -428,6 +518,9 @@ class SteamService : Service(), AnkoLogger {
                 dao.update(friend)
             }
 
+            if (inc && friend.relation == EFriendRelationship.RequestRecipient.code()) {
+                requestsToNotify.add(it.steamID)
+            }
         }
     }
 
