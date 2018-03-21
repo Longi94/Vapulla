@@ -3,10 +3,14 @@ package `in`.dragonbra.vapulla.util
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
+import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.format.DateUtils
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import com.bumptech.glide.request.RequestOptions
+
 
 object Utils {
     val avatarOptions = RequestOptions()
@@ -45,4 +49,9 @@ object Utils {
             } else {
                 context.getString(R.string.statusPlaying, if (gameName == null) "" else gameName)
             }
+
+    fun hideKeyboardFrom(context: Context, view: View) {
+        val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 }

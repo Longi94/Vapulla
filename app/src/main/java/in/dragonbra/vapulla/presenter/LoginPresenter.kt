@@ -40,6 +40,8 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
             logOnDetails.password = null
             logOnDetails.loginKey = account.loginKey
             startSteamService()
+        } else {
+            ifViewAttached { it.showLoginForm() }
         }
     }
 
@@ -62,7 +64,11 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
 
     override fun onDisconnected() {
         if (!expectSteamGuard) {
-            ifViewAttached { it.onDisconnected() }
+            if (account.hasLoginKey()) {
+                ifViewAttached { it.showFailedScreen() }
+            } else {
+                ifViewAttached { it.showLoginForm() }
+            }
         }
     }
 
@@ -77,7 +83,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
             } else {
                 warn { "Failed to log in ${callback.result} / ${callback.extendedResult}" }
                 expectSteamGuard = false
-                ifViewAttached { it.onDisconnected() }
+                ifViewAttached { it.showLoginForm() }
             }
             steamService?.disconnect()
             return
@@ -126,5 +132,14 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
             onConnected()
         }
 
+    }
+
+    fun retry() {
+        if (account.hasLoginKey()) {
+            logOnDetails.username = account.username
+            logOnDetails.password = null
+            logOnDetails.loginKey = account.loginKey
+            startSteamService()
+        }
     }
 }

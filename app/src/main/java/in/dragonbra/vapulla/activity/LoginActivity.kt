@@ -5,10 +5,14 @@ import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.extension.hide
 import `in`.dragonbra.vapulla.extension.show
 import `in`.dragonbra.vapulla.presenter.LoginPresenter
+import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.LoginView
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.login_form.*
+import kotlinx.android.synthetic.main.login_loading.*
+import kotlinx.android.synthetic.main.login_retry.*
+import kotlinx.android.synthetic.main.login_steam_guard.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
@@ -24,7 +28,10 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        login.click { presenter.login(username.text.toString(), password.text.toString()) }
+        login.click {
+            Utils.hideKeyboardFrom(this@LoginActivity, it)
+            presenter.login(username.text.toString(), password.text.toString())
+        }
 
         steamGuardButton.click {
             val code = steamGuardInput.text.toString()
@@ -34,31 +41,24 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
                 return@click
             }
 
+            Utils.hideKeyboardFrom(this@LoginActivity, it)
             presenter.login(code)
+        }
+
+        retryButton.click {
+            presenter.retry();
         }
     }
 
     override fun createPresenter(): LoginPresenter = loginPresenter
 
-    override fun onDisconnected() {
-        runOnUiThread {
-            Snackbar.make(steamGuardLayout, "Disconnected from Steam", Snackbar.LENGTH_LONG).show()
-            loadingLayout.hide()
-            username.show()
-            password.show()
-            login.show()
-            steamGuardLayout.hide()
-        }
-    }
-
     override fun showLoading(text: String) {
         runOnUiThread {
             loadingLayout.show()
             loadingText.text = text
-            username.hide()
-            password.hide()
-            login.hide()
+            loginLayout.hide()
             steamGuardLayout.hide()
+            failedLayout.hide()
         }
     }
 
@@ -69,10 +69,27 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     override fun showSteamGuard() {
         runOnUiThread {
             loadingLayout.hide()
-            username.hide()
-            password.hide()
-            login.hide()
+            loginLayout.hide()
             steamGuardLayout.show()
+            failedLayout.hide()
+        }
+    }
+
+    override fun showLoginForm() {
+        runOnUiThread {
+            loadingLayout.hide()
+            loginLayout.show()
+            steamGuardLayout.hide()
+            failedLayout.hide()
+        }
+    }
+
+    override fun showFailedScreen() {
+        runOnUiThread {
+            loadingLayout.hide()
+            loginLayout.hide()
+            steamGuardLayout.hide()
+            failedLayout.show()
         }
     }
 }
