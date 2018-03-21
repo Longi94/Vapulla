@@ -449,6 +449,17 @@ class SteamService : Service(), AnkoLogger {
         info("connected to steam")
         retryCount = 0
         setNotification("Connected to Steam")
+
+        if (isLoggedIn) {
+            val details = LogOnDetails()
+            details.username = account.username
+            details.loginKey = account.loginKey
+            details.isShouldRememberPassword = true
+            if (account.hasSentryFile()) {
+                details.sentryFileHash = account.sentry
+            }
+            getHandler<SteamUser>()?.logOn(details)
+        }
     }
 
     private val onLoggedOn: Consumer<LoggedOnCallback> = Consumer {
