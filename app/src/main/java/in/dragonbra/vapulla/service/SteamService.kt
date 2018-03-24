@@ -485,6 +485,8 @@ class SteamService : Service(), AnkoLogger {
         info { "received login key" }
         account.loginKey = it.loginKey
         account.uniqueId = it.uniqueID
+
+        getHandler<SteamUser>()?.acceptNewLoginKey(it)
     }
 
     private val onUpdateMachineAuth: Consumer<UpdateMachineAuthCallback> = Consumer {
