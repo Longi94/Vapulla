@@ -7,6 +7,8 @@ import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
+import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.SteamNotifications
+import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.callback.OfflineMessageNotificationCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
@@ -137,6 +139,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
         subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
         subscriptions.add(callbackMgr?.subscribe(NicknameListCallback::class.java, onNicknameList))
+        subscriptions.add(callbackMgr?.subscribe(OfflineMessageNotificationCallback::class.java, onOfflineMessageNotification))
 
         remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
                 .setLabel("Reply")
@@ -464,7 +467,10 @@ class SteamService : Service(), AnkoLogger {
 
     private val onLoggedOn: Consumer<LoggedOnCallback> = Consumer {
         when (it.result) {
-            EResult.OK -> isLoggedIn = true
+            EResult.OK -> {
+                isLoggedIn = true
+                getHandler<SteamNotifications>()?.requestOfflineMessageCount()
+            }
             EResult.InvalidPassword -> account.loginKey = null
             else -> {
             }
@@ -606,6 +612,12 @@ class SteamService : Service(), AnkoLogger {
                 friend.nickname = it.nickname
                 db.steamFriendDao().update(friend)
             }
+        }
+    }
+
+    private val onOfflineMessageNotification: Consumer<OfflineMessageNotificationCallback> = Consumer {
+        if (it.messageCount > 0) {
+            getHandler<SteamFriends>()?.requestOfflineMessages()
         }
     }
 
