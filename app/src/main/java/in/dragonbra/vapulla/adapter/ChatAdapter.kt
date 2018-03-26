@@ -1,8 +1,10 @@
 package `in`.dragonbra.vapulla.adapter
 
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import android.arch.paging.PagedListAdapter
+import android.content.Context
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,7 +15,7 @@ import kotlinx.android.synthetic.main.list_chat_received.view.*
 /**
  * Created by lngtr on 2018-03-05.
  */
-class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_CALLBACK) {
+class ChatAdapter(val context: Context, val paperPlane: PaperPlane) : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     companion object {
         const val VIEW_TYPE_RECEIVED = 0
@@ -39,7 +41,7 @@ class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_C
             else -> R.layout.list_chat_received
         }
         val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
-        return ViewHolder(v)
+        return ViewHolder(v, paperPlane)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -60,13 +62,13 @@ class ChatAdapter : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_C
         }
     }
 
-    class ViewHolder(val v: View) : RecyclerView.ViewHolder(v) {
+    class ViewHolder(val v: View, val paperPlane: PaperPlane) : RecyclerView.ViewHolder(v) {
         fun bind(message: ChatMessage) {
-            v.message.text = message.message
+            paperPlane.load(v.message, message.message, true)
         }
 
         fun clear() {
-            v.message.text = ""
+            paperPlane.clear(v.message)
         }
     }
 }

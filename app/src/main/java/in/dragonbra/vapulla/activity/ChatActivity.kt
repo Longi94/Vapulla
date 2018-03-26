@@ -6,6 +6,7 @@ import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.ChatAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
+import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
@@ -51,6 +52,8 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var steamFriendDao: SteamFriendDao
 
+    lateinit var paperPlane: PaperPlane
+
     lateinit var chatAdapter: ChatAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +61,8 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        chatAdapter = ChatAdapter()
+        paperPlane = PaperPlane(this, 18.0f)
+        chatAdapter = ChatAdapter(this, paperPlane)
 
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
@@ -79,6 +83,11 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             popup.show()
             popup.setOnMenuItemClickListener(this@ChatActivity)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        paperPlane.clearAll()
     }
 
     override fun createPresenter(): ChatPresenter {

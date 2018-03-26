@@ -4,6 +4,7 @@ import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.FriendListAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
+import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.extension.isVisible
 import `in`.dragonbra.vapulla.extension.toggleVisibility
@@ -40,6 +41,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     @Inject
     lateinit var gameSchemaManager: GameSchemaManager
 
+    lateinit var paperPlane: PaperPlane
+
     lateinit var friendListAdapter: FriendListAdapter
 
     private val updateHandler: Handler = Handler()
@@ -49,7 +52,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        friendListAdapter = FriendListAdapter(this, gameSchemaManager)
+        paperPlane = PaperPlane(this, 14.0f)
+        friendListAdapter = FriendListAdapter(this, gameSchemaManager, paperPlane)
         friendListAdapter.listener = this
 
         friendList.layoutManager = LinearLayoutManager(this)
@@ -82,6 +86,11 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     override fun onPause() {
         super.onPause()
         updateHandler.removeCallbacksAndMessages(null)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        paperPlane.clearAll()
     }
 
     override fun createPresenter(): HomePresenter = homePresenter

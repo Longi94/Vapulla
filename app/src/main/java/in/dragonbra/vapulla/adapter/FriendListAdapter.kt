@@ -5,6 +5,7 @@ import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.enums.EPersonaStateFlag
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -29,7 +30,8 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.textColor
 
 
-class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager) : RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
+class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager, val paperPlane: PaperPlane) :
+        RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
 
     companion object {
         const val VIEW_TYPE_FRIEND = 0
@@ -51,7 +53,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
             else -> R.layout.list_friend
         }
         val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
-        return ViewHolder(v)
+        return ViewHolder(v, paperPlane)
     }
 
     override fun getItemCount(): Int = friendList.size
@@ -84,7 +86,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         result.dispatchUpdatesTo(this)
     }
 
-    inner class ViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
+    inner class ViewHolder(private val v: View, val paperPlane: PaperPlane) : RecyclerView.ViewHolder(v) {
         fun bind(friend: FriendListItem, header: Boolean, footer: Boolean) {
 
             when (friend.relation) {
@@ -142,7 +144,8 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                         v.status.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
                         v.status.normal()
                     }
-                    v.lastMessage.text = friend.lastMessage
+
+                    paperPlane.load(v.lastMessage, friend.lastMessage ?: "", false)
 
                     (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
 

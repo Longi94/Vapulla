@@ -7,9 +7,12 @@ import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.format.DateUtils
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.bumptech.glide.request.RequestOptions
+
+
 
 
 object Utils {
@@ -53,5 +56,11 @@ object Utils {
     fun hideKeyboardFrom(context: Context, view: View) {
         val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    fun convertDpToPixel(dp: Float, context: Context): Float {
+        val resources = context.resources
+        val metrics = resources.displayMetrics
+        return dp * (metrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
     }
 }
