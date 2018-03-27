@@ -47,6 +47,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glide_version"
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation 'com.google.android:flexbox:0.3.2'
     implementation 'com.hannesdorfmann.mosby3:mvp:3.1.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'

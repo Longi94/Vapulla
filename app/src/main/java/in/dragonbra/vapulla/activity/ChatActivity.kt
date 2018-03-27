@@ -5,15 +5,15 @@ import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.adapter.ChatAdapter
+import `in`.dragonbra.vapulla.adapter.EmoteAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
+import `in`.dragonbra.vapulla.data.dao.EmoticonDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
-import `in`.dragonbra.vapulla.extension.bold
-import `in`.dragonbra.vapulla.extension.hide
-import `in`.dragonbra.vapulla.extension.normal
-import `in`.dragonbra.vapulla.extension.show
+import `in`.dragonbra.vapulla.data.entity.Emoticon
+import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
@@ -33,6 +33,9 @@ import android.view.MenuItem
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.dialog_nickname.view.*
 import org.jetbrains.anko.browse
@@ -52,9 +55,14 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var steamFriendDao: SteamFriendDao
 
+    @Inject
+    lateinit var emoticonDao: EmoticonDao
+
     lateinit var paperPlane: PaperPlane
 
     lateinit var chatAdapter: ChatAdapter
+
+    lateinit var emoteAdapter: EmoteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -75,6 +83,15 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 chatList
         ))
 
+        emoteAdapter = EmoteAdapter(this)
+
+        val emoteLayoutManager = FlexboxLayoutManager(this)
+        emoteLayoutManager.flexDirection = FlexDirection.ROW
+        emoteLayoutManager.justifyContent = JustifyContent.CENTER
+
+        emoteList.layoutManager = emoteLayoutManager;
+        emoteList.adapter = emoteAdapter
+
         messageBox.addTextChangedListener(this)
 
         moreButton.setOnClickListener {
@@ -92,7 +109,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     override fun createPresenter(): ChatPresenter {
         val steamId = SteamID(intent.getLongExtra(INTENT_STEAM_ID, 0L))
-        return ChatPresenter(this, chatMessageDao, steamFriendDao, steamId)
+        return ChatPresenter(this, chatMessageDao, steamFriendDao, emoticonDao, steamId)
     }
 
     override fun closeApp() {
@@ -232,6 +249,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         }
     }
 
+    override fun showEmotes(list: List<Emoticon>) {
+        emoteAdapter.swap(list)
+    }
+
     @Suppress("UNUSED_PARAMETER")
     fun navigateUp(v: View) {
         NavUtils.navigateUpFromSameTask(this)
@@ -246,5 +267,14 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             presenter.sendMessage(message)
         }
 
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun toggleEmote(v: View) {
+        emoteList.toggleVisibility()
+
+        if (emoteList.isVisible()) {
+            presenter.requestEmotes()
+        }
     }
 }

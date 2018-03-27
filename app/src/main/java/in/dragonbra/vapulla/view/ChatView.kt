@@ -2,6 +2,7 @@ package `in`.dragonbra.vapulla.view
 
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.data.entity.Emoticon
 import android.arch.paging.PagedList
 import com.hannesdorfmann.mosby3.mvp.MvpView
 
@@ -15,4 +16,5 @@ interface ChatView : MvpView {
     fun showNicknameDialog(nickname: String)
     fun browseUrl(url: String)
     fun showAliases(names: List<String>)
+    fun showEmotes(list: List<Emoticon>)
 }

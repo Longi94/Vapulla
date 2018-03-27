@@ -111,7 +111,7 @@
         android:id="@+id/chatList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/messageBox"
+        app:layout_constraintBottom_toTopOf="@+id/messageBoxLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
@@ -119,26 +119,51 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <EditText
-        android:id="@+id/messageBox"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/messageBoxLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:background="@drawable/bubble_input"
-        android:ems="10"
-        android:hint="Type a message..."
-        android:inputType="textCapSentences|textMultiLine"
-        android:maxLines="3"
-        android:paddingBottom="11dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="11dp"
-        android:textColor="@color/textPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/emoteList"
         app:layout_constraintEnd_toStartOf="@+id/sendButton"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:id="@+id/messageBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:hint="Type a message..."
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="3"
+            android:paddingBottom="11dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="11dp"
+            android:textColor="@color/textPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/emoteButton"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/emoteButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:onClick="toggleEmote"
+            android:tint="@color/textPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_emoticon" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/sendButton"
@@ -149,7 +174,19 @@
         android:onClick="sendMessage"
         android:src="@drawable/ic_send"
         android:tint="#fff"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/emoteList"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/emoteList"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:background="@color/colorPrimary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:listitem="@layout/list_emote"
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

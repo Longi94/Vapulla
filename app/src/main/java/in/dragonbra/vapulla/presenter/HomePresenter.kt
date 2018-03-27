@@ -53,7 +53,7 @@ class HomePresenter(context: Context,
             if (friendsData.value == null) {
                 it.showFriends(emptyList())
             } else {
-                it.showFriends(friendsData.value!!)
+                it.showFriends(friendsData.value ?: emptyList())
             }
         }
     }

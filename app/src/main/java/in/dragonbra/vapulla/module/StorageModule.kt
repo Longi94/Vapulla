@@ -31,4 +31,8 @@ class StorageModule {
     @Provides
     @Singleton
     fun provideGameSchemaDao(db: VapullaDatabase) = db.gameSchemaDao()
+
+    @Provides
+    @Singleton
+    fun provideEmoticonDao(db: VapullaDatabase) = db.emoticonDao()
 }

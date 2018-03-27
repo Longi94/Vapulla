@@ -53,7 +53,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
             else -> R.layout.list_friend
         }
         val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
-        return ViewHolder(v, paperPlane)
+        return ViewHolder(v)
     }
 
     override fun getItemCount(): Int = friendList.size
@@ -86,7 +86,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         result.dispatchUpdatesTo(this)
     }
 
-    inner class ViewHolder(private val v: View, val paperPlane: PaperPlane) : RecyclerView.ViewHolder(v) {
+    inner class ViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
         fun bind(friend: FriendListItem, header: Boolean, footer: Boolean) {
 
             when (friend.relation) {

@@ -12,9 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.list_chat_received.view.*
 
-/**
- * Created by lngtr on 2018-03-05.
- */
 class ChatAdapter(val context: Context, val paperPlane: PaperPlane) : PagedListAdapter<ChatMessage, ChatAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     companion object {
@@ -41,7 +38,7 @@ class ChatAdapter(val context: Context, val paperPlane: PaperPlane) : PagedListA
             else -> R.layout.list_chat_received
         }
         val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
-        return ViewHolder(v, paperPlane)
+        return ViewHolder(v)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -62,7 +59,7 @@ class ChatAdapter(val context: Context, val paperPlane: PaperPlane) : PagedListA
         }
     }
 
-    class ViewHolder(val v: View, val paperPlane: PaperPlane) : RecyclerView.ViewHolder(v) {
+    inner class ViewHolder(val v: View) : RecyclerView.ViewHolder(v) {
         fun bind(message: ChatMessage) {
             paperPlane.load(v.message, message.message, true)
         }

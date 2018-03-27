@@ -29,9 +29,12 @@ import `in`.dragonbra.vapulla.broadcastreceiver.*
 import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver.Companion.KEY_TEXT_REPLY
 import `in`.dragonbra.vapulla.data.VapullaDatabase
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.data.entity.Emoticon
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
+import `in`.dragonbra.vapulla.steam.VapullaHandler
+import `in`.dragonbra.vapulla.steam.callback.EmoticonListCallback
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.PersonaStateBuffer
 import `in`.dragonbra.vapulla.util.Utils
@@ -77,7 +80,7 @@ class SteamService : Service(), AnkoLogger {
 
     val disconnectedSubs: MutableSet<(DisconnectedCallback) -> Unit> = mutableSetOf()
 
-    private val requestsToNotify: MutableSet<SteamID> =  mutableSetOf()
+    private val requestsToNotify: MutableSet<SteamID> = mutableSetOf()
 
     private val handlerThread = HandlerThread("SteamService Handler")
 
@@ -126,6 +129,7 @@ class SteamService : Service(), AnkoLogger {
 
         stateBuffer = PersonaStateBuffer(db.steamFriendDao())
         steamClient = SteamClient()
+        steamClient?.addHandler(VapullaHandler())
         callbackMgr = CallbackManager(steamClient)
 
         subscriptions.add(callbackMgr?.subscribe(DisconnectedCallback::class.java, onDisconnected))
@@ -140,6 +144,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
         subscriptions.add(callbackMgr?.subscribe(NicknameListCallback::class.java, onNicknameList))
         subscriptions.add(callbackMgr?.subscribe(OfflineMessageNotificationCallback::class.java, onOfflineMessageNotification))
+        subscriptions.add(callbackMgr?.subscribe(EmoticonListCallback::class.java, onEmoticonList))
 
         remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
                 .setLabel("Reply")
@@ -621,6 +626,13 @@ class SteamService : Service(), AnkoLogger {
         if (it.messageCount > 0) {
             getHandler<SteamFriends>()?.requestOfflineMessages()
         }
+    }
+
+    private val onEmoticonList: Consumer<EmoticonListCallback> = Consumer {
+        val emoticons = it.emoticons.map { Emoticon(it.name.substring(1, it.name.length - 1)) }.toTypedArray()
+
+        db.emoticonDao().delete()
+        db.emoticonDao().insert(*emoticons)
     }
 
     //endregion

@@ -10,8 +10,11 @@ import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.ChatMessageDao
+import `in`.dragonbra.vapulla.data.dao.EmoticonDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.data.entity.Emoticon
+import `in`.dragonbra.vapulla.steam.VapullaHandler
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.lifecycle.LiveData
@@ -27,7 +30,8 @@ import org.jetbrains.anko.info
 class ChatPresenter(context: Context,
                     private val chatMessageDao: ChatMessageDao,
                     private val steamFriendsDao: SteamFriendDao,
-                    val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
+                    private val emoticonDao: EmoticonDao,
+                    private val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
 
     companion object {
         const val UPDATE_INTERVAL = 1000L
@@ -41,6 +45,8 @@ class ChatPresenter(context: Context,
     private lateinit var chatData: LiveData<PagedList<ChatMessage>>
 
     private lateinit var friendData: LiveData<FriendListItem>
+
+    private lateinit var emoticonData: LiveData<List<Emoticon>>
 
     private val updateHandler: Handler = Handler()
 
@@ -58,6 +64,10 @@ class ChatPresenter(context: Context,
                 }
             }
         }
+    }
+
+    private val emoteObserver = Observer<List<Emoticon>> { list ->
+        ifViewAttached { it.showEmotes(list ?: emptyList()) }
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
@@ -87,8 +97,14 @@ class ChatPresenter(context: Context,
         friendData = steamFriendsDao.findLive(steamId.convertToUInt64())
         friendData.observe(view as ChatActivity, friendObserver)
 
-        ifViewAttached { it.showChat(chatData.value) }
-        ifViewAttached { it.updateFriendData(friendData.value) }
+        emoticonData = emoticonDao.getLive()
+        emoticonData.observe(view as ChatActivity, emoteObserver)
+
+        ifViewAttached {
+            it.showChat(chatData.value)
+            it.updateFriendData(friendData.value)
+            it.showEmotes(emoticonData.value ?: emptyList())
+        }
 
         updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
     }
@@ -205,5 +221,9 @@ class ChatPresenter(context: Context,
 
     fun viewAliasesMenuClicked() {
         runOnBackgroundThread { aliasJobId = steamService?.getHandler<SteamFriends>()?.requestAliasHistory(steamId) }
+    }
+
+    fun requestEmotes() {
+        runOnBackgroundThread { steamService?.getHandler<VapullaHandler>()?.getEmoticonList() }
     }
 }
