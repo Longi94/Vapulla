@@ -1,9 +1,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="false"
-        android:icon="@drawable/ic_bubble"
-        android:key="pref_chat_bubble"
-        android:title="@string/pref_title_chat_bubble" />
+    <PreferenceCategory android:title="Account">
+
+        <Preference
+            android:key="pref_imgur"
+            android:title="Link Imgur account" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Other">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_bubble"
+            android:key="pref_chat_bubble"
+            android:title="@string/pref_title_chat_bubble" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

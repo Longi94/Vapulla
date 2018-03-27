@@ -21,7 +21,8 @@ android {
             }
         }
 
-        buildConfigField("String", "STEAM_WEB_API_KEY", "\"$steamWebApiKey\"")
+        buildConfigField("String", "IMGUR_CLIENT_ID", "\"$vapullaImgurClientId\"")
+        buildConfigField("String", "IMGUR_CLIENT_SECRET", "\"$vapullaImgurClientSecret\"")
     }
     buildTypes {
         release {

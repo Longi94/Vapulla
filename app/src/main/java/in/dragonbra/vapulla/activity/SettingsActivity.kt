@@ -1,16 +1,22 @@
 package `in`.dragonbra.vapulla.activity
 
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.VapullaApplication
+import `in`.dragonbra.vapulla.service.ImgurAuthService
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.preference.*
 import android.provider.Settings
+import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.view.ViewGroup
+import org.jetbrains.anko.browse
 import org.jetbrains.anko.find
+import javax.inject.Inject
 
 /**
  * A [PreferenceActivity] that presents a set of application settings. On
@@ -24,8 +30,16 @@ import org.jetbrains.anko.find
  */
 class SettingsActivity : AppCompatPreferenceActivity() {
 
+    @Inject
+    lateinit var imgurAuthService: ImgurAuthService
+
+    lateinit var prefs: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as VapullaApplication).graph.inject(this)
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         val v = find<ViewGroup>(android.R.id.list).parent.parent.parent as ViewGroup
         val toolbar = layoutInflater.inflate(R.layout.toolbar, v, false) as Toolbar?
@@ -36,6 +50,19 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setupPreferences()
+
+        val uri = intent.data
+
+        if (uri != null && uri.host == "authorize") {
+            val success = imgurAuthService.authorize(uri)
+
+            if (success) {
+                updateImgurPref()
+                Snackbar.make(v, "Linked Imgur account", Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(v, "Failed to link Imgur account", Snackbar.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
@@ -63,6 +90,29 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 }
             }
             true
+        }
+
+        updateImgurPref()
+    }
+
+    private fun updateImgurPref() {
+        val pref = findPreference("pref_imgur")
+        if (prefs.contains(ImgurAuthService.KEY_IMGUR_USERNAME)) {
+            pref.title = "Imgur"
+            pref.summary = "Linked ${imgurAuthService.getUsername()}. Tap to unlink."
+
+            findPreference("pref_imgur").setOnPreferenceClickListener {
+                imgurAuthService.clear()
+                updateImgurPref()
+                true
+            }
+        } else {
+            pref.title = "Link Imgur account"
+            pref.summary = null
+
+            findPreference("pref_imgur").setOnPreferenceClickListener {
+                browse(imgurAuthService.getAuthUrl())
+            }
         }
     }
 
