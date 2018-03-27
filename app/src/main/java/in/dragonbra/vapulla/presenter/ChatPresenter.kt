@@ -115,6 +115,10 @@ class ChatPresenter(context: Context,
         emoteSet = (emoticonData.value ?: emptyList()).map { it.name }.toSet()
 
         updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
+
+        runOnBackgroundThread {
+            chatMessageDao.markRead(steamId.convertToUInt64())
+        }
     }
 
     override fun onPause() {
@@ -173,7 +177,7 @@ class ChatPresenter(context: Context,
                     System.currentTimeMillis(),
                     steamId.convertToUInt64(),
                     true,
-                    true,
+                    false,
                     false
             ))
         }

@@ -176,7 +176,7 @@ class SteamService : Service(), AnkoLogger {
                                 System.currentTimeMillis(),
                                 id.convertToUInt64(),
                                 true,
-                                true,
+                                false,
                                 false
                         ))
 
@@ -573,7 +573,7 @@ class SteamService : Service(), AnkoLogger {
                         timestamp,
                         friendId,
                         fromLocal,
-                        !it.isUnread,
+                        it.isUnread,
                         true
                 ))
             }
@@ -588,7 +588,7 @@ class SteamService : Service(), AnkoLogger {
                         System.currentTimeMillis(),
                         it.sender.convertToUInt64(),
                         it.sender == steamClient?.steamID,
-                        true,
+                        chatFriendId != it.sender.convertToUInt64(),
                         false
                 ))
 

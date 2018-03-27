@@ -146,6 +146,13 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
 
                     paperPlane.load(v.lastMessage, friend.lastMessage ?: "", false)
+                    if (friend.lastMessageUnread ?: false) {
+                        v.lastMessage.textColor = ContextCompat.getColor(context, R.color.colorAccent)
+                        v.lastMessage.bold()
+                    } else {
+                        v.lastMessage.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
+                        v.lastMessage.normal()
+                    }
 
                     (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
 

@@ -23,7 +23,8 @@ interface SteamFriendDao {
             "  sf.*, " +
             "  cm.message as last_message, " +
             "  max(cm.timestamp) as last_message_time, " +
-            "  ifnull(gs.name, sf.game_name) as playing_game_name " +
+            "  ifnull(gs.name, sf.game_name) as playing_game_name, " +
+            "  cm.unread as last_message_unread " +
             "FROM steam_friend sf " +
             "LEFT JOIN chat_message cm " +
             "ON sf.id = cm.friend_id " +

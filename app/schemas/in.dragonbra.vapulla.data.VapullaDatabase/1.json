@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7d0070395b48068d3f7eb6b116dad2fd",
+    "identityHash": "81dcfd4676770239ec902684af01aaca",
     "entities": [
       {
         "tableName": "steam_friend",
@@ -92,7 +92,7 @@
       },
       {
         "tableName": "chat_message",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `friend_id` INTEGER NOT NULL, `from_local` INTEGER NOT NULL, `delivered` INTEGER NOT NULL, `timestamp_confirmed` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `friend_id` INTEGER NOT NULL, `from_local` INTEGER NOT NULL, `unread` INTEGER NOT NULL, `timestamp_confirmed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -125,8 +125,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "delivered",
-            "columnName": "delivered",
+            "fieldPath": "unread",
+            "columnName": "unread",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -210,7 +210,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7d0070395b48068d3f7eb6b116dad2fd\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"81dcfd4676770239ec902684af01aaca\")"
     ]
   }
 }

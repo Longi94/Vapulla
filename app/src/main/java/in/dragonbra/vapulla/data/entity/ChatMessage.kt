@@ -9,10 +9,10 @@ data class ChatMessage(
         @ColumnInfo(name = "timestamp") var timestamp: Long,
         @ColumnInfo(name = "friend_id") var friendId: Long,
         @ColumnInfo(name = "from_local") var fromLocal: Boolean,
-        @ColumnInfo(name = "delivered") var delivered: Boolean,
+        @ColumnInfo(name = "unread") var unread: Boolean,
         @ColumnInfo(name = "timestamp_confirmed") var timestampConfirmed: Boolean
 ) {
     @Ignore
-    constructor(message: String, timestamp: Long, friendId: Long, fromLocal: Boolean, delivered: Boolean, timestampConfirmed: Boolean)
-            : this(0L, message, timestamp, friendId, fromLocal, delivered, timestampConfirmed)
+    constructor(message: String, timestamp: Long, friendId: Long, fromLocal: Boolean, unread: Boolean, timestampConfirmed: Boolean)
+            : this(0L, message, timestamp, friendId, fromLocal, unread, timestampConfirmed)
 }

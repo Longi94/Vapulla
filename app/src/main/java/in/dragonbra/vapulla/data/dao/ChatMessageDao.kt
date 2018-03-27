@@ -21,4 +21,7 @@ interface ChatMessageDao {
 
     @Update
     fun update(vararg messages: ChatMessage)
+
+    @Query("UPDATE chat_message SET unread = 0 WHERE friend_id = :friendId")
+    fun markRead(friendId: Long)
 }
