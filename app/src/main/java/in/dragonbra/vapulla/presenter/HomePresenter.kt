@@ -81,7 +81,7 @@ class HomePresenter(context: Context,
 
     fun changeStatus(state: EPersonaState) {
         if (account.state != state) {
-            runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.personaState = state }
+            runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.setPersonaState(state) }
         }
     }
 

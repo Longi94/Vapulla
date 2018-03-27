@@ -91,7 +91,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
 
         expectSteamGuard = false
         runOnBackgroundThread {
-            steamService?.getHandler<SteamFriends>()?.personaState = EPersonaState.Online
+            steamService?.getHandler<SteamFriends>()?.setPersonaState(EPersonaState.Online)
         }
 
         ifViewAttached {
