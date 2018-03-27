@@ -26,6 +26,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.IBinder
 import org.jetbrains.anko.info
+import java.util.regex.Pattern
 
 class ChatPresenter(context: Context,
                     private val chatMessageDao: ChatMessageDao,
@@ -36,6 +37,8 @@ class ChatPresenter(context: Context,
     companion object {
         const val UPDATE_INTERVAL = 1000L
         const val TYPING_INTERVAL = 20000L
+
+        val EMOTE_PATTERN = Pattern.compile(":([a-zA-Z0-9]+):")
     }
 
     private var lastTypingMessage = 0L
@@ -47,6 +50,8 @@ class ChatPresenter(context: Context,
     private lateinit var friendData: LiveData<FriendListItem>
 
     private lateinit var emoticonData: LiveData<List<Emoticon>>
+
+    private var emoteSet: Set<String> = setOf()
 
     private val updateHandler: Handler = Handler()
 
@@ -68,6 +73,7 @@ class ChatPresenter(context: Context,
 
     private val emoteObserver = Observer<List<Emoticon>> { list ->
         ifViewAttached { it.showEmotes(list ?: emptyList()) }
+        emoteSet = (list ?: emptyList()).map { it.name }.toSet()
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
@@ -105,6 +111,8 @@ class ChatPresenter(context: Context,
             it.updateFriendData(friendData.value)
             it.showEmotes(emoticonData.value ?: emptyList())
         }
+
+        emoteSet = (emoticonData.value ?: emptyList()).map { it.name }.toSet()
 
         updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
     }
@@ -155,17 +163,41 @@ class ChatPresenter(context: Context,
         }
         lastTypingMessage = 0L
 
+        val emoteMessage = findEmotes(message.replace('\u02D0', ':'))
+
         runOnBackgroundThread {
             steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.ChatMsg, message)
 
             chatMessageDao.insert(ChatMessage(
-                    message,
+                    emoteMessage,
                     System.currentTimeMillis(),
                     steamId.convertToUInt64(),
                     true,
                     true,
                     false
             ))
+        }
+    }
+
+    private fun findEmotes(message: String): String {
+        val matcher = EMOTE_PATTERN.matcher(message)
+
+        if (matcher.find()) {
+            val result = matcher.toMatchResult()
+
+            val emote = result.group(1)
+
+            if (emoteSet.contains(emote)) {
+                val builder = StringBuilder(message)
+                builder.setCharAt(result.start(), '\u02D0')
+                builder.setCharAt(result.end() - 1, '\u02D0')
+
+                return findEmotes(builder.toString())
+            } else {
+                return message.substring(0, result.end() - 1) + findEmotes(message.substring(result.end() - 1))
+            }
+        } else {
+            return message
         }
     }
 

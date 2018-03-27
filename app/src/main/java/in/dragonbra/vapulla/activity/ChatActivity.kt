@@ -43,7 +43,8 @@ import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
 
-class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher, PopupMenu.OnMenuItemClickListener {
+class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, TextWatcher,
+        PopupMenu.OnMenuItemClickListener, EmoteAdapter.EmoteListener {
 
     companion object {
         const val INTENT_STEAM_ID = "steam_id"
@@ -83,7 +84,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 chatList
         ))
 
-        emoteAdapter = EmoteAdapter(this)
+        emoteAdapter = EmoteAdapter(this, this)
 
         val emoteLayoutManager = FlexboxLayoutManager(this)
         emoteLayoutManager.flexDirection = FlexDirection.ROW
@@ -93,6 +94,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         emoteList.adapter = emoteAdapter
 
         messageBox.addTextChangedListener(this)
+        messageBox.setOnClickListener { emoteList.hide() }
 
         moreButton.setOnClickListener {
             val popup = PopupMenu(this@ChatActivity, it)
@@ -253,6 +255,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         emoteAdapter.swap(list)
     }
 
+    override fun onEmoteSelected(emoticon: Emoticon) {
+        messageBox.text.insert(messageBox.selectionStart, ":${emoticon.name}:")
+    }
+
     @Suppress("UNUSED_PARAMETER")
     fun navigateUp(v: View) {
         NavUtils.navigateUpFromSameTask(this)
@@ -274,6 +280,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         emoteList.toggleVisibility()
 
         if (emoteList.isVisible()) {
+            Utils.hideKeyboardFrom(this, messageBox)
             presenter.requestEmotes()
         }
     }
