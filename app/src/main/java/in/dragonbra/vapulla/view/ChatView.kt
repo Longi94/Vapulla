@@ -17,4 +17,9 @@ interface ChatView : MvpView {
     fun browseUrl(url: String)
     fun showAliases(names: List<String>)
     fun showEmotes(list: List<Emoticon>)
+    fun showImgurDialog()
+    fun showPhotoSelector()
+    fun showUploadDialog()
+    fun imageUploadFail()
+    fun imageUploadSuccess()
 }

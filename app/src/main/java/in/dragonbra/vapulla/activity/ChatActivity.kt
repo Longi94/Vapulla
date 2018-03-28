@@ -15,12 +15,15 @@ import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.Emoticon
 import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
+import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
+import android.app.ProgressDialog
 import android.arch.paging.PagedList
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -39,6 +42,7 @@ import com.google.android.flexbox.JustifyContent
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.dialog_nickname.view.*
 import org.jetbrains.anko.browse
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
 
@@ -48,6 +52,8 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     companion object {
         const val INTENT_STEAM_ID = "steam_id"
+
+        const val REQUEST_IMAGE_GET = 100
     }
 
     @Inject
@@ -59,11 +65,16 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var emoticonDao: EmoticonDao
 
+    @Inject
+    lateinit var imgurAuthService: ImgurAuthService
+
     lateinit var paperPlane: PaperPlane
 
     lateinit var chatAdapter: ChatAdapter
 
     lateinit var emoteAdapter: EmoteAdapter
+
+    private var progressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -111,7 +122,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     override fun createPresenter(): ChatPresenter {
         val steamId = SteamID(intent.getLongExtra(INTENT_STEAM_ID, 0L))
-        return ChatPresenter(this, chatMessageDao, steamFriendDao, emoticonDao, steamId)
+        return ChatPresenter(this, chatMessageDao, steamFriendDao, emoticonDao, imgurAuthService, steamId)
     }
 
     override fun closeApp() {
@@ -259,6 +270,52 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         messageBox.text.insert(messageBox.selectionStart, ":${emoticon.name}:")
     }
 
+    override fun showImgurDialog() {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setMessage("Link your Imgur account to send images to your friends.")
+                .setTitle("Sharing images")
+                .setPositiveButton("Yes", { _, _ -> startActivity<SettingsActivity>() })
+                .setNegativeButton("Cancel", null)
+
+        builder.create().show()
+    }
+
+    override fun showPhotoSelector() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_GET)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
+            presenter.sendImage(data.data)
+        }
+    }
+
+    override fun showUploadDialog() {
+        runOnUiThread {
+            progressDialog = ProgressDialog.show(this, "Uploading image to Imgur", "Please wait...")
+        }
+    }
+
+    override fun imageUploadFail() {
+        runOnUiThread {
+            progressDialog?.hide()
+            progressDialog = null
+            Snackbar.make(rootLayout, "Failed to upload image", Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    override fun imageUploadSuccess() {
+        runOnUiThread {
+            progressDialog?.hide()
+            progressDialog = null
+        }
+    }
+
     @Suppress("UNUSED_PARAMETER")
     fun navigateUp(v: View) {
         NavUtils.navigateUpFromSameTask(this)
@@ -283,5 +340,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             Utils.hideKeyboardFrom(this, messageBox)
             presenter.requestEmotes()
         }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun sendImage(v: View) {
+        presenter.imageButtonClicked()
     }
 }

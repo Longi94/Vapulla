@@ -14,6 +14,7 @@ import `in`.dragonbra.vapulla.data.dao.EmoticonDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.Emoticon
+import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.steam.VapullaHandler
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.view.ChatView
@@ -23,15 +24,22 @@ import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.content.ComponentName
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
+import android.provider.MediaStore
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import org.jetbrains.anko.info
+import java.io.ByteArrayOutputStream
 import java.util.regex.Pattern
 
 class ChatPresenter(context: Context,
                     private val chatMessageDao: ChatMessageDao,
                     private val steamFriendsDao: SteamFriendDao,
                     private val emoticonDao: EmoticonDao,
+                    private val imgurAuthService: ImgurAuthService,
                     private val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
 
     companion object {
@@ -261,5 +269,50 @@ class ChatPresenter(context: Context,
 
     fun requestEmotes() {
         runOnBackgroundThread { steamService?.getHandler<VapullaHandler>()?.getEmoticonList() }
+    }
+
+    fun imageButtonClicked() {
+        if (imgurAuthService.authorized()) {
+            imgurAuthService.refreshTokenIfNeeded()
+            ifViewAttached {
+                it.showPhotoSelector()
+            }
+        } else {
+            ifViewAttached {
+                it.showImgurDialog()
+            }
+        }
+    }
+
+    fun sendImage(image: Uri) {
+        ifViewAttached {
+            it.showUploadDialog()
+        }
+        runOnBackgroundThread {
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, image)
+
+            val baos = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+            val body = RequestBody.create(MediaType.parse("image/*"), baos.toByteArray())
+
+            val call = imgurAuthService.postImage(body)
+
+            val response = call.execute()
+
+            if (response.isSuccessful) {
+                ifViewAttached {
+                    val responseBody = response.body()
+
+                    if (responseBody != null) {
+                        sendMessage(responseBody.data.link)
+                        it.imageUploadSuccess()
+                    } else {
+                        it.imageUploadFail()
+                    }
+                }
+            } else {
+                ifViewAttached { it.imageUploadFail() }
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.preference.PreferenceManager
 import android.util.Log
 import okhttp3.HttpUrl
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -144,4 +145,9 @@ class ImgurAuthService(context: Context, val imgur: Imgur) {
             })
         }
     }
+
+    fun authorized(): Boolean = prefs.contains(KEY_IMGUR_ACCESS_TOKEN)
+
+    fun postImage(body: RequestBody) =
+            imgur.postImage(body, "Bearer ${prefs.getString(KEY_IMGUR_ACCESS_TOKEN, "")}")
 }
