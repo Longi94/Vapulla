@@ -293,6 +293,7 @@ class ChatPresenter(context: Context,
 
             val baos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+            bitmap.recycle()
             val body = RequestBody.create(MediaType.parse("image/*"), baos.toByteArray())
 
             val call = imgurAuthService.postImage(body)
