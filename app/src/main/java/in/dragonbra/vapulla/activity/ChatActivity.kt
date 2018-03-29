@@ -19,7 +19,6 @@ import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
-import android.app.ProgressDialog
 import android.arch.paging.PagedList
 import android.content.Intent
 import android.os.Bundle
@@ -73,8 +72,6 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     lateinit var chatAdapter: ChatAdapter
 
     lateinit var emoteAdapter: EmoteAdapter
-
-    private var progressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -297,23 +294,31 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     override fun showUploadDialog() {
         runOnUiThread {
-            progressDialog = ProgressDialog.show(this, "Uploading image to Imgur", "Please wait...")
+            imageButton.isClickable = false
+            uploadProgressBar.show()
+            uploadProgressBar.isIndeterminate = true
         }
     }
 
     override fun imageUploadFail() {
         runOnUiThread {
-            progressDialog?.hide()
-            progressDialog = null
+            imageButton.isClickable = true
+            uploadProgressBar.hide()
             Snackbar.make(rootLayout, "Failed to upload image", Snackbar.LENGTH_LONG).show()
         }
     }
 
     override fun imageUploadSuccess() {
         runOnUiThread {
-            progressDialog?.hide()
-            progressDialog = null
+            imageButton.isClickable = true
+            uploadProgressBar.hide()
         }
+    }
+
+    override fun imageUploadProgress(total: Int, progress: Int) {
+        uploadProgressBar.max = total
+        uploadProgressBar.progress = progress
+        uploadProgressBar.isIndeterminate = false
     }
 
     @Suppress("UNUSED_PARAMETER")

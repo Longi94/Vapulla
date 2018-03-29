@@ -22,4 +22,5 @@ interface ChatView : MvpView {
     fun showUploadDialog()
     fun imageUploadFail()
     fun imageUploadSuccess()
+    fun imageUploadProgress(total: Int, progress: Int)
 }

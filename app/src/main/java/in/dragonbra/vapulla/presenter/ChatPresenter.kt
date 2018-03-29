@@ -14,6 +14,7 @@ import `in`.dragonbra.vapulla.data.dao.EmoticonDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.Emoticon
+import `in`.dragonbra.vapulla.retrofit.ImageRequestBody
 import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.steam.VapullaHandler
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -29,8 +30,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.provider.MediaStore
-import okhttp3.MediaType
-import okhttp3.RequestBody
 import org.jetbrains.anko.info
 import java.io.ByteArrayOutputStream
 import java.util.regex.Pattern
@@ -294,7 +293,9 @@ class ChatPresenter(context: Context,
             val baos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
             bitmap.recycle()
-            val body = RequestBody.create(MediaType.parse("image/*"), baos.toByteArray())
+            val body = ImageRequestBody(baos.toByteArray(), { total, progress ->
+                ifViewAttached { it.imageUploadProgress(total, progress) }
+            })
 
             val call = imgurAuthService.postImage(body)
 
