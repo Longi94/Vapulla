@@ -27,6 +27,7 @@ import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.activity.HomeActivity
+import `in`.dragonbra.vapulla.activity.VapullaBaseActivity
 import `in`.dragonbra.vapulla.broadcastreceiver.*
 import `in`.dragonbra.vapulla.broadcastreceiver.ReplyReceiver.Companion.KEY_TEXT_REPLY
 import `in`.dragonbra.vapulla.data.VapullaDatabase
@@ -188,6 +189,7 @@ class SteamService : Service(), AnkoLogger {
                     notificationManager.cancel(id.convertToUInt64().toInt())
                 }
                 "stop" -> {
+                    sendBroadcast(Intent(VapullaBaseActivity.STOP_INTENT))
                     stopSelf()
                 }
                 "accept_request" -> {
