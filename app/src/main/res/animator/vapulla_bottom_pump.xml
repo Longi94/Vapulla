@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:duration="1000"
+        android:interpolator="@android:interpolator/bounce"
+        android:propertyName="pathData"
+        android:valueFrom="M 666,669 331,0 H 0 l 500,1000 z"
+        android:valueTo="M 666,669 481,300 H 150 l 350,700 z"
+        android:valueType="pathType" />
+    <objectAnimator
+        android:duration="1000"
+        android:interpolator="@android:interpolator/bounce"
+        android:propertyName="pathData"
+        android:startOffset="1000"
+        android:valueFrom="M 666,669 481,300 H 150 l 350,700 z"
+        android:valueTo="M 666,669 331,0 H 0 l 500,1000 z"
+        android:valueType="pathType" />
+</set>

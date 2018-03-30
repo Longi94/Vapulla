@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="1000"
+    android:viewportWidth="1000">
+    <path
+        android:name="bottomSheet"
+        android:fillColor="#546e7a"
+        android:pathData="M 666,669 331,0 H 0 l 500,1000 z" />
+</vector>

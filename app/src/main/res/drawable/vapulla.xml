@@ -5,18 +5,14 @@
     android:viewportHeight="1000"
     android:viewportWidth="1000">
     <path
-        android:fillAlpha="1"
-        android:pathData="M331,0 L669,338 500,500 221,221Z" />
-    <path
-        android:fillAlpha="1"
+        android:name="bottomSheet"
         android:fillColor="#546e7a"
-        android:pathData="M331,0H0L500,1000 666,669Z" />
+        android:pathData="M 666,669 331,0 H 0 l 500,1000 z" />
     <path
-        android:fillAlpha="1"
+        android:name="middleSheet"
         android:fillColor="#707070"
-        android:pathData="M500,1000 L666,669 331,0 166,331Z" />
+        android:pathData="M 666,669 331,0 166,331 500,1000 Z" />
     <path
-        android:fillAlpha="1"
         android:fillColor="#9e9e9e"
         android:pathData="M335,669 L500,1000 1000,0H669Z" />
 </vector>
