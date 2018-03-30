@@ -2,11 +2,16 @@ package `in`.dragonbra.vapulla.manager
 
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.UpdateMachineAuthCallback
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import org.spongycastle.util.encoders.Hex
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.ByteBuffer
+import java.security.MessageDigest
 
 class AccountManager(private val context: Context) {
 
@@ -56,16 +61,18 @@ class AccountManager(private val context: Context) {
         get() = EPersonaState.from(prefs.getInt(KEY_STATE, 0))
         set(value) = editor.putInt(KEY_STATE, value.code()).apply()
 
-    var sentry: ByteArray
-        get() = readSentryFile()
-        set(value) {
-            val sentryFile = File(context.filesDir, SENTRY_FILE_NAME)
+    var sentrySize: Long
+        get() = File(context.filesDir, SENTRY_FILE_NAME).length()
+        private set(value) {}
 
-            val bos = BufferedOutputStream(FileOutputStream(sentryFile, false))
-            bos.write(value)
-            bos.flush()
-            bos.close()
+    fun updateSentryFile(callback: UpdateMachineAuthCallback) {
+        val sentryFile = File(context.filesDir, SENTRY_FILE_NAME)
+        FileOutputStream(sentryFile).use {
+            val channel = it.channel;
+            channel.position(callback.offset.toLong())
+            channel.write(ByteBuffer.wrap(callback.data, 0, callback.bytesToWrite))
         }
+    }
 
     fun clear() {
         editor.remove(KEY_LOGIN_KEY)
@@ -74,6 +81,7 @@ class AccountManager(private val context: Context) {
                 .remove(KEY_STEAM_ID)
                 .remove(KEY_AVATAR_HASH)
                 .remove(KEY_NICKNAME)
+                .remove(KEY_STATE)
                 .apply()
     }
 
@@ -81,15 +89,25 @@ class AccountManager(private val context: Context) {
 
     fun hasSentryFile() = File(context.filesDir, SENTRY_FILE_NAME).exists()
 
-    private fun readSentryFile(): ByteArray {
+    fun readSentryFile(): ByteArray {
         val file = File(context.filesDir, SENTRY_FILE_NAME)
-        val size = file.length()
-        val bytes = ByteArray(size.toInt())
 
-        val bis = BufferedInputStream(FileInputStream(file))
-        bis.read(bytes)
+        val digest = MessageDigest.getInstance("SHA-1")
 
-        return bytes
+        val buffer = ByteArray(8192)
+        var n = 0;
+
+        FileInputStream(file).use {
+            while (n != -1) {
+                n = it.read(buffer)
+
+                if (n > 0) {
+                    digest.update(buffer, 0, n)
+                }
+            }
+        }
+
+        return digest.digest()
     }
 
     fun saveLocalUser(state: PersonaState) {

@@ -10,6 +10,8 @@ import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.SteamNotifications
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.callback.OfflineMessageNotificationCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.MachineAuthDetails
+import `in`.dragonbra.javasteam.steam.handlers.steamuser.OTPDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.SteamUser
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
@@ -265,7 +267,7 @@ class SteamService : Service(), AnkoLogger {
         }
         details.isShouldRememberPassword = true
         if (account.hasSentryFile()) {
-            details.sentryFileHash = account.sentry
+            details.sentryFileHash = account.readSentryFile()
         }
         getHandler<SteamUser>()?.logOn(details)
     }
@@ -464,7 +466,7 @@ class SteamService : Service(), AnkoLogger {
             details.loginKey = account.loginKey
             details.isShouldRememberPassword = true
             if (account.hasSentryFile()) {
-                details.sentryFileHash = account.sentry
+                details.sentryFileHash = account.readSentryFile()
             }
             getHandler<SteamUser>()?.logOn(details)
         }
@@ -496,7 +498,24 @@ class SteamService : Service(), AnkoLogger {
 
     private val onUpdateMachineAuth: Consumer<UpdateMachineAuthCallback> = Consumer {
         info { "received sentry file called ${it.fileName}" }
-        account.sentry = it.data
+        account.updateSentryFile(it)
+
+        val otp = OTPDetails()
+        otp.identifier = it.oneTimePassword.identifier
+        otp.type = it.oneTimePassword.type
+
+        val details = MachineAuthDetails()
+        details.jobID = it.jobID
+        details.fileName = it.fileName
+        details.bytesWritten = it.bytesToWrite
+        details.fileSize = account.sentrySize.toInt()
+        details.offset = it.offset
+        details.seteResult(EResult.OK)
+        details.lastError = 0
+        details.oneTimePassword = otp
+        details.sentryFileHash = account.readSentryFile()
+
+        getHandler<SteamUser>()?.sendMachineAuthResponse(details)
     }
 
     private val onPersonaState: Consumer<PersonaStatesCallback> = Consumer {
