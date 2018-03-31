@@ -23,7 +23,6 @@ import android.arch.paging.PagedList
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.app.NavUtils
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
@@ -171,7 +170,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun navigateUp() {
-        NavUtils.navigateUpFromSameTask(this)
+        supportFinishAfterTransition()
     }
 
     override fun afterTextChanged(s: Editable?) {
@@ -328,7 +327,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     @Suppress("UNUSED_PARAMETER")
     fun navigateUp(v: View) {
-        NavUtils.navigateUpFromSameTask(this)
+        supportFinishAfterTransition()
     }
 
     @Suppress("UNUSED_PARAMETER")

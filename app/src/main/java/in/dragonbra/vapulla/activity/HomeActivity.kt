@@ -14,14 +14,18 @@ import `in`.dragonbra.vapulla.view.HomeView
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.util.Pair
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.list_friend.view.*
 import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
@@ -141,8 +145,16 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
     }
 
-    override fun onItemSelected(friend: FriendListItem) {
-        startActivity<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friend.id)
+    override fun onItemSelected(friend: FriendListItem, v: View) {
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+                Pair.create(v.avatar as View, "avatar"),
+                Pair.create(v.status as View, "status"),
+                Pair.create(v.nickname as View, "nickname"),
+                Pair.create(v.username as View, "name"))
+
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.putExtra(ChatActivity.INTENT_STEAM_ID, friend.id)
+        startActivity(intent, options.toBundle())
     }
 
     override fun onRequestAccept(friend: FriendListItem) {

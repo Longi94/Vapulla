@@ -13,6 +13,7 @@
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:transitionName="avatar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@color/colorPrimary" />
@@ -21,6 +22,7 @@
         android:id="@+id/statusIndicator"
         android:layout_width="20dp"
         android:layout_height="20dp"
+        android:transitionName="status"
         app:layout_constraintBottom_toBottomOf="@+id/avatar"
         app:layout_constraintEnd_toEndOf="@+id/avatar"
         app:srcCompat="@drawable/status_indicator" />
@@ -33,6 +35,7 @@
         android:layout_marginStart="88dp"
         android:layout_marginTop="8dp"
         android:gravity="left"
+        android:transitionName="name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -55,6 +58,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginLeft="4dp"
             android:textSize="16sp"
+            android:transitionName="nickname"
             tools:text="(nickname)" />
 
     </RelativeLayout>
