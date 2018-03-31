@@ -127,6 +127,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
                     if (Strings.isNullOrEmpty(friend.nickname)) {
                         v.nickname.hide()
+                        v.nickname.text = null
                     } else {
                         v.nickname.show()
                         v.nickname.text = context.getString(R.string.nicknameFormat, friend.nickname)
