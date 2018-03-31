@@ -7,13 +7,13 @@
     <path
         android:name="bottomSheet"
         android:fillColor="#546e7a"
-        android:pathData="M 666,669 331,0 H 0 l 500,1000 z" />
+        android:pathData="M 169,279 279,279 279,169 169,169 Z" />
     <path
         android:name="middleSheet"
         android:fillColor="#707070"
-        android:pathData="M 666,669 331,0 166,331 500,1000 Z" />
+        android:pathData="M 831,279 831,169 721,169 721,279 Z" />
     <path
         android:name="topSheet"
         android:fillColor="#9e9e9e"
-        android:pathData="M335,669 L500,1000 1000,0H669Z" />
+        android:pathData="M 169,1000 250,1000 500,500 750,1000 831,1000 500,338 Z" />
 </vector>

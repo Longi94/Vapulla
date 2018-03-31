@@ -8,4 +8,5 @@ interface LoginView : MvpView {
     fun showSteamGuard()
     fun showLoginForm()
     fun showFailedScreen()
+    fun startLoading(finishedAction: (() -> Unit)? = null)
 }

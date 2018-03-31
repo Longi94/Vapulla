@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:duration="500"
+        android:interpolator="@android:interpolator/decelerate_cubic"
+        android:propertyName="pathData"
+        android:valueFrom="M 500,1000 666,669 331,0 0,0 Z"
+        android:valueTo="M 169,279 279,279 279,169 169,169 Z"
+        android:valueType="pathType" />
+</set>

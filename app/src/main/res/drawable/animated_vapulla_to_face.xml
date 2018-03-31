@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/vapulla">
+    <target
+        android:name="bottomSheet"
+        android:animation="@animator/vapulla_bottom_to_face" />
+    <target
+        android:name="middleSheet"
+        android:animation="@animator/vapulla_middle_to_face" />
+    <target
+        android:name="topSheet"
+        android:animation="@animator/vapulla_top_to_face" />
+</animated-vector>

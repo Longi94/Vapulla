@@ -36,10 +36,14 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
         subscribe(steamService?.subscribe<LoggedOnCallback>({ onLoggedOn(it) }))
 
         if (account.hasLoginKey()) {
-            logOnDetails.username = account.username
-            logOnDetails.password = null
-            logOnDetails.loginKey = account.loginKey
-            startSteamService()
+            ifViewAttached {
+                it.startLoading({
+                    logOnDetails.username = account.username
+                    logOnDetails.password = null
+                    logOnDetails.loginKey = account.loginKey
+                    startSteamService()
+                })
+            }
         } else {
             ifViewAttached { it.showLoginForm() }
         }
