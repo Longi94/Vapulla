@@ -6,8 +6,6 @@ import `in`.dragonbra.vapulla.adapter.FriendListAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.extension.click
-import `in`.dragonbra.vapulla.extension.isVisible
-import `in`.dragonbra.vapulla.extension.toggleVisibility
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
@@ -21,8 +19,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.animation.AnimationUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
@@ -67,14 +63,21 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
 
         statusButton.click {
-
-            if (statusLayout.isVisible()) {
-                statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_close))
-            } else {
-                statusButton.startAnimation(AnimationUtils.loadAnimation(this@HomeActivity, R.anim.rotate_dropdown_open))
-            }
-
-            statusLayout.toggleVisibility()
+            val popup = PopupMenu(this@HomeActivity, it)
+            popup.menuInflater.inflate(R.menu.menu_status, popup.menu)
+            popup.setOnMenuItemClickListener({
+                val status = when (it.itemId) {
+                    R.id.online -> EPersonaState.Online
+                    R.id.away -> EPersonaState.Away
+                    R.id.busy -> EPersonaState.Busy
+                    R.id.lookingToTrade -> EPersonaState.LookingToTrade
+                    R.id.lookingToPlay -> EPersonaState.LookingToPlay
+                    else -> EPersonaState.Offline
+                }
+                presenter.changeStatus(status)
+                true
+            })
+            popup.show()
         }
     }
 
@@ -164,18 +167,6 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
                 .setNegativeButton("No", null)
 
         builder.create().show()
-    }
-
-    fun changeStatus(v: View) {
-        presenter.changeStatus(when (v.id) {
-            R.id.onlineButton -> EPersonaState.Online
-            R.id.awayButton -> EPersonaState.Away
-            R.id.busyButton -> EPersonaState.Busy
-            R.id.lookingToPlayButton -> EPersonaState.LookingToPlay
-            R.id.lookingToTradeButton -> EPersonaState.LookingToTrade
-            R.id.offlineButton -> EPersonaState.Offline
-            else -> throw IllegalArgumentException("change status called by unknown view")
-        })
     }
 
     private fun updateList() {

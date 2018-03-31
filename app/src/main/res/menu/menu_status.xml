@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/online"
+        android:title="Online" />
+    <item
+        android:id="@+id/away"
+        android:title="Away" />
+    <item
+        android:id="@+id/busy"
+        android:title="Busy" />
+    <item
+        android:id="@+id/lookingToTrade"
+        android:title="Looking to Trade" />
+    <item
+        android:id="@+id/lookingToPlay"
+        android:title="Looking to Play" />
+    <item
+        android:id="@+id/offline"
+        android:title="Offline" />
+</menu>
