@@ -30,7 +30,7 @@ class VapullaApplication : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val serviceChannel = NotificationChannel("vapulla-service",
-                    "Vapulla",
+                    "Vapulla service",
                     NotificationManager.IMPORTANCE_LOW)
             serviceChannel.enableVibration(false)
             serviceChannel.importance = NotificationManager.IMPORTANCE_LOW
@@ -46,7 +46,7 @@ class VapullaApplication : Application() {
             notificationManager.createNotificationChannel(friendRequestChannel)
 
 
-            val messageChannel = NotificationChannel("vapulla-message", "Vapulla",
+            val messageChannel = NotificationChannel("vapulla-message", "New messages",
                     NotificationManager.IMPORTANCE_HIGH)
 
             messageChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE

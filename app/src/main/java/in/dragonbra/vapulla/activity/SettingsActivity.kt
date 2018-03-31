@@ -58,9 +58,9 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
             if (success) {
                 updateImgurPref()
-                Snackbar.make(v, "Linked Imgur account", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(v, getString(R.string.snackbarImgurLinked), Snackbar.LENGTH_SHORT).show()
             } else {
-                Snackbar.make(v, "Failed to link Imgur account", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(v, getString(R.string.snackbarImgurLinkFailed), Snackbar.LENGTH_SHORT).show()
             }
         }
     }
@@ -98,8 +98,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     private fun updateImgurPref() {
         val pref = findPreference("pref_imgur")
         if (prefs.contains(ImgurAuthService.KEY_IMGUR_USERNAME)) {
-            pref.title = "Imgur"
-            pref.summary = "Linked ${imgurAuthService.getUsername()}. Tap to unlink."
+            pref.title = getString(R.string.prefTitleImgurLinked)
+            pref.summary = getString(R.string.prefSummaryImgurLinked, imgurAuthService.getUsername())
 
             findPreference("pref_imgur").setOnPreferenceClickListener {
                 imgurAuthService.clear()
@@ -107,7 +107,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 true
             }
         } else {
-            pref.title = "Link Imgur account"
+            pref.title = getString(R.string.prefTitleImgur)
             pref.summary = null
 
             findPreference("pref_imgur").setOnPreferenceClickListener {

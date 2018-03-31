@@ -129,7 +129,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                         v.nickname.hide()
                     } else {
                         v.nickname.show()
-                        v.nickname.text = "(${friend.nickname})"
+                        v.nickname.text = context.getString(R.string.nicknameFormat, friend.nickname)
                     }
 
                     val state = friend.state?.let { EPersonaState.from(it) }

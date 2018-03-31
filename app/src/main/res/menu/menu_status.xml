@@ -2,20 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/online"
-        android:title="Online" />
+        android:title="@string/statusOnline" />
     <item
         android:id="@+id/away"
-        android:title="Away" />
+        android:title="@string/statusAway" />
     <item
         android:id="@+id/busy"
-        android:title="Busy" />
+        android:title="@string/statusBusy" />
     <item
         android:id="@+id/lookingToTrade"
-        android:title="Looking to Trade" />
+        android:title="@string/statusLookingTrade" />
     <item
         android:id="@+id/lookingToPlay"
-        android:title="Looking to Play" />
+        android:title="@string/statusLookingPlay" />
     <item
         android:id="@+id/offline"
-        android:title="Offline" />
+        android:title="@string/statusOfflineLabel" />
 </menu>

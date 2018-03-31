@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/setNickname"
-        android:title="Set nickname"
+        android:title="@string/menuSetNickname"
         app:showAsAction="never" />
     <item
         android:id="@+id/viewAliases"
-        android:title="View aliases"
+        android:title="@string/menuViewAliases"
         app:showAsAction="never" />
     <item
         android:id="@+id/viewAccount"
-        android:title="View account"
+        android:title="@string/menuViewAccount"
         app:showAsAction="never" />
     <item
         android:id="@+id/removeFriend"
-        android:title="Remove friend"
+        android:title="@string/menuRemoveFriend"
         app:showAsAction="never" />
     <item
         android:id="@+id/blockFriend"
-        android:title="Block"
+        android:title="@string/menuBlock"
         app:showAsAction="never" />
 </menu>

@@ -49,7 +49,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             val code = steamGuardInput.text.toString()
 
             if (code.length < 5) {
-                steamGuardLayout.error = "Code must be 5 characters long"
+                steamGuardLayout.error = getString(R.string.editTextErrorSteamGuard)
                 return@click
             }
 
@@ -165,7 +165,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             vapullaLogoTop.setImageDrawable(faceAnim)
             (faceAnim as Animatable).start()
 
-            loadingText.setText("Failed to connect to steam")
+            loadingText.setText(getString(R.string.loadingTextFailed))
 
             val constraintSet = ConstraintSet()
             constraintSet.clone(this, R.layout.activity_login_frame_failed)
@@ -178,14 +178,14 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         val username = username.text.toString()
 
         if (Strings.isNullOrEmpty(username)) {
-            usernameLayout.error = "You did not enter your username"
+            usernameLayout.error = getString(R.string.editTextErrorUsername)
             return
         }
 
         val password = password.text.toString()
 
         if (Strings.isNullOrEmpty(password)) {
-            passwordLayout.error = "You did not enter your password"
+            passwordLayout.error = getString(R.string.editTextErrorPassword)
             return
         }
 
@@ -212,7 +212,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     }
 
     private fun stopLoadingAnimation() {
-        handler.removeCallbacksAndMessages(null);
+        handler.removeCallbacksAndMessages(null)
 
         val d = vapullaLogoMiddle.drawable as Animatable
         val d2 = vapullaLogoBottom.drawable as Animatable

@@ -60,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Username"
+            android:hint="@string/editTextHintUsername"
             android:inputType="textPersonName" />
 
     </android.support.design.widget.TextInputLayout>
@@ -82,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/editTextHintPassword"
             android:inputType="textPassword" />
 
     </android.support.design.widget.TextInputLayout>
@@ -94,7 +94,7 @@
         android:layout_marginEnd="64dp"
         android:layout_marginStart="64dp"
         android:layout_marginTop="16dp"
-        android:text="Login"
+        android:text="@string/buttonLogin"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -132,7 +132,7 @@
             android:id="@+id/steamGuardInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Steam guard"
+            android:hint="@string/editTextHintSteamGuard"
             android:inputType="textCapCharacters"
             android:maxLength="5"
             android:textAllCaps="true" />
@@ -145,7 +145,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
         android:layout_marginStart="64dp"
-        android:text="Enter"
+        android:text="@string/buttonSteamGuard"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -160,7 +160,7 @@
         android:layout_marginEnd="64dp"
         android:layout_marginStart="64dp"
         android:layout_marginTop="16dp"
-        android:text="Try again"
+        android:text="@string/buttonRetry"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

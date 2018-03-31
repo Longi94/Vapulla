@@ -236,7 +236,7 @@ class SteamService : Service(), AnkoLogger {
                 .setSmallIcon(R.drawable.ic_message)
                 .setVibrate(longArrayOf(-1L))
                 .setSound(null)
-                .addAction(R.drawable.ic_exit_to_app, "LOG OUT", pendingIntent)
+                .addAction(R.drawable.ic_exit_to_app, getString(R.string.notificationActionLogOut), pendingIntent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             builder.priority = NotificationManager.IMPORTANCE_LOW
@@ -254,7 +254,7 @@ class SteamService : Service(), AnkoLogger {
             retryCount = 0
             stateBuffer.start()
             Thread(steamThread, "Steam Thread").start()
-            setNotification("Connecting to Steam...")
+            setNotification(getString(R.string.notificationConnecting))
         }
     }
 
@@ -311,7 +311,7 @@ class SteamService : Service(), AnkoLogger {
 
         val replyAction = NotificationCompat.Action.Builder(
                 R.drawable.ic_send,
-                "REPLY",
+                getString(R.string.notificationActionReply),
                 replyPendingIntent
         ).addRemoteInput(remoteInput).build()
 
@@ -381,14 +381,14 @@ class SteamService : Service(), AnkoLogger {
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setSmallIcon(R.drawable.ic_add_friend)
                 .setLargeIcon(bitmap)
-                .setContentText("${state.name} has added to their friends list!")
-                .setContentTitle("New friend request")
+                .setContentText(getString(R.string.notificationMessageFriendRequest, state.name))
+                .setContentTitle(getString(R.string.notificationTitleFriendRequest))
                 .setAutoCancel(true)
                 .setPriority(Notification.PRIORITY_DEFAULT)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
-                .addAction(R.drawable.ic_check, "ACCEPT", acceptPendingIntent)
-                .addAction(R.drawable.ic_close, "IGNORE", ignorePendingIntent)
-                .addAction(R.drawable.ic_block, "BLOCK", blockPendingIntent)
+                .addAction(R.drawable.ic_check, getString(R.string.notificationActionAccept), acceptPendingIntent)
+                .addAction(R.drawable.ic_close, getString(R.string.notificationActionIgnore), ignorePendingIntent)
+                .addAction(R.drawable.ic_block, getString(R.string.notificationActionBlock), blockPendingIntent)
                 .build()
 
         notificationManager.notify(state.friendID.convertToUInt64().toInt(), notification)
@@ -453,14 +453,14 @@ class SteamService : Service(), AnkoLogger {
         } else {
             info("failed to connect to steam ${++retryCount} times, trying again...")
             handler.postDelayed({ steamClient?.connect() }, 1000L)
-            setNotification("Lost connection to Steam, reconnecting...")
+            setNotification(getString(R.string.notificationLostConnection))
         }
     }
 
     private val onConnected: Consumer<ConnectedCallback> = Consumer {
         info("connected to steam")
         retryCount = 0
-        setNotification("Connected to Steam")
+        setNotification(getString(R.string.notificationConnected))
 
         if (isLoggedIn) {
             val details = LogOnDetails()

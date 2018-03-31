@@ -66,11 +66,11 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var imgurAuthService: ImgurAuthService
 
-    lateinit var paperPlane: PaperPlane
+    private lateinit var paperPlane: PaperPlane
 
-    lateinit var chatAdapter: ChatAdapter
+    private lateinit var chatAdapter: ChatAdapter
 
-    lateinit var emoteAdapter: EmoteAdapter
+    private lateinit var emoteAdapter: EmoteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -147,7 +147,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 friendNickname.hide()
             } else {
                 friendNickname.show()
-                friendNickname.text = "(${friend.nickname})"
+                friendNickname.text = getString(R.string.nicknameFormat, friend.nickname)
             }
 
             if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
@@ -215,10 +215,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     override fun showRemoveFriendDialog(name: String) {
         val builder = AlertDialog.Builder(this)
 
-        builder.setMessage("Are you sure you want to remove $name from you friends list?")
-                .setTitle("Remove $name")
-                .setPositiveButton("Yes", { _, _ -> presenter.confirmRemoveFriend() })
-                .setNegativeButton("No", null)
+        builder.setMessage(getString(R.string.dialogMessageRemoveFriend, name))
+                .setTitle(getString(R.string.dialogTitleRemoveFriend, name))
+                .setPositiveButton(R.string.dialogYes, { _, _ -> presenter.confirmRemoveFriend() })
+                .setNegativeButton(R.string.dialogNo, null)
 
         builder.create().show()
     }
@@ -226,10 +226,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     override fun showBlockFriendDialog(name: String) {
         val builder = AlertDialog.Builder(this)
 
-        builder.setMessage("Are you sure you want to block $name? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.")
-                .setTitle("Block all interactions with $name")
-                .setPositiveButton("Yes", { _, _ -> presenter.confirmBlockFriend() })
-                .setNegativeButton("No", null)
+        builder.setMessage(getString(R.string.dialogMessageBlockFriend, name))
+                .setTitle(getString(R.string.dialogTitleBlockFriend, name))
+                .setPositiveButton(R.string.dialogYes, { _, _ -> presenter.confirmBlockFriend() })
+                .setNegativeButton(R.string.dialogNo, null)
 
         builder.create().show()
     }
@@ -239,10 +239,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         v.nickname.setText(nickname)
 
         val builder = AlertDialog.Builder(this)
-                .setTitle("Set nickname")
+                .setTitle(R.string.dialogTitleNickname)
                 .setView(v)
-                .setPositiveButton("Set", { _, _ -> presenter.setNickname(v.nickname.text.toString()) })
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(R.string.dialogSet, { _, _ -> presenter.setNickname(v.nickname.text.toString()) })
+                .setNegativeButton(R.string.dialogCancel, null)
 
         builder.create().show()
     }
@@ -255,9 +255,9 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         runOnUiThread {
             val builder = AlertDialog.Builder(this)
 
-            builder.setTitle("Past aliases")
+            builder.setTitle(R.string.dialogTitleAliases)
                     .setItems(names.toTypedArray(), null)
-                    .setNegativeButton("Close", null)
+                    .setNegativeButton(R.string.dialogClose, null)
 
             builder.create().show()
         }
@@ -274,10 +274,10 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     override fun showImgurDialog() {
         val builder = AlertDialog.Builder(this)
 
-        builder.setMessage("Link your Imgur account to send images to your friends.")
-                .setTitle("Sharing images")
-                .setPositiveButton("Yes", { _, _ -> startActivity<SettingsActivity>() })
-                .setNegativeButton("Cancel", null)
+        builder.setMessage(R.string.dialogMessageImgur)
+                .setTitle(R.string.dialogTitleImgur)
+                .setPositiveButton(R.string.dialogYes, { _, _ -> startActivity<SettingsActivity>() })
+                .setNegativeButton(R.string.dialogCancel, null)
 
         builder.create().show()
     }
@@ -308,7 +308,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         runOnUiThread {
             imageButton.isClickable = true
             uploadProgressBar.hide()
-            Snackbar.make(rootLayout, "Failed to upload image", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(rootLayout, R.string.snackbarImgurUploadFailed, Snackbar.LENGTH_LONG).show()
         }
     }
 

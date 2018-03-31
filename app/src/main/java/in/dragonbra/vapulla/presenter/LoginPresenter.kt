@@ -5,6 +5,7 @@ import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
+import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -62,7 +63,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
         }
 
         ifViewAttached {
-            it.showLoading("Logging in...")
+            it.showLoading(context.getString(R.string.loadingTextLoggingIn))
         }
     }
 
@@ -130,7 +131,7 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
             steamService?.connect()
 
             ifViewAttached {
-                it.showLoading("Connecting to Steam...")
+                it.showLoading(context.getString(R.string.loadingTextConnecting))
             }
         } else {
             onConnected()

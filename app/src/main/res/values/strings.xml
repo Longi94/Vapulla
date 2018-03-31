@@ -1,13 +1,17 @@
 <resources>
     <string name="app_name">Vapulla</string>
 
-    <!--Activity titles-->
+    <!--region Activity titles-->
+
     <string name="title_activity_settings">Settings</string>
 
-    <!--Statuses-->
+    <!--endregion-->
+
+    <!--region Statuses-->
 
     <string name="statusOnline">Online</string>
     <string name="statusOffline">Last seen %1$s</string>
+    <string name="statusOfflineLabel">Offline</string>
     <string name="statusAway">Away</string>
     <string name="statusSnooze">Snooze</string>
     <string name="statusBusy">Busy</string>
@@ -16,10 +20,107 @@
     <string name="statusLookingPlay">Looking to Play</string>
     <string name="statusTyping">Typing…</string>
 
-    <!--Preference titles-->
+    <!--endregion-->
 
-    <string name="pref_title_chat_bubble">Chat Bubbles</string>
+    <!--region Menu items-->
 
-    <!--Preference descriptions-->
+    <string name="menuSettings">Settings</string>
+    <string name="menuLogOut">Log Out</string>
+    <string name="menuAccept">Accept</string>
+    <string name="menuIgnore">Ignore</string>
+    <string name="menuSetNickname">Set nickname</string>
+    <string name="menuViewAliases">View aliases</string>
+    <string name="menuViewAccount">View account</string>
+    <string name="menuRemoveFriend">Remove friend</string>
+    <string name="menuBlock">Block</string>
+
+    <!--endregion-->
+
+    <!--region Preference titles-->
+
+    <string name="prefTitleChatBubble">Chat Bubbles</string>
+    <string name="prefTitleImgur">Link Imgur account</string>
+    <string name="prefTitleImgurLinked">Imgur</string>
+
+    <!--endregion-->
+
+    <!--region Preference descriptions-->
+
+    <string name="prefSummaryImgurLinked">Linked %1$s. Tap to unlink.</string>
+
+    <!--endregion-->
+
+    <!--region Snackbar messages-->
+
+    <string name="snackbarImgurLinked">Linked Imgur account</string>
+    <string name="snackbarImgurLinkFailed">Failed to link Imgur account</string>
+    <string name="snackbarImgurUploadFailed">Failed to upload image</string>
+
+    <!--endregion-->
+
+    <!--region Dialogs-->
+
+    <string name="dialogYes">Yes</string>
+    <string name="dialogNo">No</string>
+    <string name="dialogTitleNickname">Set nickname</string>
+    <string name="dialogCancel">Cancel</string>
+    <string name="dialogSet">Set</string>
+    <string name="dialogMessageImgur">Link your Imgur account to send images to your friends.</string>
+    <string name="dialogTitleImgur">Sharing images</string>
+    <string name="dialogTitleRemoveFriend">Remove %1$s</string>
+    <string name="dialogMessageRemoveFriend">Are you sure you want to remove %1$s from you friends list?</string>
+    <string name="dialogClose">Close</string>
+    <string name="dialogTitleAliases">Past aliases</string>
+    <string name="dialogTitleBlockFriend">Block all interactions with %1$s</string>
+    <string name="dialogMessageBlockFriend">Are you sure you want to block %1$s? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.</string>
+
+    <!--endregion-->
+
+    <!--region EditText-->
+
+    <string name="editTextErrorSteamGuard">Code must be 5 characters long</string>
+    <string name="editTextErrorUsername">You did not enter your username</string>
+    <string name="editTextErrorPassword">You did not enter your password</string>
+    <string name="editTextHintMessage">Type a message…</string>
+    <string name="editTextHintUsername">Username</string>
+    <string name="editTextHintPassword">Password</string>
+    <string name="editTextHingNickname">Nickname</string>
+    <string name="editTextHintSteamGuard">Steam guard</string>
+
+    <!--endregion-->
+
+    <!--region Buttons-->
+
+    <string name="buttonLogin">Login</string>
+    <string name="buttonSteamGuard">Enter</string>
+    <string name="buttonRetry">Try again</string>
+
+    <!--endregion-->
+
+    <!--region Notifications-->
+
+    <string name="notificationConnecting">Connecting to Steam…</string>
+    <string name="notificationActionLogOut">LOG OUT</string>
+    <string name="notificationActionReply">REPLY</string>
+    <string name="notificationActionAccept">ACCEPT</string>
+    <string name="notificationActionIgnore">IGNORE</string>
+    <string name="notificationActionBlock">BLOCK</string>
+    <string name="notificationTitleFriendRequest">New friend request</string>
+    <string name="notificationMessageFriendRequest">%1$s has added to their friends list!</string>
+    <string name="notificationLostConnection">Lost connection to Steam, reconnecting…</string>
+    <string name="notificationConnected">Connected to Steam</string>
+
+    <!--endregion-->
+
+    <!--region Other-->
+
+    <string name="nicknameFormat">(%1$s)</string>
+    <string name="loadingTextFailed">Failed to connect to steam</string>
+    <string name="loadingTextConnecting">Connecting to Steam…</string>
+    <string name="loadingTextLoggingIn">Logging in…</string>
+    <string name="textViewFriendRequestHeader">Friend Requests</string>
+    <string name="textViewFriendRequestFooter">Friends</string>
+
+    <!--endregion-->
 
 </resources>

@@ -4,7 +4,7 @@
 
         <Preference
             android:key="pref_imgur"
-            android:title="Link Imgur account" />
+            android:title="@string/prefTitleImgur" />
 
     </PreferenceCategory>
 
@@ -14,7 +14,7 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_bubble"
             android:key="pref_chat_bubble"
-            android:title="@string/pref_title_chat_bubble" />
+            android:title="@string/prefTitleChatBubble" />
 
     </PreferenceCategory>
 

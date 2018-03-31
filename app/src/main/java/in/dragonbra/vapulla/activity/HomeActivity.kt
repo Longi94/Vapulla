@@ -41,9 +41,9 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     @Inject
     lateinit var gameSchemaManager: GameSchemaManager
 
-    lateinit var paperPlane: PaperPlane
+    private lateinit var paperPlane: PaperPlane
 
-    lateinit var friendListAdapter: FriendListAdapter
+    private lateinit var friendListAdapter: FriendListAdapter
 
     private val updateHandler: Handler = Handler()
 
@@ -173,10 +173,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         val name = friend.name ?: ""
         val builder = AlertDialog.Builder(this)
 
-        builder.setMessage("Are you sure you want to block $name? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.")
-                .setTitle("Block all interactions with $name")
-                .setPositiveButton("Yes", { _, _ -> presenter.confirmBlockFriend(friend) })
-                .setNegativeButton("No", null)
+        builder.setMessage(getString(R.string.dialogMessageBlockFriend, name))
+                .setTitle(getString(R.string.dialogTitleBlockFriend, name))
+                .setPositiveButton(R.string.dialogYes, { _, _ -> presenter.confirmBlockFriend(friend) })
+                .setNegativeButton(R.string.dialogNo, null)
 
         builder.create().show()
     }
