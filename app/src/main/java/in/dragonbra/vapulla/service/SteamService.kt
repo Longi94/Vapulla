@@ -233,7 +233,7 @@ class SteamService : Service(), AnkoLogger {
                 .setContentTitle("Vapulla")
                 .setContentText(text)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intentFor<HomeActivity>(), 0))
-                .setSmallIcon(R.drawable.ic_message)
+                .setSmallIcon(R.drawable.ic_vapulla)
                 .setVibrate(longArrayOf(-1L))
                 .setSound(null)
                 .addAction(R.drawable.ic_exit_to_app, getString(R.string.notificationActionLogOut), pendingIntent)
