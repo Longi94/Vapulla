@@ -9,6 +9,7 @@ import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.spongycastle.util.encoders.Hex
+import java.util.*
 
 class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
     private val map: MutableMap<SteamID, PersonaState> = hashMapOf()
@@ -44,31 +45,20 @@ class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
     }
 
     private fun process() {
-        var stateList: Array<SteamFriend?> = arrayOf()
+        val friendsToUpdate: MutableList<SteamFriend> = LinkedList()
+
         synchronized(mapLock) {
             if (map.isEmpty()) {
                 return
             }
 
-            stateList = map.map {
+            map.entries.forEach {
                 val id = it.key
                 val state = it.value
 
-                var friend = steamFriendDao.find(id.convertToUInt64())
+                val friend = steamFriendDao.find(id.convertToUInt64())
 
-                var insert = false
-
-                if (friend == null) {
-                    insert = true
-                } else if (state.state != EPersonaState.Offline || state.lastLogOff.time > friend.lastLogOff) {
-                    insert = true
-                }
-
-                if (insert) {
-                    if (friend == null) {
-                        friend = SteamFriend(id.convertToUInt64())
-                    }
-
+                if (friend != null && (state.state != EPersonaState.Offline || state.lastLogOff.time > friend.lastLogOff)) {
                     val avatarHash = Hex.toHexString(state.avatarHash)
 
                     friend.name = state.name
@@ -80,17 +70,14 @@ class PersonaStateBuffer(val steamFriendDao: SteamFriendDao) : AnkoLogger {
                     friend.lastLogOff = state.lastLogOff.time
                     friend.stateFlags = EPersonaStateFlag.code(state.stateFlags)
 
-                    friend
-                } else {
-                    null
+                    friendsToUpdate.add(friend)
                 }
-            }.toTypedArray()
+            }
+
             map.clear()
         }
 
-        val insertList: Array<SteamFriend> = stateList.filter { s -> s != null }.map { s -> s!! }.toTypedArray()
-
-        steamFriendDao.insert(*insertList)
+        steamFriendDao.insert(*friendsToUpdate.toTypedArray())
     }
 
     fun start() {

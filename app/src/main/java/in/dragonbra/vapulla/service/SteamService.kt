@@ -545,6 +545,10 @@ class SteamService : Service(), AnkoLogger {
     private val onFriendsList: Consumer<FriendsListCallback> = Consumer {
         val dao = db.steamFriendDao()
         val inc = it.isIncremental
+
+        val friendsToAdd: MutableList<SteamFriend> = LinkedList()
+        val friendsToUpdate: MutableList<SteamFriend> = LinkedList()
+        val friendsToRemove: MutableList<SteamFriend> = LinkedList()
         it.friendList.forEach {
             if (!it.steamID.isIndividualAccount) {
                 return@forEach
@@ -553,18 +557,28 @@ class SteamService : Service(), AnkoLogger {
             var friend = dao.find(it.steamID.convertToUInt64())
 
             if (friend == null) {
-                friend = SteamFriend(it.steamID.convertToUInt64())
-                friend.relation = it.relationship.code()
-                dao.insert(friend)
+                if (it.relationship == EFriendRelationship.Friend || it.relationship == EFriendRelationship.RequestRecipient) {
+                    friend = SteamFriend(it.steamID.convertToUInt64())
+                    friend.relation = it.relationship.code()
+                    friendsToAdd.add(friend)
+                }
             } else {
-                friend.relation = it.relationship.code()
-                dao.update(friend)
+                if (it.relationship == EFriendRelationship.Friend || it.relationship == EFriendRelationship.RequestRecipient) {
+                    friend.relation = it.relationship.code()
+                    friendsToUpdate.add(friend)
+                } else {
+                    friendsToRemove.add(friend)
+                }
             }
 
-            if (inc && friend.relation == EFriendRelationship.RequestRecipient.code()) {
+            if (inc && friend!!.relation == EFriendRelationship.RequestRecipient.code()) {
                 requestsToNotify.add(it.steamID)
             }
         }
+
+        dao.insert(*friendsToAdd.toTypedArray())
+        dao.update(*friendsToUpdate.toTypedArray())
+        dao.remove(*friendsToRemove.toTypedArray())
     }
 
     private val onFriendMsgHistory: Consumer<FriendMsgHistoryCallback> = Consumer { cb ->

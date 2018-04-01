@@ -42,4 +42,7 @@ interface SteamFriendDao {
 
     @Query("UPDATE steam_friend SET nickname = NULL")
     fun clearNicknames()
+
+    @Delete
+    fun remove(vararg friends: SteamFriend)
 }
