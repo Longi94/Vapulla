@@ -9,6 +9,7 @@ import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
+import `in`.dragonbra.vapulla.util.OfflineStatusUpdater
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.HomeView
 import android.content.Intent
@@ -19,6 +20,7 @@ import android.support.v4.util.Pair
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -32,7 +34,7 @@ import javax.inject.Inject
 class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, PopupMenu.OnMenuItemClickListener, FriendListAdapter.OnItemSelectedListener {
 
     companion object {
-        const val UPDATE_INTERVAL = 1000L
+        const val UPDATE_INTERVAL = DateUtils.MINUTE_IN_MILLIS
     }
 
     @Inject
@@ -42,6 +44,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     lateinit var gameSchemaManager: GameSchemaManager
 
     private lateinit var paperPlane: PaperPlane
+
+    private lateinit var offlineStatusUpdater: OfflineStatusUpdater
 
     private lateinit var friendListAdapter: FriendListAdapter
 
@@ -53,7 +57,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         setContentView(R.layout.activity_home)
 
         paperPlane = PaperPlane(this, 14.0f)
-        friendListAdapter = FriendListAdapter(this, gameSchemaManager, paperPlane)
+        offlineStatusUpdater = OfflineStatusUpdater(this)
+        friendListAdapter = FriendListAdapter(this, gameSchemaManager, paperPlane, offlineStatusUpdater)
         friendListAdapter.listener = this
 
         friendList.layoutManager = LinearLayoutManager(this)
@@ -98,6 +103,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     override fun onDestroy() {
         super.onDestroy()
         paperPlane.clearAll()
+        offlineStatusUpdater.clear()
     }
 
     override fun createPresenter(): HomePresenter = homePresenter
@@ -182,7 +188,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     }
 
     private fun updateList() {
-        friendListAdapter.notifyDataSetChanged()
+        offlineStatusUpdater.updateAll()
         updateHandler.postDelayed({ updateList() }, UPDATE_INTERVAL)
     }
 }

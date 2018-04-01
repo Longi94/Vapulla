@@ -10,6 +10,7 @@ import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.CircleTransform
+import `in`.dragonbra.vapulla.util.OfflineStatusUpdater
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
@@ -30,7 +31,8 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.textColor
 
 
-class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager, val paperPlane: PaperPlane) :
+class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManager,
+                        val paperPlane: PaperPlane, val offlineStatusUpdater: OfflineStatusUpdater) :
         RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
 
     companion object {
@@ -137,10 +139,12 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
                     if ((friend.lastMessageTime == null || friend.typingTs > friend.lastMessageTime!!)
                             && friend.typingTs > System.currentTimeMillis() - 20000L) {
+                        offlineStatusUpdater.clear(v.status)
                         v.status.text = context.getString(R.string.statusTyping)
                         v.status.textColor = ContextCompat.getColor(context, R.color.colorAccent)
                         v.status.bold()
                     } else {
+                        offlineStatusUpdater.schedule(v.status, friend)
                         v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
                         v.status.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
                         v.status.normal()

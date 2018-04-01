@@ -47,7 +47,8 @@ object Utils {
                     EPersonaState.Snooze -> context.getString(R.string.statusSnooze)
                     EPersonaState.LookingToTrade -> context.getString(R.string.statusLookingTrade)
                     EPersonaState.LookingToPlay -> context.getString(R.string.statusLookingPlay)
-                    else -> context.getString(R.string.statusOffline, DateUtils.getRelativeTimeSpanString(lastLogOff))
+                    else -> context.getString(R.string.statusOffline,
+                            DateUtils.getRelativeTimeSpanString(lastLogOff, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS))
                 }
             } else {
                 context.getString(R.string.statusPlaying, if (gameName == null) "" else gameName)

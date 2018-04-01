@@ -30,6 +30,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.provider.MediaStore
+import android.text.format.DateUtils
 import org.jetbrains.anko.info
 import java.io.ByteArrayOutputStream
 import java.util.regex.Pattern
@@ -42,8 +43,8 @@ class ChatPresenter(context: Context,
                     private val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
 
     companion object {
-        const val UPDATE_INTERVAL = 1000L
-        const val TYPING_INTERVAL = 20000L
+        const val UPDATE_INTERVAL = DateUtils.MINUTE_IN_MILLIS
+        const val TYPING_INTERVAL = DateUtils.SECOND_IN_MILLIS * 20
 
         val EMOTE_PATTERN = Pattern.compile(":([a-zA-Z0-9]+):")
     }
