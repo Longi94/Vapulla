@@ -3,11 +3,12 @@ package `in`.dragonbra.vapulla.manager
 import `in`.dragonbra.vapulla.data.dao.GameSchemaDao
 import `in`.dragonbra.vapulla.data.entity.GameSchema
 import `in`.dragonbra.vapulla.retrofit.StoreFront
+import android.text.format.DateUtils
 
-class GameSchemaManager(val gameSchemaDao: GameSchemaDao, private val storeFront: StoreFront) {
+class GameSchemaManager(private val gameSchemaDao: GameSchemaDao, private val storeFront: StoreFront) {
 
     companion object {
-        const val UPDATE_INTERVAL = 604800000L
+        const val UPDATE_INTERVAL = DateUtils.WEEK_IN_MILLIS
     }
 
     private val fetchingIds: MutableSet<Int> = mutableSetOf()

@@ -14,6 +14,7 @@ import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.Emoticon
 import `in`.dragonbra.vapulla.extension.*
+import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.ChatPresenter
 import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.util.Utils
@@ -67,6 +68,9 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var imgurAuthService: ImgurAuthService
 
+    @Inject
+    lateinit var schemaManager: GameSchemaManager
+
     private lateinit var paperPlane: PaperPlane
 
     private lateinit var chatAdapter: ChatAdapter
@@ -119,7 +123,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     override fun createPresenter(): ChatPresenter {
         val steamId = SteamID(intent.getLongExtra(INTENT_STEAM_ID, 0L))
-        return ChatPresenter(this, chatMessageDao, steamFriendDao, emoticonDao, imgurAuthService, steamId)
+        return ChatPresenter(this, chatMessageDao, steamFriendDao, emoticonDao, imgurAuthService, schemaManager, steamId)
     }
 
     override fun closeApp() {

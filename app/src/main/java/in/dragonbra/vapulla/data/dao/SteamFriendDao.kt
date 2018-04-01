@@ -13,7 +13,16 @@ interface SteamFriendDao {
     @Query("SELECT * FROM steam_friend WHERE id = :id")
     fun find(id: Long): SteamFriend?
 
-    @Query("SELECT sf.*, max(cm.timestamp) as last_message_time FROM steam_friend sf LEFT JOIN chat_message cm ON sf.id = cm.friend_id WHERE sf.id = :id")
+    @Query("SELECT " +
+            "  sf.*, " +
+            "  max(cm.timestamp) AS last_message_time, " +
+            "  ifnull(gs.name, sf.game_name) AS playing_game_name " +
+            "FROM steam_friend sf " +
+            "LEFT JOIN chat_message cm " +
+            "ON sf.id = cm.friend_id " +
+            "LEFT JOIN game_schema gs " +
+            "ON gs.id = sf.game_app_id " +
+            "WHERE sf.id = :id")
     fun findLive(id: Long): LiveData<FriendListItem>
 
     @Update

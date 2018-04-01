@@ -14,6 +14,7 @@ import `in`.dragonbra.vapulla.data.dao.EmoticonDao
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
 import `in`.dragonbra.vapulla.data.entity.Emoticon
+import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.retrofit.ImageRequestBody
 import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.steam.VapullaHandler
@@ -40,6 +41,7 @@ class ChatPresenter(context: Context,
                     private val steamFriendsDao: SteamFriendDao,
                     private val emoticonDao: EmoticonDao,
                     private val imgurAuthService: ImgurAuthService,
+                    private val schemaManager: GameSchemaManager,
                     private val steamId: SteamID) : VapullaPresenter<ChatView>(context) {
 
     companion object {
@@ -110,6 +112,14 @@ class ChatPresenter(context: Context,
 
         friendData = steamFriendsDao.findLive(steamId.convertToUInt64())
         friendData.observe(view as ChatActivity, friendObserver)
+
+        friendData.value?.let {
+            if (it.gameAppId > 0) {
+                runOnBackgroundThread {
+                    schemaManager.touch(it.gameAppId)
+                }
+            }
+        }
 
         emoticonData = emoticonDao.getLive()
         emoticonData.observe(view as ChatActivity, emoteObserver)
