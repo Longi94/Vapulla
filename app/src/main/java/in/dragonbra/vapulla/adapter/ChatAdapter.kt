@@ -3,7 +3,9 @@ package `in`.dragonbra.vapulla.adapter
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.data.entity.ChatMessage
+import `in`.dragonbra.vapulla.extension.hide
 import `in`.dragonbra.vapulla.extension.longClick
+import `in`.dragonbra.vapulla.extension.show
 import android.arch.paging.PagedListAdapter
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -51,8 +53,10 @@ class ChatAdapter(val context: Context, val paperPlane: PaperPlane, val clipboar
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val message = getItem(position)
+        val showDate = position == (itemCount - 1)
+                || message?.formattedTs != getItem(position + 1)?.formattedTs
         if (message != null) {
-            holder.bind(message)
+            holder.bind(message, showDate)
         } else {
             holder.clear()
         }
@@ -68,7 +72,7 @@ class ChatAdapter(val context: Context, val paperPlane: PaperPlane, val clipboar
     }
 
     inner class ViewHolder(val v: View) : RecyclerView.ViewHolder(v) {
-        fun bind(message: ChatMessage) {
+        fun bind(message: ChatMessage, showDate: Boolean) {
             paperPlane.load(v.message, message.message, true)
 
             // TODO the spannable breaks events, the selector of the parent is still broken
@@ -85,6 +89,13 @@ class ChatAdapter(val context: Context, val paperPlane: PaperPlane, val clipboar
             }
 
             v.time.text = TIME_FORMAT.format(Date(message.timestamp))
+
+            if (showDate) {
+                v.date.show()
+                v.date.text = message.formattedTs
+            } else {
+                v.date.hide()
+            }
         }
 
         fun clear() {

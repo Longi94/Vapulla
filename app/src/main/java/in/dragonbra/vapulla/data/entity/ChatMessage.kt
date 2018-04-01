@@ -1,6 +1,8 @@
 package `in`.dragonbra.vapulla.data.entity
 
 import android.arch.persistence.room.*
+import java.text.DateFormat
+import java.util.*
 
 @Entity(tableName = "chat_message", indices = [Index("friend_id")])
 data class ChatMessage(
@@ -12,6 +14,13 @@ data class ChatMessage(
         @ColumnInfo(name = "unread") var unread: Boolean,
         @ColumnInfo(name = "timestamp_confirmed") var timestampConfirmed: Boolean
 ) {
+    companion object {
+        private val DATE_FORMAT = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+    }
+
+    @Ignore
+    val formattedTs = DATE_FORMAT.format(Date(timestamp)).toUpperCase()
+
     @Ignore
     constructor(message: String, timestamp: Long, friendId: Long, fromLocal: Boolean, unread: Boolean, timestampConfirmed: Boolean)
             : this(0L, message, timestamp, friendId, fromLocal, unread, timestampConfirmed)
