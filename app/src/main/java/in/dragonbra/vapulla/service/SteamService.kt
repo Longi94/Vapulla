@@ -148,6 +148,7 @@ class SteamService : Service(), AnkoLogger {
         subscriptions.add(callbackMgr?.subscribe(NicknameListCallback::class.java, onNicknameList))
         subscriptions.add(callbackMgr?.subscribe(OfflineMessageNotificationCallback::class.java, onOfflineMessageNotification))
         subscriptions.add(callbackMgr?.subscribe(EmoticonListCallback::class.java, onEmoticonList))
+        subscriptions.add(callbackMgr?.subscribe(FriendMsgEchoCallback::class.java, onFriendMsgEcho))
 
         remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
                 .setLabel("Reply")
@@ -622,7 +623,7 @@ class SteamService : Service(), AnkoLogger {
                         it.message,
                         System.currentTimeMillis(),
                         it.sender.convertToUInt64(),
-                        it.sender == steamClient?.steamID,
+                        false,
                         chatFriendId != it.sender.convertToUInt64(),
                         false
                 ))
@@ -668,6 +669,18 @@ class SteamService : Service(), AnkoLogger {
 
         db.emoticonDao().delete()
         db.emoticonDao().insert(*emoticons)
+    }
+
+    private val onFriendMsgEcho: Consumer<FriendMsgEchoCallback> = Consumer {
+        db.chatMessageDao().insert(ChatMessage(
+                it.message,
+                System.currentTimeMillis(),
+                it.sender.convertToUInt64(),
+                true,
+                false,
+                false
+        ))
+        db.chatMessageDao().markRead(it.sender.convertToUInt64())
     }
 
     //endregion
