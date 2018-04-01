@@ -58,6 +58,12 @@
 
     <!--endregion-->
 
+    <!--region Toast messages-->
+
+    <string name="toastClipboard">Message copied to clipboard!</string>
+
+    <!--endregion-->
+
     <!--region Dialogs-->
 
     <string name="dialogYes">Yes</string>

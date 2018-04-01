@@ -5,6 +5,7 @@ import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.retrofit.Imgur
 import `in`.dragonbra.vapulla.retrofit.StoreFront
 import `in`.dragonbra.vapulla.service.ImgurAuthService
+import android.content.ClipboardManager
 import android.content.Context
 import android.support.v4.app.NotificationManagerCompat
 import dagger.Module
@@ -21,6 +22,10 @@ class AppModule(val context: Context) {
     @Provides
     @Singleton
     fun provideNotificationManager(context: Context) = NotificationManagerCompat.from(context)
+
+    @Provides
+    @Singleton
+    fun provideClipboardManager(context: Context) = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
     @Provides
     @Singleton

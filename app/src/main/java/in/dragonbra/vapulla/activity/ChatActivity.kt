@@ -21,6 +21,7 @@ import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
 import android.arch.paging.PagedList
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -71,6 +72,9 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Inject
     lateinit var schemaManager: GameSchemaManager
 
+    @Inject
+    lateinit var clipboard: ClipboardManager
+
     private lateinit var paperPlane: PaperPlane
 
     private lateinit var chatAdapter: ChatAdapter
@@ -83,7 +87,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         setContentView(R.layout.activity_chat)
 
         paperPlane = PaperPlane(this, 18.0f)
-        chatAdapter = ChatAdapter(this, paperPlane)
+        chatAdapter = ChatAdapter(this, paperPlane, clipboard)
 
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
