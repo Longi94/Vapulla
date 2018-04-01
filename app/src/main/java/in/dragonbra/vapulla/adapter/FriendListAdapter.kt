@@ -171,7 +171,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
 
                     v.click {
-                        listener?.onItemSelected(friend, v)
+                        listener?.onItemSelected(friend)
                     }
                 }
             }
@@ -187,7 +187,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
     }
 
     interface OnItemSelectedListener {
-        fun onItemSelected(friend: FriendListItem, v: View)
+        fun onItemSelected(friend: FriendListItem)
         fun onRequestAccept(friend: FriendListItem)
         fun onRequestIgnore(friend: FriendListItem)
         fun onRequestBlock(friend: FriendListItem)

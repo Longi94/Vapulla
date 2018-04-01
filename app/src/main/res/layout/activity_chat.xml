@@ -29,7 +29,6 @@
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="8dp"
                 android:onClick="navigateUp"
-                android:transitionName="avatar"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@color/colorPrimary" />
@@ -68,7 +67,6 @@
                     android:singleLine="true"
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp"
-                    android:transitionName="name"
                     tools:text="Name" />
 
                 <TextView
@@ -78,7 +76,6 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginLeft="4dp"
                     android:textSize="16sp"
-                    android:transitionName="nickname"
                     tools:text="(nickname)" />
 
             </RelativeLayout>
@@ -89,7 +86,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="76dp"
-                android:transitionName="status"
                 app:layout_constraintEnd_toStartOf="@+id/moreButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/nameLayout"
