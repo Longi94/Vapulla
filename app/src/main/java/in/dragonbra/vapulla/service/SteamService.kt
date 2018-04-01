@@ -427,7 +427,7 @@ class SteamService : Service(), AnkoLogger {
         steamClient?.connect()
 
         while (isRunning) {
-            callbackMgr?.runWaitAllCallbacks(1000)
+            callbackMgr?.runWaitCallbacks(1000)
         }
 
         info("Steam thread stopped")
