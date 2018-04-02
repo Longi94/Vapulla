@@ -709,6 +709,8 @@ class SteamService : Service(), AnkoLogger {
         ))
         db.chatMessageDao().markRead(it.sender.convertToUInt64())
 
+        newMessages[it.sender]?.clear()
+        newMessages.remove(it.sender)
         notificationManager.cancel(it.sender.convertToUInt64().toInt())
     }
 
