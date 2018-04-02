@@ -708,6 +708,8 @@ class SteamService : Service(), AnkoLogger {
                 false
         ))
         db.chatMessageDao().markRead(it.sender.convertToUInt64())
+
+        notificationManager.cancel(it.sender.convertToUInt64().toInt())
     }
 
     //endregion
