@@ -5,11 +5,17 @@ import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
 import `in`.dragonbra.javasteam.steam.discovery.FileServerListProvider
+import `in`.dragonbra.javasteam.steam.handlers.steamapps.SteamApps
+import `in`.dragonbra.javasteam.steam.handlers.steamcloud.SteamCloud
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
+import `in`.dragonbra.javasteam.steam.handlers.steamgamecoordinator.SteamGameCoordinator
+import `in`.dragonbra.javasteam.steam.handlers.steamgameserver.SteamGameServer
+import `in`.dragonbra.javasteam.steam.handlers.steammasterserver.SteamMasterServer
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.SteamNotifications
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.callback.OfflineMessageNotificationCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamscreenshots.SteamScreenshots
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.MachineAuthDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.OTPDetails
@@ -18,6 +24,8 @@ import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallb
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoginKeyCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.UpdateMachineAuthCallback
+import `in`.dragonbra.javasteam.steam.handlers.steamuserstats.SteamUserStats
+import `in`.dragonbra.javasteam.steam.handlers.steamworkshop.SteamWorkshop
 import `in`.dragonbra.javasteam.steam.steamclient.SteamClient
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
@@ -142,6 +150,16 @@ class SteamService : Service(), AnkoLogger {
         }
         steamClient = SteamClient(config)
         steamClient?.addHandler(VapullaHandler())
+
+        steamClient?.removeHandler(SteamApps::class.java)
+        steamClient?.removeHandler(SteamCloud::class.java)
+        steamClient?.removeHandler(SteamGameCoordinator::class.java)
+        steamClient?.removeHandler(SteamGameServer::class.java)
+        steamClient?.removeHandler(SteamMasterServer::class.java)
+        steamClient?.removeHandler(SteamScreenshots::class.java)
+        steamClient?.removeHandler(SteamUserStats::class.java)
+        steamClient?.removeHandler(SteamWorkshop::class.java)
+
         callbackMgr = CallbackManager(steamClient)
 
         subscriptions.add(callbackMgr?.subscribe(DisconnectedCallback::class.java, onDisconnected))
