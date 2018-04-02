@@ -3,6 +3,7 @@ package `in`.dragonbra.vapulla.activity
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.util.Strings
+import `in`.dragonbra.vapulla.BuildConfig
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.VapullaApplication
 import `in`.dragonbra.vapulla.data.VapullaDatabase
@@ -11,12 +12,16 @@ import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
-import android.content.*
-import android.os.Build
+import android.content.ComponentName
+import android.content.Context
+import android.content.ServiceConnection
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
-import android.preference.*
-import android.provider.Settings
+import android.preference.ListPreference
+import android.preference.Preference
+import android.preference.PreferenceActivity
+import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AlertDialog
@@ -123,7 +128,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     private fun setupPreferences() {
         addPreferencesFromResource(R.xml.pref_general)
 
-        val chatBubble = findPreference("pref_chat_bubble") as SwitchPreference
+        /*val chatBubble = findPreference("pref_chat_bubble") as SwitchPreference
 
         chatBubble.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newVal ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -133,7 +138,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 }
             }
             true
-        }
+        }*/
 
         updateImgurPref()
 
@@ -180,6 +185,29 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             builder.create().show()
             true
         }
+
+        // region About
+
+        findPreference("pref_version").summary = BuildConfig.VERSION_NAME
+
+        findPreference("pref_rate_app").click {
+            if (!browse("market://details?id=$packageName")) {
+                browse("https://play.google.com/store/apps/details?id=$packageName")
+            }
+            true
+        }
+
+        findPreference("pref_source_code").click {
+            browse("https://github.com/Longi94/Vapulla")
+            true
+        }
+
+        findPreference("pref_licences").click {
+            browse("https://raw.githubusercontent.com/Longi94/Vapulla/master/third_party.txt")
+            true
+        }
+
+        // endregion
     }
 
     private fun clearData() {

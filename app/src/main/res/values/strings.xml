@@ -42,6 +42,11 @@
     <string name="prefTitleImgur">Link Imgur account</string>
     <string name="prefTitleImgurLinked">Imgur</string>
     <string name="prefTitleChangeUser">Change user</string>
+    <string name="prefTitleChangeProfileName">Profile name</string>
+    <string name="prefTitleVersion">Version</string>
+    <string name="prefTitleSourceCode">Source code</string>
+    <string name="prefTitleLicenses">Licenses</string>
+    <string name="prefTitleRateApp">Rate the app</string>
 
     <!--endregion-->
 
@@ -51,6 +56,15 @@
     <string name="prefSummaryChangeUser">Logged in as %1$s</string>
 
     <!--endregion-->
+
+    <!--region Preference categories-->
+
+    <string name="prefCategoryAbout">About</string>
+    <string name="prefCategoryOther">Other</string>
+    <string name="prefCategoryAccount">Account</string>
+
+    <!--endregion-->
+
 
     <!--region Snackbar messages-->
 
@@ -130,7 +144,6 @@
     <string name="loadingTextLoggingIn">Logging in…</string>
     <string name="textViewFriendRequestHeader">Friend Requests</string>
     <string name="textViewFriendRequestFooter">Friends</string>
-    <string name="prefTitleChangeProfileName">Profile name</string>
 
     <!--endregion-->
 

@@ -1,6 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Account">
+    <PreferenceCategory android:title="@string/prefCategoryAccount">
 
         <Preference
             android:key="pref_change_user"
@@ -16,13 +16,33 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Other">
+    <!--<PreferenceCategory android:title="@string/prefCategoryOther">
 
         <SwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_bubble"
             android:key="pref_chat_bubble"
             android:title="@string/prefTitleChatBubble" />
+
+    </PreferenceCategory>-->
+
+    <PreferenceCategory android:title="@string/prefCategoryAbout">
+
+        <Preference
+            android:key="pref_version"
+            android:title="@string/prefTitleVersion" />
+
+        <Preference
+            android:key="pref_rate_app"
+            android:title="@string/prefTitleRateApp" />
+
+        <Preference
+            android:key="pref_source_code"
+            android:title="@string/prefTitleSourceCode" />
+
+        <Preference
+            android:key="pref_licences"
+            android:title="@string/prefTitleLicenses"/>
 
     </PreferenceCategory>
 
