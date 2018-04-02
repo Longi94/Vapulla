@@ -2,16 +2,14 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="in.dragonbra.vapulla.activity.LoginActivity">
 
-    <include layout="@layout/login_logo_middle" />
+    <include layout="@layout/login_logo_top" />
 
     <include
-        layout="@layout/login_error_text"
-        android:visibility="invisible" />
+        layout="@layout/login_error_text" />
 
     <include
         layout="@layout/login_username"
@@ -29,13 +27,9 @@
         layout="@layout/login_loading_text"
         android:visibility="invisible" />
 
-    <include
-        layout="@layout/login_steam_guard"
-        android:visibility="invisible" />
+    <include layout="@layout/login_steam_guard" />
 
-    <include
-        layout="@layout/login_steam_guard_button"
-        android:visibility="invisible" />
+    <include layout="@layout/login_steam_guard_button" />
 
     <include
         layout="@layout/login_retry_button"

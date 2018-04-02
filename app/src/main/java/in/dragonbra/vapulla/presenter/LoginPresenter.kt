@@ -6,6 +6,7 @@ import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.vapulla.R
+import `in`.dragonbra.vapulla.extension.getErrorMessage
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.SteamService
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
@@ -71,8 +72,6 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
         if (!expectSteamGuard) {
             if (account.hasLoginKey()) {
                 ifViewAttached { it.showFailedScreen() }
-            } else {
-                ifViewAttached { it.showLoginForm() }
             }
         }
     }
@@ -88,7 +87,13 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
             } else {
                 warn { "Failed to log in ${callback.result} / ${callback.extendedResult}" }
                 expectSteamGuard = false
-                ifViewAttached { it.showLoginForm() }
+
+                val errorMessage = context.getErrorMessage(callback.result, callback.extendedResult)
+                if (callback.result == EResult.TwoFactorCodeMismatch || callback.result == EResult.InvalidLoginAuthCode) {
+                    ifViewAttached { it.showSteamGuard(errorMessage) }
+                } else {
+                    ifViewAttached { it.showLoginForm(errorMessage) }
+                }
             }
             steamService?.disconnect()
             return

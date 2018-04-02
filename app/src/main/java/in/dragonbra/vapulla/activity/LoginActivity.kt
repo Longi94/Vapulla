@@ -19,6 +19,15 @@ import android.support.transition.Transition
 import android.support.transition.TransitionManager
 import android.view.animation.AnimationUtils
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.login_button.*
+import kotlinx.android.synthetic.main.login_error_text.*
+import kotlinx.android.synthetic.main.login_loading_text.*
+import kotlinx.android.synthetic.main.login_logo_top.*
+import kotlinx.android.synthetic.main.login_password.*
+import kotlinx.android.synthetic.main.login_retry_button.*
+import kotlinx.android.synthetic.main.login_steam_guard.*
+import kotlinx.android.synthetic.main.login_steam_guard_button.*
+import kotlinx.android.synthetic.main.login_username.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
@@ -79,7 +88,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             constraintSet.applyTo(rootLayout)
 
             val faceAnim = getDrawable(R.drawable.animated_vapulla_from_face)
-            vapullaLogoTop.setImageDrawable(faceAnim)
+            vapullaLogoBottom.setImageDrawable(faceAnim)
 
             VectorAnimCompat.registerAnimationCallback(faceAnim as Animatable, object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable) {
@@ -130,25 +139,39 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         finish()
     }
 
-    override fun showSteamGuard() {
+    override fun showSteamGuard(errorMessage: String?) {
         runOnUiThread {
             stopLoadingAnimation()
             loadingText.setText("")
 
+            errorMessage?.let {
+                errorText.text = errorMessage
+            }
+
+            val layout = errorMessage?.let { R.layout.activity_login_frame_steamguard_error }
+                    ?: run { R.layout.activity_login_frame_steamguard }
+
             val constraintSet = ConstraintSet()
-            constraintSet.clone(this, R.layout.activity_login_frame_steamguard)
+            constraintSet.clone(this, layout)
             TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
             constraintSet.applyTo(rootLayout)
         }
     }
 
-    override fun showLoginForm() {
+    override fun showLoginForm(errorMessage: String?) {
         runOnUiThread {
             stopLoadingAnimation()
             loadingText.setText("")
 
+            errorMessage?.let {
+                errorText.text = errorMessage
+            }
+
+            val layout = errorMessage?.let { R.layout.activity_login_frame_form_error }
+                    ?: run { R.layout.activity_login_frame_form }
+
             val constraintSet = ConstraintSet()
-            constraintSet.clone(this, R.layout.activity_login_frame_form)
+            constraintSet.clone(this, layout)
             TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
             constraintSet.applyTo(rootLayout)
         }

@@ -6,164 +6,36 @@
     android:layout_height="match_parent"
     tools:context="in.dragonbra.vapulla.activity.LoginActivity">
 
-    <!--region logo-->
+    <include layout="@layout/login_logo_middle" />
 
-    <ImageView
-        android:id="@+id/vapullaLogoBottom"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_bottom" />
+    <include
+        layout="@layout/login_error_text"
+        android:visibility="invisible" />
 
-    <ImageView
-        android:id="@+id/vapullaLogoMiddle"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_middle" />
+    <include layout="@layout/login_loading_text" />
 
-    <ImageView
-        android:id="@+id/vapullaLogoTop"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vapulla_top" />
+    <include
+        layout="@layout/login_username"
+        android:visibility="invisible" />
 
-    <!--endregion-->
+    <include
+        layout="@layout/login_password"
+        android:visibility="invisible" />
 
-    <!--region form input-->
+    <include
+        layout="@layout/login_button"
+        android:visibility="invisible" />
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/usernameLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="64dp"
-        android:visibility="invisible"
-        app:errorEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/vapullaLogoTop">
+    <include
+        layout="@layout/login_steam_guard"
+        android:visibility="invisible" />
 
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/editTextHintUsername"
-            android:inputType="textPersonName" />
+    <include
+        layout="@layout/login_steam_guard_button"
+        android:visibility="invisible" />
 
-    </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/passwordLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:visibility="invisible"
-        app:errorEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/usernameLayout">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/editTextHintPassword"
-            android:inputType="textPassword" />
-
-    </android.support.design.widget.TextInputLayout>
-
-    <Button
-        android:id="@+id/login"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/buttonLogin"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordLayout" />
-
-    <!--endregion-->
-
-    <TextSwitcher
-        android:id="@+id/loadingText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/vapullaLogoTop" />
-
-    <!--region steam guard-->
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/steamGuardLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="64dp"
-        android:visibility="invisible"
-        app:errorEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/vapullaLogoTop">
-
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/steamGuardInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/editTextHintSteamGuard"
-            android:inputType="textCapCharacters"
-            android:maxLength="5"
-            android:textAllCaps="true" />
-
-    </android.support.design.widget.TextInputLayout>
-
-    <Button
-        android:id="@+id/steamGuardButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:text="@string/buttonSteamGuard"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/steamGuardLayout" />
-
-    <!--endregion-->
-
-    <Button
-        android:id="@+id/retryButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/buttonRetry"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loadingText" />
+    <include
+        layout="@layout/login_retry_button"
+        android:visibility="invisible" />
 
 </android.support.constraint.ConstraintLayout>

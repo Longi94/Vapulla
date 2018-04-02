@@ -7,23 +7,15 @@
     android:layout_height="match_parent"
     tools:context="in.dragonbra.vapulla.activity.LoginActivity">
 
-    <include layout="@layout/login_logo_middle" />
+    <include layout="@layout/login_logo_top" />
 
-    <include
-        layout="@layout/login_error_text"
-        android:visibility="invisible" />
+    <include layout="@layout/login_error_text" />
 
-    <include
-        layout="@layout/login_username"
-        android:visibility="invisible" />
+    <include layout="@layout/login_username" />
 
-    <include
-        layout="@layout/login_password"
-        android:visibility="invisible" />
+    <include layout="@layout/login_password" />
 
-    <include
-        layout="@layout/login_button"
-        android:visibility="invisible" />
+    <include layout="@layout/login_button" />
 
     <include
         layout="@layout/login_loading_text"

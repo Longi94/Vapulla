@@ -136,6 +136,15 @@
 
     <!--endregion-->
 
+    <!--region error messages-->
+
+    <string name="errorMessageInvalidPassword">Invalid username of password</string>
+    <string name="errorMessageLostConnection">Lost connection</string>
+    <string name="errorMessageTwoFactorCodeMismatch">Invalid steam guard code</string>
+    <string name="errorMessageInvalidLoginAuthCode">Invalid steam guard code</string>
+
+    <!--endregion-->
+
     <!--region Other-->
 
     <string name="nicknameFormat">(%1$s)</string>
