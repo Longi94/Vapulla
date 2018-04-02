@@ -86,9 +86,9 @@ class SteamService : Service(), AnkoLogger {
 
     private val binder: SteamBinder = SteamBinder()
 
-    var steamClient: SteamClient? = null
+    lateinit var steamClient: SteamClient
 
-    var callbackMgr: CallbackManager? = null
+    lateinit var callbackMgr: CallbackManager
 
     private val subscriptions: MutableSet<Closeable?> = mutableSetOf()
 
@@ -149,33 +149,33 @@ class SteamService : Service(), AnkoLogger {
             it.withServerListProvider(FileServerListProvider(File(filesDir, SERVERS_FILE)))
         }
         steamClient = SteamClient(config)
-        steamClient?.addHandler(VapullaHandler())
+        steamClient.addHandler(VapullaHandler())
 
-        steamClient?.removeHandler(SteamApps::class.java)
-        steamClient?.removeHandler(SteamCloud::class.java)
-        steamClient?.removeHandler(SteamGameCoordinator::class.java)
-        steamClient?.removeHandler(SteamGameServer::class.java)
-        steamClient?.removeHandler(SteamMasterServer::class.java)
-        steamClient?.removeHandler(SteamScreenshots::class.java)
-        steamClient?.removeHandler(SteamUserStats::class.java)
-        steamClient?.removeHandler(SteamWorkshop::class.java)
+        steamClient.removeHandler(SteamApps::class.java)
+        steamClient.removeHandler(SteamCloud::class.java)
+        steamClient.removeHandler(SteamGameCoordinator::class.java)
+        steamClient.removeHandler(SteamGameServer::class.java)
+        steamClient.removeHandler(SteamMasterServer::class.java)
+        steamClient.removeHandler(SteamScreenshots::class.java)
+        steamClient.removeHandler(SteamUserStats::class.java)
+        steamClient.removeHandler(SteamWorkshop::class.java)
 
         callbackMgr = CallbackManager(steamClient)
 
-        subscriptions.add(callbackMgr?.subscribe(DisconnectedCallback::class.java, onDisconnected))
-        subscriptions.add(callbackMgr?.subscribe(ConnectedCallback::class.java, onConnected))
-        subscriptions.add(callbackMgr?.subscribe(LoggedOnCallback::class.java, onLoggedOn))
-        subscriptions.add(callbackMgr?.subscribe(LoggedOffCallback::class.java, onLoggedOff))
-        subscriptions.add(callbackMgr?.subscribe(LoginKeyCallback::class.java, onNewLoginKey))
-        subscriptions.add(callbackMgr?.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
-        subscriptions.add(callbackMgr?.subscribe(PersonaStatesCallback::class.java, onPersonaState))
-        subscriptions.add(callbackMgr?.subscribe(FriendsListCallback::class.java, onFriendsList))
-        subscriptions.add(callbackMgr?.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
-        subscriptions.add(callbackMgr?.subscribe(FriendMsgCallback::class.java, onFriendMsg))
-        subscriptions.add(callbackMgr?.subscribe(NicknameListCallback::class.java, onNicknameList))
-        subscriptions.add(callbackMgr?.subscribe(OfflineMessageNotificationCallback::class.java, onOfflineMessageNotification))
-        subscriptions.add(callbackMgr?.subscribe(EmoticonListCallback::class.java, onEmoticonList))
-        subscriptions.add(callbackMgr?.subscribe(FriendMsgEchoCallback::class.java, onFriendMsgEcho))
+        subscriptions.add(callbackMgr.subscribe(DisconnectedCallback::class.java, onDisconnected))
+        subscriptions.add(callbackMgr.subscribe(ConnectedCallback::class.java, onConnected))
+        subscriptions.add(callbackMgr.subscribe(LoggedOnCallback::class.java, onLoggedOn))
+        subscriptions.add(callbackMgr.subscribe(LoggedOffCallback::class.java, onLoggedOff))
+        subscriptions.add(callbackMgr.subscribe(LoginKeyCallback::class.java, onNewLoginKey))
+        subscriptions.add(callbackMgr.subscribe(UpdateMachineAuthCallback::class.java, onUpdateMachineAuth))
+        subscriptions.add(callbackMgr.subscribe(PersonaStatesCallback::class.java, onPersonaState))
+        subscriptions.add(callbackMgr.subscribe(FriendsListCallback::class.java, onFriendsList))
+        subscriptions.add(callbackMgr.subscribe(FriendMsgHistoryCallback::class.java, onFriendMsgHistory))
+        subscriptions.add(callbackMgr.subscribe(FriendMsgCallback::class.java, onFriendMsg))
+        subscriptions.add(callbackMgr.subscribe(NicknameListCallback::class.java, onNicknameList))
+        subscriptions.add(callbackMgr.subscribe(OfflineMessageNotificationCallback::class.java, onOfflineMessageNotification))
+        subscriptions.add(callbackMgr.subscribe(EmoticonListCallback::class.java, onEmoticonList))
+        subscriptions.add(callbackMgr.subscribe(FriendMsgEchoCallback::class.java, onFriendMsgEcho))
 
         remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY)
                 .setLabel("Reply")
@@ -288,7 +288,7 @@ class SteamService : Service(), AnkoLogger {
 
     fun disconnect() {
         expectDisconnect = true
-        steamClient?.disconnect()
+        steamClient.disconnect()
     }
 
     fun logOn(details: LogOnDetails) {
@@ -446,16 +446,16 @@ class SteamService : Service(), AnkoLogger {
                         disconnectedSubs.remove(callbackFunc)
                     }
                 }
-                else -> callbackMgr?.subscribe(T::class.java, { callbackFunc(it) })
+                else -> callbackMgr.subscribe(T::class.java, { callbackFunc(it) })
             }
 
     private val steamThread: Runnable = Runnable {
         info("Connecting to steam...")
         isRunning = true
-        steamClient?.connect()
+        steamClient.connect()
 
         while (isRunning) {
-            callbackMgr?.runWaitCallbacks(1000)
+            callbackMgr.runWaitCallbacks(1000)
         }
 
         info("Steam thread stopped")
@@ -465,7 +465,7 @@ class SteamService : Service(), AnkoLogger {
         fun getService(): SteamService = this@SteamService
     }
 
-    inline fun <reified T : ClientMsgHandler> getHandler() = this.steamClient?.getHandler(T::class.java)
+    inline fun <reified T : ClientMsgHandler> getHandler(): T? = this.steamClient.getHandler(T::class.java)
 
     //region Callback handlers
 
@@ -480,7 +480,7 @@ class SteamService : Service(), AnkoLogger {
             disconnectedSubs.forEach { it.invoke(cb) }
         } else {
             info("failed to connect to steam ${++retryCount} times, trying again...")
-            handler.postDelayed({ steamClient?.connect() }, 1000L)
+            handler.postDelayed({ steamClient.connect() }, 1000L)
             setNotification(getString(R.string.notificationLostConnection))
         }
     }
@@ -515,7 +515,7 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private val onLoggedOff: Consumer<LoggedOffCallback> = Consumer {
-        steamClient?.disconnect()
+        steamClient.disconnect()
     }
 
     private val onNewLoginKey: Consumer<LoginKeyCallback> = Consumer {
@@ -554,7 +554,7 @@ class SteamService : Service(), AnkoLogger {
                 return@forEach
             }
 
-            if (it.friendID == steamClient?.steamID) {
+            if (it.friendID == steamClient.steamID) {
                 account.saveLocalUser(it)
                 return@forEach
             }
