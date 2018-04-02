@@ -12,7 +12,7 @@ class OfflineStatusUpdater(val context: Context) {
 
     fun schedule(view: TextView, friend: FriendListItem) {
         if (friend.state == null || friend.state == EPersonaState.Offline.code()) {
-            views.put(view, friend.lastLogOff)
+            views[view] = friend.lastLogOff
         } else {
             views.remove(view)
         }

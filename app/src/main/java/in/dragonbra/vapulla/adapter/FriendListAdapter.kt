@@ -9,7 +9,6 @@ import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
-import `in`.dragonbra.vapulla.util.CircleTransform
 import `in`.dragonbra.vapulla.util.OfflineStatusUpdater
 import `in`.dragonbra.vapulla.util.Utils
 import android.content.Context
@@ -24,7 +23,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.list_friend.view.*
 import kotlinx.android.synthetic.main.list_friend_request.view.*
 import org.jetbrains.anko.find
@@ -43,9 +41,6 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
     var friendList: List<FriendListItem> = emptyList()
 
     private var requestCount = 0
-
-    val glideOptions = RequestOptions()
-            .transform(CircleTransform())
 
     var listener: OnItemSelectedListener? = null
 
@@ -151,7 +146,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
 
                     paperPlane.load(v.lastMessage, friend.lastMessage ?: "", false)
-                    if (friend.lastMessageUnread ?: false) {
+                    if (friend.lastMessageUnread == true) {
                         v.lastMessage.textColor = ContextCompat.getColor(context, R.color.colorAccent)
                         v.lastMessage.bold()
                     } else {
@@ -181,7 +176,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
             Glide.with(context)
                     .load(Utils.getAvatarUrl(friend.avatar))
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .apply(glideOptions)
+                    .apply(Utils.avatarOptions)
                     .into(v.find(R.id.avatar))
         }
     }
