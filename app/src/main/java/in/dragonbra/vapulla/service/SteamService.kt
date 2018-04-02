@@ -4,6 +4,7 @@ import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
+import `in`.dragonbra.javasteam.steam.discovery.FileServerListProvider
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
@@ -22,6 +23,7 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.javasteam.steam.steamclient.configuration.SteamConfiguration
 import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
@@ -56,6 +58,7 @@ import com.bumptech.glide.Glide
 import org.jetbrains.anko.*
 import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
+import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -69,6 +72,8 @@ class SteamService : Service(), AnkoLogger {
         const val EXTRA_ACTION = "action"
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_ID = "id"
+
+        const val SERVERS_FILE = "servers.bin"
     }
 
     private val binder: SteamBinder = SteamBinder()
@@ -98,7 +103,7 @@ class SteamService : Service(), AnkoLogger {
     @Inject
     lateinit var notificationManager: NotificationManagerCompat
 
-    lateinit var stateBuffer: PersonaStateBuffer
+    private lateinit var stateBuffer: PersonaStateBuffer
 
     @Volatile
     var isRunning: Boolean = false
@@ -110,9 +115,9 @@ class SteamService : Service(), AnkoLogger {
     var isActivityRunning: Boolean = false
 
     @Volatile
-    var expectDisconnect = false
+    private var expectDisconnect = false
 
-    var retryCount = 0
+    private var retryCount = 0
 
     /**
      * id of the friend whose chat is currently open, null if no chat open
@@ -120,7 +125,7 @@ class SteamService : Service(), AnkoLogger {
     @Volatile
     private var chatFriendId: Long? = null
 
-    lateinit var remoteInput: RemoteInput
+    private lateinit var remoteInput: RemoteInput
 
     override fun onCreate() {
         vapulla().graph.inject(this)
@@ -131,7 +136,11 @@ class SteamService : Service(), AnkoLogger {
         handler = Handler(handlerThread.looper)
 
         stateBuffer = PersonaStateBuffer(db.steamFriendDao())
-        steamClient = SteamClient()
+
+        val config = SteamConfiguration.create {
+            it.withServerListProvider(FileServerListProvider(File(filesDir, SERVERS_FILE)))
+        }
+        steamClient = SteamClient(config)
         steamClient?.addHandler(VapullaHandler())
         callbackMgr = CallbackManager(steamClient)
 
