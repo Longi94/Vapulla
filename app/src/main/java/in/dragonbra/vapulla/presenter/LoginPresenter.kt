@@ -47,7 +47,9 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
                 })
             }
         } else {
-            ifViewAttached { it.showLoginForm() }
+            if (!expectSteamGuard) {
+                ifViewAttached { it.showLoginForm() }
+            }
         }
     }
 
