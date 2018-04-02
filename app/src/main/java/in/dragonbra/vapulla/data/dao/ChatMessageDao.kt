@@ -24,4 +24,7 @@ interface ChatMessageDao {
 
     @Query("UPDATE chat_message SET unread = 0 WHERE friend_id = :friendId")
     fun markRead(friendId: Long)
+
+    @Query("DELETE FROM chat_message")
+    fun delete()
 }

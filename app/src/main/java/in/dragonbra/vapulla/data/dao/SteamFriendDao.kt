@@ -54,4 +54,7 @@ interface SteamFriendDao {
 
     @Delete
     fun remove(vararg friends: SteamFriend)
+
+    @Query("DELETE FROM steam_friend")
+    fun delete()
 }

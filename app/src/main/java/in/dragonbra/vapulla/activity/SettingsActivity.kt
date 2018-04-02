@@ -1,21 +1,29 @@
 package `in`.dragonbra.vapulla.activity
 
+import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.VapullaApplication
+import `in`.dragonbra.vapulla.data.VapullaDatabase
+import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.service.ImgurAuthService
-import android.content.Intent
-import android.content.SharedPreferences
+import `in`.dragonbra.vapulla.service.SteamService
+import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
+import android.content.*
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.preference.*
 import android.provider.Settings
 import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.view.ViewGroup
-import org.jetbrains.anko.browse
-import org.jetbrains.anko.find
+import org.jetbrains.anko.*
+import java.io.Closeable
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -33,7 +41,28 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     @Inject
     lateinit var imgurAuthService: ImgurAuthService
 
-    lateinit var prefs: SharedPreferences
+    @Inject
+    lateinit var accountManager: AccountManager
+
+    @Inject
+    lateinit var db: VapullaDatabase
+
+    private lateinit var prefs: SharedPreferences
+
+    private lateinit var steamService: SteamService
+
+    private val subs: MutableList<Closeable?> = LinkedList()
+
+    private val connection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName) {
+        }
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder = service as SteamService.SteamBinder
+            steamService = binder.getService()
+            subs.add(steamService.subscribe<DisconnectedCallback>({ onDisconnected() }))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +94,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        bindService(intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
+    }
+
     override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
@@ -93,6 +132,38 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         }
 
         updateImgurPref()
+
+        val changeUserPreference = findPreference("pref_change_user")
+        changeUserPreference.summary = getString(R.string.prefSummaryChangeUser, accountManager.username)
+        changeUserPreference.click {
+            val builder = AlertDialog.Builder(this)
+
+            builder.setMessage(getString(R.string.dialogMessageChangeUser))
+                    .setTitle(getString(R.string.dialogTitleChangeUser))
+                    .setPositiveButton(R.string.dialogYes, { _, _ ->
+                        runOnBackgroundThread {
+                            runOnBackgroundThread { steamService.disconnect() }
+                            clearData()
+                        }
+                    })
+                    .setNegativeButton(R.string.dialogNo, null)
+
+            builder.create().show()
+            true
+        }
+    }
+
+    fun clearData() {
+        accountManager.clear()
+        imgurAuthService.clear()
+
+        db.steamFriendDao().delete()
+        db.chatMessageDao().delete()
+        db.emoticonDao().delete()
+    }
+
+    fun onDisconnected() {
+        startActivity(intentFor<LoginActivity>().newTask().clearTask())
     }
 
     private fun updateImgurPref() {
@@ -160,7 +231,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                     }
                 }
 
-            } */else {
+            } */ else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.summary = stringValue

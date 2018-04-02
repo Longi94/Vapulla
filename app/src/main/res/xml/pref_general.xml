@@ -3,6 +3,10 @@
     <PreferenceCategory android:title="Account">
 
         <Preference
+            android:key="pref_change_user"
+            android:title="@string/prefTitleChangeUser" />
+
+        <Preference
             android:key="pref_imgur"
             android:title="@string/prefTitleImgur" />
 

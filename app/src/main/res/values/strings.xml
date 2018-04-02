@@ -41,12 +41,14 @@
     <string name="prefTitleChatBubble">Chat Bubbles</string>
     <string name="prefTitleImgur">Link Imgur account</string>
     <string name="prefTitleImgurLinked">Imgur</string>
+    <string name="prefTitleChangeUser">Change user</string>
 
     <!--endregion-->
 
     <!--region Preference descriptions-->
 
     <string name="prefSummaryImgurLinked">Linked %1$s. Tap to unlink.</string>
+    <string name="prefSummaryChangeUser">Logged in as %1$s</string>
 
     <!--endregion-->
 
@@ -79,6 +81,8 @@
     <string name="dialogTitleAliases">Past aliases</string>
     <string name="dialogTitleBlockFriend">Block all interactions with %1$s</string>
     <string name="dialogMessageBlockFriend">Are you sure you want to block %1$s? This will block all kinds of communication with your friend. You can undo this by visiting their profile and unblocking them.</string>
+    <string name="dialogTitleChangeUser">Change user</string>
+    <string name="dialogMessageChangeUser">This will log you out. You will have to reenter your credentials if you want to log back in.</string>
 
     <!--endregion-->
 
