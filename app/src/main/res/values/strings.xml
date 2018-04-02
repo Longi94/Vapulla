@@ -153,6 +153,9 @@
     <string name="loadingTextLoggingIn">Logging in…</string>
     <string name="textViewFriendRequestHeader">Friend Requests</string>
     <string name="textViewFriendRequestFooter">Friends</string>
+    <string name="loadingTextSteamGuardMobile">Enter your steam guard code from your mobile authenticator app</string>
+    <string name="loadingTextSteamGuardEmail">Enter your steam guard code you get through your email</string>
+    <string name="buttonSteamGuardCancel">Cancel</string>
 
     <!--endregion-->
 

@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.login_password.*
 import kotlinx.android.synthetic.main.login_retry_button.*
 import kotlinx.android.synthetic.main.login_steam_guard.*
 import kotlinx.android.synthetic.main.login_steam_guard_button.*
+import kotlinx.android.synthetic.main.login_steam_guard_cancel.*
 import kotlinx.android.synthetic.main.login_username.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
@@ -103,6 +104,10 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             faceAnim.start()
         }
 
+        steamGuardButtonCancel.click {
+            presenter.cancelSteamGuard()
+        }
+
         username.bindLayout()
         password.bindLayout()
         steamGuardInput.bindLayout()
@@ -139,7 +144,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         finish()
     }
 
-    override fun showSteamGuard(errorMessage: String?) {
+    override fun showSteamGuard(is2Fa: Boolean, errorMessage: String?) {
         runOnUiThread {
             stopLoadingAnimation()
             loadingText.setText("")
@@ -147,6 +152,9 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             errorMessage?.let {
                 errorText.text = errorMessage
             }
+
+            loadingText.setText(if (is2Fa) getString(R.string.loadingTextSteamGuardMobile) else
+                getString(R.string.loadingTextSteamGuardEmail))
 
             val layout = errorMessage?.let { R.layout.activity_login_frame_steamguard_error }
                     ?: run { R.layout.activity_login_frame_steamguard }

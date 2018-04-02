@@ -29,6 +29,9 @@
         layout="@layout/login_steam_guard_button"
         android:visibility="invisible" />
 
+    <include layout="@layout/login_steam_guard_cancel"
+        android:visibility="invisible" />
+
     <include
         layout="@layout/login_retry_button"
         android:visibility="invisible" />
