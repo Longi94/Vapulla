@@ -28,6 +28,10 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
 
     private var expectSteamGuard = false
 
+    override fun onDestroy() {
+        expectSteamGuard = false
+    }
+
     override fun onServiceDisconnected(name: ComponentName) {
         info("Unbound from Steam service")
     }

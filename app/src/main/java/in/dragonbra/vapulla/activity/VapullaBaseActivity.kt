@@ -61,6 +61,7 @@ abstract class VapullaBaseActivity<V : MvpView, P : MvpPresenter<V>> : MvpActivi
             unregisterReceiver(stopReceiver)
         } catch (ignored: Exception) {
         }
+        (presenter as? VapullaPresenter<*>)?.onDestroy()
     }
 
     inner class StopReceiver : BroadcastReceiver() {

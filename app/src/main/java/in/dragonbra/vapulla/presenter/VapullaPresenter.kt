@@ -54,6 +54,9 @@ abstract class VapullaPresenter<V : MvpView>(val context: Context) : MvpBasePres
         subs.clear()
         bound = false
     }
+    open fun onDestroy() {
+
+    }
 
     open fun onServiceConnected(name: ComponentName, service: IBinder) {}
     open fun onServiceDisconnected(name: ComponentName) {}

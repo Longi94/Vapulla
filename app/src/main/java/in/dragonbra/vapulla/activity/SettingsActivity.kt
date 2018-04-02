@@ -111,6 +111,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     override fun onStop() {
         super.onStop()
         unbindService(connection)
+        subs.forEach { it?.close() }
     }
 
     override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
