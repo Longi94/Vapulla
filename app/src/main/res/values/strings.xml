@@ -130,6 +130,7 @@
     <string name="loadingTextLoggingIn">Logging in…</string>
     <string name="textViewFriendRequestHeader">Friend Requests</string>
     <string name="textViewFriendRequestFooter">Friends</string>
+    <string name="prefTitleChangeProfileName">Profile name</string>
 
     <!--endregion-->
 

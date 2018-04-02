@@ -1,6 +1,8 @@
 package `in`.dragonbra.vapulla.activity
 
+import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.VapullaApplication
 import `in`.dragonbra.vapulla.data.VapullaDatabase
@@ -19,8 +21,10 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.dialog_nickname.view.*
 import org.jetbrains.anko.*
 import java.io.Closeable
 import java.util.*
@@ -151,9 +155,34 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             builder.create().show()
             true
         }
+
+        val changeProfileName = findPreference("pref_change_profile_name")
+        changeProfileName.summary = accountManager.nickname
+        changeProfileName.click {
+            val v = LayoutInflater.from(this).inflate(R.layout.dialog_nickname, null)
+            v.nickname.setText(accountManager.nickname)
+
+            val builder = AlertDialog.Builder(this)
+                    .setTitle(R.string.dialogTitleNickname)
+                    .setView(v)
+                    .setPositiveButton(R.string.dialogSet, { _, _ ->
+                        val name = v.nickname.text.toString()
+                        if (Strings.isNullOrEmpty(name)) {
+                            return@setPositiveButton
+                        }
+                        runOnBackgroundThread {
+                            steamService.getHandler<SteamFriends>()?.setPersonaName(name)
+                        }
+                        changeProfileName.summary = name
+                    })
+                    .setNegativeButton(R.string.dialogCancel, null)
+
+            builder.create().show()
+            true
+        }
     }
 
-    fun clearData() {
+    private fun clearData() {
         accountManager.clear()
         imgurAuthService.clear()
 

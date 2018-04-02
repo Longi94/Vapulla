@@ -7,6 +7,10 @@
             android:title="@string/prefTitleChangeUser" />
 
         <Preference
+            android:key="pref_change_profile_name"
+            android:title="@string/prefTitleChangeProfileName" />
+
+        <Preference
             android:key="pref_imgur"
             android:title="@string/prefTitleImgur" />
 
