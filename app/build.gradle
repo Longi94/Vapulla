@@ -21,6 +21,12 @@ android {
             }
         }
 
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                outputFileName = "vapulla-${variant.versionName}.apk"
+            }
+        }
+
         buildConfigField("String", "IMGUR_CLIENT_ID", "\"$vapullaImgurClientId\"")
         buildConfigField("String", "IMGUR_CLIENT_SECRET", "\"$vapullaImgurClientSecret\"")
     }
