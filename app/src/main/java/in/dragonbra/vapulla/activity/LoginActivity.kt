@@ -64,7 +64,6 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             }
 
             Utils.hideKeyboardFrom(this@LoginActivity, it)
-            presenter.login(code)
 
             val transition = AutoParallelTransition()
             transition.addListener(object : TransitionListener() {
