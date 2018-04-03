@@ -54,3 +54,4 @@ $RECYCLE.BIN/
 *.lnk
 
 *.bak
+/app/google-services.json
