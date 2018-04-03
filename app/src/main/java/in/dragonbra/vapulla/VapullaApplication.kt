@@ -14,6 +14,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import com.google.firebase.crash.FirebaseCrash
 
 class VapullaApplication : Application() {
 
@@ -22,6 +23,8 @@ class VapullaApplication : Application() {
     @SuppressLint("NewApi")
     override fun onCreate() {
         super.onCreate()
+
+        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG)
 
         LogManager.addListener { clazz, message, throwable ->
             Log.d(clazz.simpleName, message, throwable)
