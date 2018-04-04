@@ -110,6 +110,7 @@
     <string name="editTextHintPassword">Password</string>
     <string name="editTextHingNickname">Nickname</string>
     <string name="editTextHintSteamGuard">Steam guard</string>
+    <string name="editTextHintSearchFriend">Search for a friend…</string>
 
     <!--endregion-->
 
@@ -118,6 +119,7 @@
     <string name="buttonLogin">Login</string>
     <string name="buttonSteamGuard">Enter</string>
     <string name="buttonRetry">Try again</string>
+    <string name="buttonSteamGuardCancel">Cancel</string>
 
     <!--endregion-->
 
@@ -155,7 +157,6 @@
     <string name="textViewFriendRequestFooter">Friends</string>
     <string name="loadingTextSteamGuardMobile">Enter your steam guard code from your mobile authenticator app</string>
     <string name="loadingTextSteamGuardEmail">Enter your steam guard code you get through your email</string>
-    <string name="buttonSteamGuardCancel">Cancel</string>
 
     <!--endregion-->
 

@@ -15,15 +15,22 @@ import `in`.dragonbra.vapulla.view.HomeView
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.constraint.ConstraintSet
+import android.support.transition.ChangeBounds
+import android.support.transition.Transition
+import android.support.transition.TransitionManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.animation.AnticipateOvershootInterpolator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.home_toolbar.*
 import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
@@ -60,30 +67,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         friendList.layoutManager = LinearLayoutManager(this)
         friendList.adapter = friendListAdapter
 
-        moreButton.click {
-            val popup = PopupMenu(this@HomeActivity, it)
-            popup.menuInflater.inflate(R.menu.menu_home, popup.menu)
-            popup.show()
-            popup.setOnMenuItemClickListener(this@HomeActivity)
-        }
-
-        statusButton.click {
-            val popup = PopupMenu(this@HomeActivity, it)
-            popup.menuInflater.inflate(R.menu.menu_status, popup.menu)
-            popup.setOnMenuItemClickListener({
-                val status = when (it.itemId) {
-                    R.id.online -> EPersonaState.Online
-                    R.id.away -> EPersonaState.Away
-                    R.id.busy -> EPersonaState.Busy
-                    R.id.lookingToTrade -> EPersonaState.LookingToTrade
-                    R.id.lookingToPlay -> EPersonaState.LookingToPlay
-                    else -> EPersonaState.Offline
-                }
-                presenter.changeStatus(status)
-                true
-            })
-            popup.show()
-        }
+        moreButton.click(this::openMoreMenu)
+        statusButton.click(this::openStatusMenu)
+        searchButton.click(this::openSearch)
+        closeSearchButton.click(this::closeSearch)
     }
 
     override fun onResume() {
@@ -178,5 +165,65 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     private fun updateList() {
         offlineStatusUpdater.updateAll()
         updateHandler.postDelayed({ updateList() }, UPDATE_INTERVAL)
+    }
+
+    private fun openMoreMenu(v: View) {
+        val popup = PopupMenu(this, v)
+        popup.menuInflater.inflate(R.menu.menu_home, popup.menu)
+        popup.show()
+        popup.setOnMenuItemClickListener(this)
+    }
+
+    private fun openStatusMenu(v: View) {
+        val popup = PopupMenu(this, v)
+        popup.menuInflater.inflate(R.menu.menu_status, popup.menu)
+        popup.setOnMenuItemClickListener({
+            val status = when (it.itemId) {
+                R.id.online -> EPersonaState.Online
+                R.id.away -> EPersonaState.Away
+                R.id.busy -> EPersonaState.Busy
+                R.id.lookingToTrade -> EPersonaState.LookingToTrade
+                R.id.lookingToPlay -> EPersonaState.LookingToPlay
+                else -> EPersonaState.Offline
+            }
+            presenter.changeStatus(status)
+            true
+        })
+        popup.show()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun openSearch(v: View) {
+        val trans = ChangeBounds()
+        trans.interpolator = AnticipateOvershootInterpolator(1.0f)
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(this, R.layout.home_toolbar_frame_search)
+        TransitionManager.beginDelayedTransition(toolbarLayout, trans)
+        constraintSet.applyTo(toolbarLayout)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun closeSearch(v: View) {
+        val trans = ChangeBounds()
+        trans.interpolator = AnticipateOvershootInterpolator(1.0f)
+
+        trans.addListener(object : Transition.TransitionListener {
+            override fun onTransitionEnd(transition: Transition) {
+                searchInput.setText("")
+            }
+            override fun onTransitionResume(transition: Transition) {
+            }
+            override fun onTransitionPause(transition: Transition) {
+            }
+            override fun onTransitionCancel(transition: Transition) {
+            }
+            override fun onTransitionStart(transition: Transition) {
+            }
+        })
+
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(this, R.layout.home_toolbar)
+        TransitionManager.beginDelayedTransition(toolbarLayout, trans)
+        constraintSet.applyTo(toolbarLayout)
     }
 }
