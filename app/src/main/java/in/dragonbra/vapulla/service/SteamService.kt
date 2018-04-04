@@ -63,8 +63,11 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.MessagingStyle.Message
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
+import android.support.v4.app.TaskStackBuilder
 import com.bumptech.glide.Glide
-import org.jetbrains.anko.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
+import org.jetbrains.anko.intentFor
 import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
 import java.io.File
@@ -338,8 +341,9 @@ class SteamService : Service(), AnkoLogger {
         ).addRemoteInput(remoteInput).build()
 
         val intent = intentFor<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friendId.convertToUInt64())
-                .newTask().clearTask()
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val pendingIntent = TaskStackBuilder.create(this)
+                .addNextIntentWithParentStack(intent)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         val notification = NotificationCompat.Builder(this, "vapulla-message")
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setStyle(style)
