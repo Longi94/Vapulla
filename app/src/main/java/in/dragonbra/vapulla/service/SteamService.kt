@@ -343,7 +343,7 @@ class SteamService : Service(), AnkoLogger {
         val intent = intentFor<ChatActivity>(ChatActivity.INTENT_STEAM_ID to friendId.convertToUInt64())
         val pendingIntent = TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(intent)
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+                .getPendingIntent(friendId.convertToUInt64().toInt(), PendingIntent.FLAG_UPDATE_CURRENT)
         val notification = NotificationCompat.Builder(this, "vapulla-message")
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setStyle(style)
