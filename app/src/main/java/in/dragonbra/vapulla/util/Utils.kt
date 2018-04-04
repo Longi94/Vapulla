@@ -11,13 +11,14 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.bumptech.glide.request.RequestOptions
-
-
+import java.util.regex.Pattern
 
 
 object Utils {
     val avatarOptions = RequestOptions()
             .transform(CircleTransform())
+
+    val EMOTE_PATTERN = Pattern.compile(":([a-zA-Z0-9]+):")
 
     fun getAvatarUrl(avatar: String?) = if (avatar == null || Strings.isNullOrEmpty(avatar) || avatar == "0000000000000000000000000000000000000000") {
         "http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg"
@@ -63,5 +64,27 @@ object Utils {
         val resources = context.resources
         val metrics = resources.displayMetrics
         return dp * (metrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+    }
+
+    fun findEmotes(message: String, emoteSet: Set<String>): String {
+        val matcher = EMOTE_PATTERN.matcher(message)
+
+        if (matcher.find()) {
+            val result = matcher.toMatchResult()
+
+            val emote = result.group(1)
+
+            if (emoteSet.contains(emote)) {
+                val builder = StringBuilder(message)
+                builder.setCharAt(result.start(), '\u02D0')
+                builder.setCharAt(result.end() - 1, '\u02D0')
+
+                return findEmotes(builder.toString(), emoteSet)
+            } else {
+                return message.substring(0, result.end() - 1) + findEmotes(message.substring(result.end() - 1), emoteSet)
+            }
+        } else {
+            return message
+        }
     }
 }

@@ -34,7 +34,6 @@ import android.provider.MediaStore
 import android.text.format.DateUtils
 import org.jetbrains.anko.info
 import java.io.ByteArrayOutputStream
-import java.util.regex.Pattern
 
 class ChatPresenter(context: Context,
                     private val chatMessageDao: ChatMessageDao,
@@ -47,8 +46,6 @@ class ChatPresenter(context: Context,
     companion object {
         const val UPDATE_INTERVAL = DateUtils.MINUTE_IN_MILLIS
         const val TYPING_INTERVAL = DateUtils.SECOND_IN_MILLIS * 20
-
-        val EMOTE_PATTERN = Pattern.compile(":([a-zA-Z0-9]+):")
     }
 
     private var lastTypingMessage = 0L
@@ -185,41 +182,8 @@ class ChatPresenter(context: Context,
         }
         lastTypingMessage = 0L
 
-        val emoteMessage = findEmotes(message.replace('\u02D0', ':'))
-
         runOnBackgroundThread {
-            steamService?.getHandler<SteamFriends>()?.sendChatMessage(steamId, EChatEntryType.ChatMsg, message)
-
-            chatMessageDao.insert(ChatMessage(
-                    emoteMessage,
-                    System.currentTimeMillis(),
-                    steamId.convertToUInt64(),
-                    true,
-                    false,
-                    false
-            ))
-        }
-    }
-
-    private fun findEmotes(message: String): String {
-        val matcher = EMOTE_PATTERN.matcher(message)
-
-        if (matcher.find()) {
-            val result = matcher.toMatchResult()
-
-            val emote = result.group(1)
-
-            if (emoteSet.contains(emote)) {
-                val builder = StringBuilder(message)
-                builder.setCharAt(result.start(), '\u02D0')
-                builder.setCharAt(result.end() - 1, '\u02D0')
-
-                return findEmotes(builder.toString())
-            } else {
-                return message.substring(0, result.end() - 1) + findEmotes(message.substring(result.end() - 1))
-            }
-        } else {
-            return message
+            steamService?.sendMessage(steamId, message, emoteSet)
         }
     }
 

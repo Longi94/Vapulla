@@ -33,6 +33,7 @@ import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.configuration.SteamConfiguration
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.javasteam.util.compat.Consumer
 import `in`.dragonbra.vapulla.R
 import `in`.dragonbra.vapulla.activity.ChatActivity
@@ -202,16 +203,9 @@ class SteamService : Service(), AnkoLogger {
                     val message = intent.getStringExtra(EXTRA_MESSAGE)
 
                     runOnBackgroundThread {
-                        db.chatMessageDao().insert(ChatMessage(
-                                message,
-                                System.currentTimeMillis(),
-                                id.convertToUInt64(),
-                                true,
-                                false,
-                                false
-                        ))
-
-                        getHandler<SteamFriends>()?.sendChatMessage(id, EChatEntryType.ChatMsg, message)
+                        val emotes = db.emoticonDao().find()
+                        val emoteSet = emotes.map { it.name }.toSet()
+                        sendMessage(id, message, emoteSet)
                     }
 
                     notificationManager.cancel(id.convertToUInt64().toInt())
@@ -435,6 +429,27 @@ class SteamService : Service(), AnkoLogger {
 
     fun removeChatFriendId() {
         chatFriendId = null
+    }
+
+    fun sendMessage(id: SteamID, message: String, emoteSet: Set<String>) {
+        val trimmed = message.trim()
+
+        if (Strings.isNullOrEmpty(trimmed)) {
+            return
+        }
+
+        val emoteMessage = Utils.findEmotes(trimmed.replace('\u02D0', ':'), emoteSet)
+
+        getHandler<SteamFriends>()?.sendChatMessage(id, EChatEntryType.ChatMsg, message)
+
+        db.chatMessageDao().insert(ChatMessage(
+                emoteMessage,
+                System.currentTimeMillis(),
+                id.convertToUInt64(),
+                true,
+                false,
+                false
+        ))
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =
