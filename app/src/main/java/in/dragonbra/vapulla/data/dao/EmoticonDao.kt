@@ -15,6 +15,9 @@ interface EmoticonDao {
     @Query("SELECT * FROM emoticon ORDER BY name ASC")
     fun getLive(): LiveData<List<Emoticon>>
 
+    @Query("SELECT * FROM emoticon ORDER BY name ASC")
+    fun find(): List<Emoticon>
+
     @Query("DELETE FROM emoticon")
     fun delete()
 }

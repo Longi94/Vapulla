@@ -138,7 +138,7 @@
 
     <!--region error messages-->
 
-    <string name="errorMessageInvalidPassword">Invalid username of password</string>
+    <string name="errorMessageInvalidPassword">Invalid username or password</string>
     <string name="errorMessageLostConnection">Lost connection</string>
     <string name="errorMessageTwoFactorCodeMismatch">Invalid steam guard code</string>
     <string name="errorMessageInvalidLoginAuthCode">Invalid steam guard code</string>
