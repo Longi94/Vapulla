@@ -450,6 +450,9 @@ class SteamService : Service(), AnkoLogger {
                 false,
                 false
         ))
+
+        newMessages[id]?.clear()
+        newMessages.remove(id)
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =
