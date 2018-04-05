@@ -47,6 +47,8 @@
     <string name="prefTitleSourceCode">Source code</string>
     <string name="prefTitleLicenses">Licenses</string>
     <string name="prefTitleRateApp">Rate the app</string>
+    <string name="prefTitleSortFriends">Sort friends by</string>
+    <string name="prefTitleFriendsRecents">Show recent chats on top for</string>
 
     <!--endregion-->
 
@@ -62,9 +64,9 @@
     <string name="prefCategoryAbout">About</string>
     <string name="prefCategoryOther">Other</string>
     <string name="prefCategoryAccount">Account</string>
+    <string name="prefCategoryFriends">Friends</string>
 
     <!--endregion-->
-
 
     <!--region Snackbar messages-->
 

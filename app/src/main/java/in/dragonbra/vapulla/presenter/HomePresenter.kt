@@ -9,6 +9,7 @@ import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
+import `in`.dragonbra.vapulla.util.recyclerview.FriendsComparator
 import `in`.dragonbra.vapulla.view.HomeView
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
@@ -51,11 +52,8 @@ class HomePresenter(context: Context,
 
         ifViewAttached {
             it.showAccount(account)
-            if (friendsData.value == null) {
-                it.showFriends(emptyList())
-            } else {
-                it.showFriends(friendsData.value ?: emptyList())
-            }
+            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context))
+                    ?: emptyList())
         }
     }
 
@@ -73,7 +71,7 @@ class HomePresenter(context: Context,
     }
 
     private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
-        ifViewAttached { it.showFriends(list ?: listOf()) }
+        ifViewAttached { it.showFriends(list?.sortedWith(FriendsComparator(context)) ?: listOf()) }
     }
 
     fun disconnect() {
@@ -108,14 +106,14 @@ class HomePresenter(context: Context,
         val trimmedQuery = query.trim()
         friendsData.value?.let { list ->
             if (Strings.isNullOrEmpty(trimmedQuery)) {
-                ifViewAttached { it.showFriends(list) }
+                ifViewAttached { it.showFriends(list.sortedWith(FriendsComparator(context))) }
                 return@let
             }
 
             val filtered = list.filter {
                 it.name?.contains(trimmedQuery, true) == true ||
                         it.nickname?.contains(trimmedQuery, true) == true
-            }
+            }.sortedWith(FriendsComparator(context))
 
             ifViewAttached { it.showFriends(filtered) }
         }

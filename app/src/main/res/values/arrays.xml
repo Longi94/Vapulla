@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="prefEntriesSortFriends">
+        <item>Name</item>
+        <item>Status</item>
+    </string-array>
+
+    <string-array name="prefValuesSortFriends">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="prefEntriesFriendsRecents">
+        <item>Disable</item>
+        <item>1 day</item>
+        <item>3 days</item>
+        <item>1 week</item>
+        <item>2 weeks</item>
+        <item>1 month</item>
+        <item>Forever</item>
+    </string-array>
+
+    <string-array name="prefValuesFriendsRecents">
+        <item>-1</item>
+        <item>86400000</item>
+        <item>259200000</item>
+        <item>604800000</item>
+        <item>1209600000</item>
+        <item>2592000000</item>
+        <item>0</item>
+    </string-array>
+</resources>
