@@ -3,6 +3,7 @@ package `in`.dragonbra.vapulla.presenter
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
@@ -100,6 +101,23 @@ class HomePresenter(context: Context,
     fun confirmBlockFriend(friend: FriendListItem) {
         runOnBackgroundThread {
             runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.ignoreFriend(SteamID(friend.id)) }
+        }
+    }
+
+    fun search(query: String) {
+        val trimmedQuery = query.trim()
+        friendsData.value?.let { list ->
+            if (Strings.isNullOrEmpty(trimmedQuery)) {
+                ifViewAttached { it.showFriends(list) }
+                return@let
+            }
+
+            val filtered = list.filter {
+                it.name?.contains(trimmedQuery, true) == true ||
+                        it.nickname?.contains(trimmedQuery, true) == true
+            }
+
+            ifViewAttached { it.showFriends(filtered) }
         }
     }
 }

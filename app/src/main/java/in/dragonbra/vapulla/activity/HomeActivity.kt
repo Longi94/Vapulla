@@ -22,6 +22,8 @@ import android.support.transition.TransitionManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
@@ -71,6 +73,18 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         statusButton.click(this::openStatusMenu)
         searchButton.click(this::openSearch)
         closeSearchButton.click(this::closeSearch)
+
+        searchInput.addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable) {
+                presenter.search(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
     }
 
     override fun onResume() {
