@@ -64,6 +64,7 @@ import android.support.v4.app.NotificationCompat.MessagingStyle.Message
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
+import android.text.format.DateUtils
 import com.bumptech.glide.Glide
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
@@ -80,6 +81,12 @@ class SteamService : Service(), AnkoLogger {
     companion object {
         private const val ONGOING_NOTIFICATION_ID = 100
         private const val MAX_RETRY_COUNT = 5
+
+        /**
+         * Time to back off when we receive an echo message because it means that the user is
+         * chatting on another device.
+         */
+        private const val ECHO_BACKOFF = 5L * DateUtils.MINUTE_IN_MILLIS
 
         const val EXTRA_ACTION = "action"
         const val EXTRA_MESSAGE = "message"
@@ -138,6 +145,11 @@ class SteamService : Service(), AnkoLogger {
     private var chatFriendId: Long? = null
 
     private lateinit var remoteInput: RemoteInput
+
+    /**
+     * Time of the last echo used for notification back off
+     */
+    private var lastEcho = 0L
 
     override fun onCreate() {
         vapulla().graph.inject(this)
@@ -300,6 +312,11 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private fun postMessageNotification(friendId: SteamID, message: String) {
+        if (System.currentTimeMillis() <= lastEcho + ECHO_BACKOFF) {
+            // User is still chatting on another device
+            return
+        }
+
         val friend = db.steamFriendDao().find(friendId.convertToUInt64()) ?: return
 
         if (!newMessages.containsKey(friendId)) {
@@ -721,6 +738,8 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private val onFriendMsgEcho: Consumer<FriendMsgEchoCallback> = Consumer {
+        lastEcho = System.currentTimeMillis()
+
         db.chatMessageDao().insert(ChatMessage(
                 it.message,
                 System.currentTimeMillis(),
