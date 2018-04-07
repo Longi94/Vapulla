@@ -51,9 +51,10 @@ class HomePresenter(context: Context,
         account.addListener(this)
 
         ifViewAttached {
+            val updateTime = System.currentTimeMillis()
             it.showAccount(account)
-            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context))
-                    ?: emptyList())
+            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context, updateTime))
+                    ?: emptyList(), updateTime)
         }
     }
 
@@ -71,7 +72,9 @@ class HomePresenter(context: Context,
     }
 
     private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
-        ifViewAttached { it.showFriends(list?.sortedWith(FriendsComparator(context)) ?: listOf()) }
+        val updateTime = System.currentTimeMillis()
+        ifViewAttached { it.showFriends(list?.sortedWith(FriendsComparator(context, updateTime))
+                ?: listOf(), updateTime) }
     }
 
     fun disconnect() {
@@ -105,17 +108,18 @@ class HomePresenter(context: Context,
     fun search(query: String) {
         val trimmedQuery = query.trim()
         friendsData.value?.let { list ->
+            val updateTime = System.currentTimeMillis()
             if (Strings.isNullOrEmpty(trimmedQuery)) {
-                ifViewAttached { it.showFriends(list.sortedWith(FriendsComparator(context))) }
+                ifViewAttached { it.showFriends(list.sortedWith(FriendsComparator(context, updateTime)), updateTime) }
                 return@let
             }
 
             val filtered = list.filter {
                 it.name?.contains(trimmedQuery, true) == true ||
                         it.nickname?.contains(trimmedQuery, true) == true
-            }.sortedWith(FriendsComparator(context))
+            }.sortedWith(FriendsComparator(context, updateTime))
 
-            ifViewAttached { it.showFriends(filtered) }
+            ifViewAttached { it.showFriends(filtered, updateTime) }
         }
     }
 }

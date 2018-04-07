@@ -20,7 +20,6 @@ import android.support.transition.ChangeBounds
 import android.support.transition.Transition
 import android.support.transition.TransitionManager
 import android.support.v7.app.AlertDialog
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.text.Editable
 import android.text.TextWatcher
@@ -29,6 +28,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnticipateOvershootInterpolator
+import com.brandongogetap.stickyheaders.StickyLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.activity_home.*
@@ -66,7 +66,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         friendListAdapter = FriendListAdapter(this, gameSchemaManager, paperPlane, offlineStatusUpdater)
         friendListAdapter.listener = this
 
-        friendList.layoutManager = LinearLayoutManager(this)
+        val layoutManager = StickyLayoutManager(this, friendListAdapter)
+        layoutManager.elevateHeaders(true)
+
+        friendList.layoutManager = layoutManager
         friendList.adapter = friendListAdapter
 
         moreButton.click(this::openMoreMenu)
@@ -131,8 +134,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         }
     }
 
-    override fun showFriends(list: List<FriendListItem>) {
-        friendListAdapter.swap(list)
+    override fun showFriends(list: List<FriendListItem>, updateTime: Long) {
+        friendListAdapter.swap(list, updateTime)
     }
 
     override fun showAccount(account: AccountManager) {

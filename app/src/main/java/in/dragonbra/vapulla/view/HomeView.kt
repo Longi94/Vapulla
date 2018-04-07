@@ -6,7 +6,7 @@ import com.hannesdorfmann.mosby3.mvp.MvpView
 
 interface HomeView : MvpView{
     fun closeApp()
-    fun showFriends(list: List<FriendListItem>)
+    fun showFriends(list: List<FriendListItem>, updateTime: Long)
     fun showAccount(account: AccountManager)
     fun showBlockFriendDialog(friend: FriendListItem)
 }
