@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ import kotlinx.android.synthetic.main.list_friend_request.view.*
 import kotlinx.android.synthetic.main.list_header.view.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.textColor
+import java.text.DateFormat
 import java.util.*
 
 
@@ -201,6 +203,13 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                             v.mobileIndicator.show()
                         } else if (flags.contains(EPersonaStateFlag.ClientTypeWeb)) {
                             v.webIndicator.show()
+                        }
+
+                        friend.lastMessageTime?.let {
+                            v.time.text = DateUtils.formatSameDayTime(it, System.currentTimeMillis(), DateFormat.SHORT, DateFormat.SHORT)
+                            v.time.show()
+                        } ?: run {
+                            v.time.hide()
                         }
 
                         v.click {
