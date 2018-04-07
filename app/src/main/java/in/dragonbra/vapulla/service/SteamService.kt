@@ -263,6 +263,7 @@ class SteamService : Service(), AnkoLogger {
         info("onDestroy")
         disconnect()
         handlerThread.quit()
+        sendBroadcast(Intent(VapullaBaseActivity.STOP_INTENT))
     }
 
     private fun setNotification(text: String) {
