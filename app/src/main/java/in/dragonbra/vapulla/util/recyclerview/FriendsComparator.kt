@@ -6,19 +6,11 @@ import android.preference.PreferenceManager
 
 class FriendsComparator(context: Context, private val updateTime: Long) : Comparator<FriendListItem> {
 
-    companion object {
-        const val SORT_MODE_NAME = 0
-        const val SORT_MODE_STATUS = 1
-    }
-
-    private val sortMode: Int
-
     private val recentsTimeout: Long
 
     init {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
-        sortMode = prefs.getString("pref_friends_list_sort", "1").toInt()
         recentsTimeout = prefs.getString("pref_friends_list_recents", "604800000").toLong()
     }
 
@@ -44,21 +36,11 @@ class FriendsComparator(context: Context, private val updateTime: Long) : Compar
             return 1
         }
 
-        return when (sortMode) {
-            SORT_MODE_NAME -> {
-                compareNames(o1.name, o2.name)
-            }
-            SORT_MODE_STATUS -> {
-                val statusC = compareStatuses(o1, o2)
-                if (statusC != 0) {
-                    statusC
-                } else {
-                    compareNames(o1.name, o2.name)
-                }
-            }
-            else -> {
-                throw IllegalStateException("Unknown sort mode: $sortMode")
-            }
+        val statusC = compareStatuses(o1, o2)
+        return if (statusC != 0) {
+            statusC
+        } else {
+            compareNames(o1.name, o2.name)
         }
     }
 

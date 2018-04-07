@@ -210,7 +210,6 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
         // endregion
 
-        bindPreferenceSummaryToValue(findPreference("pref_friends_list_sort"))
         bindPreferenceSummaryToValue(findPreference("pref_friends_list_recents"))
     }
 
