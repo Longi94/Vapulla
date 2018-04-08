@@ -47,6 +47,8 @@
     <string name="prefTitleSourceCode">Source code</string>
     <string name="prefTitleLicenses">Licenses</string>
     <string name="prefTitleRateApp">Rate the app</string>
+    <string name="prefTitleSortFriends">Sort friends by</string>
+    <string name="prefTitleFriendsRecents">Show recent chats on top for</string>
 
     <!--endregion-->
 
@@ -62,9 +64,9 @@
     <string name="prefCategoryAbout">About</string>
     <string name="prefCategoryOther">Other</string>
     <string name="prefCategoryAccount">Account</string>
+    <string name="prefCategoryFriends">Friends</string>
 
     <!--endregion-->
-
 
     <!--region Snackbar messages-->
 
@@ -110,6 +112,7 @@
     <string name="editTextHintPassword">Password</string>
     <string name="editTextHingNickname">Nickname</string>
     <string name="editTextHintSteamGuard">Steam guard</string>
+    <string name="editTextHintSearchFriend">Search for a friend…</string>
 
     <!--endregion-->
 
@@ -118,6 +121,7 @@
     <string name="buttonLogin">Login</string>
     <string name="buttonSteamGuard">Enter</string>
     <string name="buttonRetry">Try again</string>
+    <string name="buttonSteamGuardCancel">Cancel</string>
 
     <!--endregion-->
 
@@ -145,17 +149,24 @@
 
     <!--endregion-->
 
+    <!--region Headers-->
+
+    <string name="headerFriendRequest">Friend Requests</string>
+    <string name="headerFriendRecent">Recent Chats</string>
+    <string name="headerFriendInGame">In Game</string>
+    <string name="headerFriendOnline">Online</string>
+    <string name="headerFriendOffline">Offline</string>
+
+    <!--endregion-->
+
     <!--region Other-->
 
     <string name="nicknameFormat">(%1$s)</string>
     <string name="loadingTextFailed">Failed to connect to steam</string>
     <string name="loadingTextConnecting">Connecting to Steam…</string>
     <string name="loadingTextLoggingIn">Logging in…</string>
-    <string name="textViewFriendRequestHeader">Friend Requests</string>
-    <string name="textViewFriendRequestFooter">Friends</string>
     <string name="loadingTextSteamGuardMobile">Enter your steam guard code from your mobile authenticator app</string>
     <string name="loadingTextSteamGuardEmail">Enter your steam guard code you get through your email</string>
-    <string name="buttonSteamGuardCancel">Cancel</string>
 
     <!--endregion-->
 

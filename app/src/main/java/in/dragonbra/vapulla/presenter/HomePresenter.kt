@@ -3,11 +3,13 @@ package `in`.dragonbra.vapulla.presenter
 import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.types.SteamID
+import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.data.dao.SteamFriendDao
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
+import `in`.dragonbra.vapulla.util.recyclerview.FriendsComparator
 import `in`.dragonbra.vapulla.view.HomeView
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
@@ -49,12 +51,10 @@ class HomePresenter(context: Context,
         account.addListener(this)
 
         ifViewAttached {
+            val updateTime = System.currentTimeMillis()
             it.showAccount(account)
-            if (friendsData.value == null) {
-                it.showFriends(emptyList())
-            } else {
-                it.showFriends(friendsData.value ?: emptyList())
-            }
+            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context, updateTime))
+                    ?: emptyList(), updateTime)
         }
     }
 
@@ -72,7 +72,9 @@ class HomePresenter(context: Context,
     }
 
     private val dataObserver: Observer<List<FriendListItem>> = Observer { list ->
-        ifViewAttached { it.showFriends(list ?: listOf()) }
+        val updateTime = System.currentTimeMillis()
+        ifViewAttached { it.showFriends(list?.sortedWith(FriendsComparator(context, updateTime))
+                ?: listOf(), updateTime) }
     }
 
     fun disconnect() {
@@ -100,6 +102,24 @@ class HomePresenter(context: Context,
     fun confirmBlockFriend(friend: FriendListItem) {
         runOnBackgroundThread {
             runOnBackgroundThread { steamService?.getHandler<SteamFriends>()?.ignoreFriend(SteamID(friend.id)) }
+        }
+    }
+
+    fun search(query: String) {
+        val trimmedQuery = query.trim()
+        friendsData.value?.let { list ->
+            val updateTime = System.currentTimeMillis()
+            if (Strings.isNullOrEmpty(trimmedQuery)) {
+                ifViewAttached { it.showFriends(list.sortedWith(FriendsComparator(context, updateTime)), updateTime) }
+                return@let
+            }
+
+            val filtered = list.filter {
+                it.name?.contains(trimmedQuery, true) == true ||
+                        it.nickname?.contains(trimmedQuery, true) == true
+            }.sortedWith(FriendsComparator(context, updateTime))
+
+            ifViewAttached { it.showFriends(filtered, updateTime) }
         }
     }
 }

@@ -1,5 +1,6 @@
 package `in`.dragonbra.vapulla.adapter
 
+import `in`.dragonbra.javasteam.util.Strings
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.PrimaryKey
 
@@ -17,6 +18,11 @@ data class FriendListItem(
         @ColumnInfo(name = "typing_timestamp") var typingTs: Long,
         @ColumnInfo(name = "last_message") var lastMessage: String?,
         @ColumnInfo(name = "last_message_time") var lastMessageTime: Long?,
-        @ColumnInfo(name = "last_message_unread") var lastMessageUnread: Boolean?,
+        @ColumnInfo(name = "new_message_count") var newMessageCount: Int?,
         @ColumnInfo(name = "nickname") var nickname: String?
-)
+) {
+
+    fun isInGame() = gameAppId > 0 || !Strings.isNullOrEmpty(gameName)
+
+    fun isOnline() = state?.let { it > 0 } ?: false
+}

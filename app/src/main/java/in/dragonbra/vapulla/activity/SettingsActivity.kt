@@ -209,6 +209,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         }
 
         // endregion
+
+        bindPreferenceSummaryToValue(findPreference("pref_friends_list_recents"))
     }
 
     private fun clearData() {
@@ -218,6 +220,9 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         db.steamFriendDao().delete()
         db.chatMessageDao().delete()
         db.emoticonDao().delete()
+
+        prefs.edit().clear().apply()
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false)
     }
 
     fun onDisconnected() {

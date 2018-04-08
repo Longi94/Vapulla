@@ -13,6 +13,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.preference.PreferenceManager
 import android.util.Log
 import com.google.firebase.crash.FirebaseCrash
 
@@ -63,5 +64,7 @@ class VapullaApplication : Application() {
                 .storageModule(StorageModule())
                 .presenterModule(PresenterModule())
                 .build()
+
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false)
     }
 }

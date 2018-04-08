@@ -29,11 +29,11 @@
         android:id="@+id/nameLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="88dp"
         android:layout_marginTop="8dp"
         android:gravity="left"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/time"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -65,8 +65,8 @@
         android:layout_height="18dp"
         android:src="@drawable/ic_cellphone"
         android:tint="@color/textSecondary"
-        app:layout_constraintStart_toEndOf="@+id/status"
-        app:layout_constraintTop_toTopOf="@+id/status" />
+        app:layout_constraintStart_toEndOf="@id/status"
+        app:layout_constraintTop_toTopOf="@id/status" />
 
     <ImageView
         android:id="@+id/webIndicator"
@@ -74,8 +74,8 @@
         android:layout_height="18dp"
         android:src="@drawable/ic_web"
         android:tint="@color/textSecondary"
-        app:layout_constraintStart_toEndOf="@+id/status"
-        app:layout_constraintTop_toTopOf="@+id/status" />
+        app:layout_constraintStart_toEndOf="@id/status"
+        app:layout_constraintTop_toTopOf="@id/status" />
 
     <TextView
         android:id="@+id/status"
@@ -84,19 +84,49 @@
         android:layout_marginStart="88dp"
         android:textColor="@color/textSecondary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameLayout"
+        app:layout_constraintTop_toBottomOf="@id/nameLayout"
         tools:text="Status" />
 
     <TextView
         android:id="@+id/lastMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="88dp"
         android:ellipsize="end"
         android:lines="1"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/newMessageCount"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status"
+        app:layout_constraintTop_toBottomOf="@id/status"
         tools:text="Last message" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="12dp"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="00:00" />
+
+    <TextView
+        android:id="@+id/newMessageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/new_message_count_background"
+        android:paddingBottom="4dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:textColor="@color/textPrimary"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/time"
+        tools:text="50"
+        tools:visibility="visible" />
+
 </android.support.constraint.ConstraintLayout>

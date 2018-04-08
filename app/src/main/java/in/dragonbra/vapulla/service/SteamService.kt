@@ -64,6 +64,7 @@ import android.support.v4.app.NotificationCompat.MessagingStyle.Message
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.app.TaskStackBuilder
+import android.text.format.DateUtils
 import com.bumptech.glide.Glide
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
@@ -80,6 +81,17 @@ class SteamService : Service(), AnkoLogger {
     companion object {
         private const val ONGOING_NOTIFICATION_ID = 100
         private const val MAX_RETRY_COUNT = 5
+
+        /**
+         * Time to back off when we receive an echo message because it means that the user is
+         * chatting on another device.
+         */
+        private const val ECHO_BACKOFF = 5L * DateUtils.MINUTE_IN_MILLIS
+
+        /**
+         * Time to back off when we receive a new message to prevent spam
+         */
+        private const val NEW_MESSAGE_BACKOFF = DateUtils.MINUTE_IN_MILLIS
 
         const val EXTRA_ACTION = "action"
         const val EXTRA_MESSAGE = "message"
@@ -138,6 +150,11 @@ class SteamService : Service(), AnkoLogger {
     private var chatFriendId: Long? = null
 
     private lateinit var remoteInput: RemoteInput
+
+    /**
+     * Time of the last echo used for notification back off
+     */
+    private var lastEcho = 0L
 
     override fun onCreate() {
         vapulla().graph.inject(this)
@@ -246,6 +263,7 @@ class SteamService : Service(), AnkoLogger {
         info("onDestroy")
         disconnect()
         handlerThread.quit()
+        sendBroadcast(Intent(VapullaBaseActivity.STOP_INTENT))
     }
 
     private fun setNotification(text: String) {
@@ -300,18 +318,30 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private fun postMessageNotification(friendId: SteamID, message: String) {
-        val friend = db.steamFriendDao().find(friendId.convertToUInt64()) ?: return
-
-        if (!newMessages.containsKey(friendId)) {
-            newMessages[friendId] = LinkedList()
+        if (System.currentTimeMillis() <= lastEcho + ECHO_BACKOFF) {
+            // User is still chatting on another device
+            return
         }
 
-        val newMessage = Message(message, System.currentTimeMillis(), friend.name)
-        newMessages[friendId]?.add(newMessage)
+        val friend = db.steamFriendDao().find(friendId.convertToUInt64()) ?: return
+
+        val messages: MutableList<Message> = if (!newMessages.containsKey(friendId)) {
+            val list = LinkedList<Message>()
+            newMessages[friendId] = list
+            list
+        } else {
+            newMessages[friendId]!!
+        }
+
+        val currentTs = System.currentTimeMillis()
+        val backoff = !messages.isEmpty() && currentTs < messages[messages.size - 1].timestamp + NEW_MESSAGE_BACKOFF
+
+        val newMessage = Message(message, currentTs, friend.name)
+        messages.add(newMessage)
 
         val style = NotificationCompat.MessagingStyle(friend.name ?: "")
 
-        newMessages[friendId]?.forEach {
+        messages.forEach {
             style.addMessage(it)
         }
 
@@ -352,6 +382,7 @@ class SteamService : Service(), AnkoLogger {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setPriority(Notification.PRIORITY_HIGH)
+                .setOnlyAlertOnce(backoff)
                 .addAction(replyAction)
                 .build()
 
@@ -423,12 +454,16 @@ class SteamService : Service(), AnkoLogger {
     private fun getMessageReplyIntent(id: Long): Intent =
             intentFor<ReplyReceiver>(ReplyReceiver.EXTRA_ID to id)
 
-    fun setChatFriendId(id: SteamID) {
-        chatFriendId = id.convertToUInt64()
+    private fun clearMessageNotifications(id: SteamID) {
         newMessages[id]?.clear()
         newMessages.remove(id)
 
         notificationManager.cancel(id.convertToUInt64().toInt())
+    }
+
+    fun setChatFriendId(id: SteamID) {
+        chatFriendId = id.convertToUInt64()
+        clearMessageNotifications(id)
     }
 
     fun removeChatFriendId() {
@@ -455,8 +490,7 @@ class SteamService : Service(), AnkoLogger {
                 false
         ))
 
-        newMessages[id]?.clear()
-        newMessages.remove(id)
+        clearMessageNotifications(id)
     }
 
     inline fun <reified T : ICallbackMsg> subscribe(noinline callbackFunc: (T) -> Unit): Closeable? =
@@ -721,6 +755,8 @@ class SteamService : Service(), AnkoLogger {
     }
 
     private val onFriendMsgEcho: Consumer<FriendMsgEchoCallback> = Consumer {
+        lastEcho = System.currentTimeMillis()
+
         db.chatMessageDao().insert(ChatMessage(
                 it.message,
                 System.currentTimeMillis(),
@@ -731,9 +767,7 @@ class SteamService : Service(), AnkoLogger {
         ))
         db.chatMessageDao().markRead(it.sender.convertToUInt64())
 
-        newMessages[it.sender]?.clear()
-        newMessages.remove(it.sender)
-        notificationManager.cancel(it.sender.convertToUInt64().toInt())
+        clearMessageNotifications(it.sender)
     }
 
     //endregion

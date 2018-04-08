@@ -16,6 +16,17 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/prefCategoryFriends">
+
+        <ListPreference
+            android:defaultValue="604800000"
+            android:entries="@array/prefEntriesFriendsRecents"
+            android:entryValues="@array/prefValuesFriendsRecents"
+            android:key="pref_friends_list_recents"
+            android:title="@string/prefTitleFriendsRecents" />
+
+    </PreferenceCategory>
+
     <!--<PreferenceCategory android:title="@string/prefCategoryOther">
 
         <SwitchPreference
@@ -42,7 +53,7 @@
 
         <Preference
             android:key="pref_licences"
-            android:title="@string/prefTitleLicenses"/>
+            android:title="@string/prefTitleLicenses" />
 
     </PreferenceCategory>
 

@@ -15,85 +15,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp">
+        <include layout="@layout/home_toolbar" />
 
-            <ImageView
-                android:id="@+id/localAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@color/colorPrimary" />
-
-            <TextView
-                android:id="@+id/localUsername"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="88dp"
-                android:layout_marginTop="8dp"
-                android:ellipsize="end"
-                android:lines="1"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@+id/statusButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Name" />
-
-            <TextView
-                android:id="@+id/localStatus"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="88dp"
-                app:layout_constraintEnd_toStartOf="@+id/statusButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/localUsername"
-                tools:text="Status" />
-
-            <ImageView
-                android:id="@+id/moreButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:src="@drawable/ic_dots_vertical"
-                android:tint="#fff"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/statusButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:src="@drawable/ic_arrow_drop_down"
-                android:tint="#fff"
-                app:layout_constraintEnd_toStartOf="@+id/moreButton"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </android.support.constraint.ConstraintLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/friendList"
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="56dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/list_friend" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/friendList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/list_friend" />
+
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

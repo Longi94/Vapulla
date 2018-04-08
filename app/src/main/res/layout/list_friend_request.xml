@@ -7,16 +7,6 @@
     android:background="?attr/selectableItemBackground"
     android:paddingBottom="8dp">
 
-    <TextView
-        android:id="@+id/header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textViewFriendRequestHeader"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="56dp"
@@ -24,7 +14,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@color/colorPrimary" />
 
     <TextView
@@ -40,20 +30,8 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="Name" />
-
-    <TextView
-        android:id="@+id/footer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/textViewFriendRequestFooter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/avatar" />
 
     <ImageView
         android:id="@+id/moreButton"
@@ -63,7 +41,7 @@
         android:padding="12dp"
         android:tint="#fff"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_dots_vertical" />
 
 </android.support.constraint.ConstraintLayout>
