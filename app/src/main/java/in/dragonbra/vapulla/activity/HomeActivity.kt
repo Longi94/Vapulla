@@ -219,7 +219,6 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         constraintSet.applyTo(toolbarLayout)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun closeSearch(v: View) {
         val trans = ChangeBounds()
         trans.interpolator = AnticipateOvershootInterpolator(1.0f)
@@ -227,6 +226,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         trans.addListener(object : Transition.TransitionListener {
             override fun onTransitionEnd(transition: Transition) {
                 searchInput.setText("")
+                Utils.hideKeyboardFrom(this@HomeActivity, v)
             }
             override fun onTransitionResume(transition: Transition) {
             }
