@@ -179,6 +179,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun navigateUp() {
+        Utils.hideKeyboardFrom(this, messageBox)
         NavUtils.navigateUpFromSameTask(this)
     }
 
@@ -336,7 +337,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     @Suppress("UNUSED_PARAMETER")
     fun navigateUp(v: View) {
-        NavUtils.navigateUpFromSameTask(this)
+        navigateUp()
     }
 
     @Suppress("UNUSED_PARAMETER")
