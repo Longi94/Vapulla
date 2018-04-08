@@ -23,13 +23,13 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.brandongogetap.stickyheaders.exposed.StickyHeaderHandler
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.android.synthetic.main.list_friend.view.*
 import kotlinx.android.synthetic.main.list_friend_request.view.*
-import kotlinx.android.synthetic.main.list_header.view.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.textColor
 import java.text.DateFormat
@@ -41,12 +41,15 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         RecyclerView.Adapter<FriendListAdapter.ViewHolder>(), StickyHeaderHandler {
 
     companion object {
-        const val VIEW_TYPE_HEADER = 0
         const val VIEW_TYPE_FRIEND_REQUEST = 1
-        const val VIEW_TYPE_FRIEND_OFFLINE = 2
-        const val VIEW_TYPE_FRIEND_ONLINE = 3
-        const val VIEW_TYPE_FRIEND_IN_GAME = 4
-        const val VIEW_TYPE_FRIEND_RECENT = 5
+        const val VIEW_TYPE_FRIEND = 2
+
+        const val ITEM_TYPE_HEADER = 0
+        const val ITEM_TYPE_FRIEND_REQUEST = 1
+        const val ITEM_TYPE_FRIEND_OFFLINE = 2
+        const val ITEM_TYPE_FRIEND_ONLINE = 3
+        const val ITEM_TYPE_FRIEND_IN_GAME = 4
+        const val ITEM_TYPE_FRIEND_RECENT = 5
     }
 
     var friendList: MutableList<Any> = LinkedList()
@@ -62,7 +65,6 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = when (viewType) {
             VIEW_TYPE_FRIEND_REQUEST -> R.layout.list_friend_request
-            VIEW_TYPE_HEADER -> R.layout.list_header
             else -> R.layout.list_friend
         }
         val v = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
@@ -77,21 +79,29 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
         }
     }
 
-    override fun getItemViewType(position: Int) = getItemViewType(friendList[position])
+    override fun getItemViewType(position: Int): Int {
+        val item = friendList[position]
+        if (item is FriendListItem) {
+            if (item.relation == EFriendRelationship.RequestRecipient.code()) {
+                return VIEW_TYPE_FRIEND_REQUEST
+            }
+        }
+        return VIEW_TYPE_FRIEND
+    }
 
-    private fun getItemViewType(item: Any): Int {
+    private fun getItemType(item: Any): Int {
         if (item is FriendListItem) {
             return if (item.relation == EFriendRelationship.RequestRecipient.code()) {
-                VIEW_TYPE_FRIEND_REQUEST
+                ITEM_TYPE_FRIEND_REQUEST
             } else if (recentsTimeout == 0L || (recentsTimeout > 0L && item.lastMessageTime?.let { it >= updateTime - recentsTimeout } == true)) {
-                VIEW_TYPE_FRIEND_RECENT
+                ITEM_TYPE_FRIEND_RECENT
             } else if (item.isInGame()) {
-                VIEW_TYPE_FRIEND_IN_GAME
+                ITEM_TYPE_FRIEND_IN_GAME
             } else if (item.isOnline()) {
-                VIEW_TYPE_FRIEND_ONLINE
-            } else VIEW_TYPE_FRIEND_OFFLINE
+                ITEM_TYPE_FRIEND_ONLINE
+            } else ITEM_TYPE_FRIEND_OFFLINE
         }
-        return VIEW_TYPE_HEADER
+        return ITEM_TYPE_HEADER
     }
 
     override fun getAdapterData(): MutableList<*> = friendList
@@ -105,7 +115,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
         if (!newList.isEmpty()) {
             for (i in (list.size - 1) downTo 0) {
-                val type = getItemViewType(newList[i])
+                val type = getItemType(newList[i])
                 if (currentViewType == -1) {
                     currentViewType = type
                 } else if (type != currentViewType) {
@@ -126,9 +136,19 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
             (item as? TextHeader)?.let {
                 v.header.text = it.title
+                showHeader()
             }
 
             (item as? FriendListItem)?.let { friend ->
+                Glide.with(context)
+                        .clear(v.find<ImageView>(R.id.avatar))
+
+                Glide.with(context)
+                        .load(Utils.getAvatarUrl(friend.avatar))
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .apply(Utils.avatarOptions)
+                        .into(v.find(R.id.avatar))
+
                 when (friend.relation) {
                     EFriendRelationship.RequestRecipient.code() -> {
                         v.moreButton.click {
@@ -156,6 +176,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                         }
                     }
                     else -> {
+                        showFriend()
                         if (friend.gameAppId > 0) {
                             runOnBackgroundThread {
                                 schemaManager.touch(friend.gameAppId)
@@ -219,7 +240,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                             v.time.hide()
                         }
 
-                        v.click {
+                        v.friendLayout.click {
                             listener?.onItemSelected(friend)
                         }
                     }
@@ -227,23 +248,27 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
                 v.find<TextView>(R.id.username).text = friend.name
 
-                Glide.with(context)
-                        .load(Utils.getAvatarUrl(friend.avatar))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .apply(Utils.avatarOptions)
-                        .into(v.find(R.id.avatar))
-
             }
+        }
+
+        private fun showHeader() {
+            v.header.show()
+            v.friendLayout.hide()
+        }
+
+        private fun showFriend() {
+            v.header.hide()
+            v.friendLayout.show()
         }
     }
 
     private fun getHeader(viewType: Int): String {
         return context.getString(when (viewType) {
-            VIEW_TYPE_FRIEND_REQUEST -> R.string.headerFriendRequest
-            VIEW_TYPE_FRIEND_OFFLINE -> R.string.headerFriendOffline
-            VIEW_TYPE_FRIEND_ONLINE -> R.string.headerFriendOnline
-            VIEW_TYPE_FRIEND_IN_GAME -> R.string.headerFriendInGame
-            VIEW_TYPE_FRIEND_RECENT -> R.string.headerFriendRecent
+            ITEM_TYPE_FRIEND_REQUEST -> R.string.headerFriendRequest
+            ITEM_TYPE_FRIEND_OFFLINE -> R.string.headerFriendOffline
+            ITEM_TYPE_FRIEND_ONLINE -> R.string.headerFriendOnline
+            ITEM_TYPE_FRIEND_IN_GAME -> R.string.headerFriendInGame
+            ITEM_TYPE_FRIEND_RECENT -> R.string.headerFriendRecent
             else -> R.string.headerFriendOffline
         })
     }

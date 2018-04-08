@@ -77,6 +77,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         searchButton.click(this::openSearch)
         closeSearchButton.click(this::closeSearch)
 
+        searchInput.isEnabled = false
         searchInput.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable) {
                 presenter.search(s.toString())
@@ -217,9 +218,9 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         constraintSet.clone(this, R.layout.home_toolbar_frame_search)
         TransitionManager.beginDelayedTransition(toolbarLayout, trans)
         constraintSet.applyTo(toolbarLayout)
+        searchInput.isEnabled = true
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun closeSearch(v: View) {
         val trans = ChangeBounds()
         trans.interpolator = AnticipateOvershootInterpolator(1.0f)
@@ -227,6 +228,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         trans.addListener(object : Transition.TransitionListener {
             override fun onTransitionEnd(transition: Transition) {
                 searchInput.setText("")
+                searchInput.isEnabled = false
+                Utils.hideKeyboardFrom(this@HomeActivity, v)
             }
             override fun onTransitionResume(transition: Transition) {
             }

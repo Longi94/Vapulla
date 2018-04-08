@@ -40,21 +40,25 @@ class HomePresenter(context: Context,
         }
     }
 
+    override fun onPostCreate() {
+        friendsData = steamFriendDao.getLive()
+        friendsData.observe(view as HomeActivity, dataObserver)
+
+        ifViewAttached {
+            val updateTime = System.currentTimeMillis()
+            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context, updateTime))
+                    ?: emptyList(), updateTime)
+        }
+    }
+
     override fun onResume() {
         if (bound) {
             steamService?.isActivityRunning = true
         }
 
-        friendsData = steamFriendDao.getLive()
-        friendsData.observe(view as HomeActivity, dataObserver)
-
         account.addListener(this)
-
         ifViewAttached {
-            val updateTime = System.currentTimeMillis()
             it.showAccount(account)
-            it.showFriends(friendsData.value?.sortedWith(FriendsComparator(context, updateTime))
-                    ?: emptyList(), updateTime)
         }
     }
 
@@ -63,8 +67,11 @@ class HomePresenter(context: Context,
             steamService?.isActivityRunning = false
         }
 
-        friendsData.removeObserver(dataObserver)
         account.removeListener(this)
+    }
+
+    override fun onDestroy() {
+        friendsData.removeObserver(dataObserver)
     }
 
     override fun unAccountUpdate(account: AccountManager) {
