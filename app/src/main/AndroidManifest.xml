@@ -27,7 +27,8 @@
         <activity
             android:name=".activity.HomeActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".activity.ChatActivity"
             android:launchMode="singleTop"
