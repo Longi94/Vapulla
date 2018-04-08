@@ -93,7 +93,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
     override fun onResume() {
         super.onResume()
-        updateHandler.postDelayed({ updateList() }, UPDATE_INTERVAL)
+        updateList()
     }
 
     override fun onPause() {
