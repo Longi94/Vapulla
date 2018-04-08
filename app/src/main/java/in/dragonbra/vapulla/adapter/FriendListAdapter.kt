@@ -181,17 +181,24 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                         } else {
                             offlineStatusUpdater.schedule(v.status, friend)
                             v.status.text = Utils.getStatusText(context, state, friend.gameAppId, friend.gameName, friend.lastLogOff)
-                            v.status.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
+                            v.status.textColor = ContextCompat.getColor(context, R.color.textSecondary)
                             v.status.normal()
                         }
 
                         paperPlane.load(v.lastMessage, friend.lastMessage ?: "", false)
-                        if (friend.lastMessageUnread == true) {
-                            v.lastMessage.textColor = ContextCompat.getColor(context, R.color.colorAccent)
+
+                        val newMessages: Int = friend.newMessageCount ?: 0
+                        if (newMessages > 0) {
+                            v.lastMessage.textColor = ContextCompat.getColor(context, R.color.textPrimary)
                             v.lastMessage.bold()
+                            v.newMessageCount.text = newMessages.toString()
+                            v.newMessageCount.show()
+                            v.find<TextView>(R.id.username).bold()
                         } else {
-                            v.lastMessage.textColor = ContextCompat.getColor(context, android.R.color.secondary_text_dark)
+                            v.lastMessage.textColor = ContextCompat.getColor(context, R.color.textSecondary)
                             v.lastMessage.normal()
+                            v.newMessageCount.hide()
+                            v.find<TextView>(R.id.username).normal()
                         }
 
                         (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
