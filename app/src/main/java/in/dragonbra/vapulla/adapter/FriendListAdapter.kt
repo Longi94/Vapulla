@@ -23,6 +23,7 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.brandongogetap.stickyheaders.exposed.StickyHeaderHandler
 import com.bumptech.glide.Glide
@@ -129,6 +130,15 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
             }
 
             (item as? FriendListItem)?.let { friend ->
+                Glide.with(context)
+                        .clear(v.find<ImageView>(R.id.avatar))
+
+                Glide.with(context)
+                        .load(Utils.getAvatarUrl(friend.avatar))
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .apply(Utils.avatarOptions)
+                        .into(v.find(R.id.avatar))
+
                 when (friend.relation) {
                     EFriendRelationship.RequestRecipient.code() -> {
                         v.moreButton.click {
@@ -226,12 +236,6 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                 }
 
                 v.find<TextView>(R.id.username).text = friend.name
-
-                Glide.with(context)
-                        .load(Utils.getAvatarUrl(friend.avatar))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .apply(Utils.avatarOptions)
-                        .into(v.find(R.id.avatar))
 
             }
         }
