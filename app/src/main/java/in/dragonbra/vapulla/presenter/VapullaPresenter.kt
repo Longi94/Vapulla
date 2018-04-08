@@ -41,6 +41,8 @@ abstract class VapullaPresenter<V : MvpView>(val context: Context) : MvpBasePres
         }
     }
 
+    open fun onPostCreate() {
+    }
     @CallSuper
     open fun onStart() {
         context.bindService(context.intentFor<SteamService>(), connection, Context.BIND_AUTO_CREATE)

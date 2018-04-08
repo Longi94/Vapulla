@@ -97,13 +97,7 @@ class ChatPresenter(context: Context,
         getMessageHistory()
     }
 
-    override fun onResume() {
-        if (bound) {
-            steamService?.setChatFriendId(steamId)
-            steamService?.isActivityRunning = true
-            getMessageHistory()
-        }
-
+    override fun onPostCreate() {
         chatData = LivePagedListBuilder(chatMessageDao.findLivePaged(steamId.convertToUInt64()), 50).build()
         chatData.observe(view as ChatActivity, chatObserver)
 
@@ -128,8 +122,16 @@ class ChatPresenter(context: Context,
         }
 
         emoteSet = (emoticonData.value ?: emptyList()).map { it.name }.toSet()
+    }
 
-        updateHandler.postDelayed({ updateFriend() }, UPDATE_INTERVAL)
+    override fun onResume() {
+        if (bound) {
+            steamService?.setChatFriendId(steamId)
+            steamService?.isActivityRunning = true
+            getMessageHistory()
+        }
+
+        updateFriend()
 
         runOnBackgroundThread {
             chatMessageDao.markRead(steamId.convertToUInt64())
@@ -142,10 +144,13 @@ class ChatPresenter(context: Context,
             steamService?.removeChatFriendId()
         }
 
+        updateHandler.removeCallbacksAndMessages(null)
+    }
+
+    override fun onDestroy() {
         chatData.removeObserver(chatObserver)
         friendData.removeObserver(friendObserver)
-
-        updateHandler.removeCallbacksAndMessages(null)
+        emoticonData.removeObserver(emoteObserver)
     }
 
     private fun updateFriend() {

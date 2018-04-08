@@ -30,6 +30,11 @@ abstract class VapullaBaseActivity<V : MvpView, P : MvpPresenter<V>> : MvpActivi
         registerReceiver(stopReceiver, filter)
     }
 
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        (presenter as? VapullaPresenter<*>)?.onPostCreate()
+    }
+
     @CallSuper
     override fun onStart() {
         super.onStart()
