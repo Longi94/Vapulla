@@ -136,6 +136,10 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
     }
 
     inner class ViewHolder(private val v: View) : RecyclerView.ViewHolder(v) {
+
+        private val avatar: ImageView? = v.find(R.id.avatar)
+        private val username: TextView? = v.find(R.id.username)
+
         fun bind(item: Any) {
 
             (item as? TextHeader)?.let {
@@ -144,14 +148,16 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
             }
 
             (item as? FriendListItem)?.let { friend ->
-                Glide.with(context)
-                        .clear(v.find<ImageView>(R.id.avatar))
+                avatar?.let {
+                    Glide.with(context)
+                            .clear(it)
 
-                Glide.with(context)
-                        .load(Utils.getAvatarUrl(friend.avatar))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .apply(Utils.avatarOptions)
-                        .into(v.find(R.id.avatar))
+                    Glide.with(context)
+                            .load(Utils.getAvatarUrl(friend.avatar))
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .apply(Utils.avatarOptions)
+                            .into(it)
+                }
 
                 when (friend.relation) {
                     EFriendRelationship.RequestRecipient.code() -> {
@@ -218,12 +224,12 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                             v.lastMessage.bold()
                             v.newMessageCount.text = newMessages.toString()
                             v.newMessageCount.show()
-                            v.find<TextView>(R.id.username).bold()
+                            username?.bold()
                         } else {
                             v.lastMessage.textColor = ContextCompat.getColor(context, R.color.textSecondary)
                             v.lastMessage.normal()
                             v.newMessageCount.hide()
-                            v.find<TextView>(R.id.username).normal()
+                            username?.normal()
                         }
 
                         (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
@@ -251,7 +257,7 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
                     }
                 }
 
-                v.find<TextView>(R.id.username).text = friend.name
+                username?.text = friend.name
 
             }
         }
