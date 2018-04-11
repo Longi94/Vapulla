@@ -6,6 +6,8 @@ import `in`.dragonbra.vapulla.adapter.FriendListAdapter
 import `in`.dragonbra.vapulla.adapter.FriendListItem
 import `in`.dragonbra.vapulla.chat.PaperPlane
 import `in`.dragonbra.vapulla.extension.click
+import `in`.dragonbra.vapulla.extension.hideKeyboardFrom
+import `in`.dragonbra.vapulla.extension.showKeyboard
 import `in`.dragonbra.vapulla.manager.AccountManager
 import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.presenter.HomePresenter
@@ -214,6 +216,21 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
     private fun openSearch(v: View) {
         val trans = ChangeBounds()
         trans.interpolator = AnticipateOvershootInterpolator(1.0f)
+        trans.addListener(object : Transition.TransitionListener {
+            override fun onTransitionEnd(transition: Transition) {
+                searchInput.requestFocus()
+                showKeyboard(searchInput)
+            }
+            override fun onTransitionResume(transition: Transition) {
+            }
+            override fun onTransitionPause(transition: Transition) {
+            }
+            override fun onTransitionCancel(transition: Transition) {
+            }
+            override fun onTransitionStart(transition: Transition) {
+            }
+        })
+
         val constraintSet = ConstraintSet()
         constraintSet.clone(this, R.layout.home_toolbar_frame_search)
         TransitionManager.beginDelayedTransition(toolbarLayout, trans)
@@ -221,6 +238,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         searchInput.isEnabled = true
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun closeSearch(v: View) {
         val trans = ChangeBounds()
         trans.interpolator = AnticipateOvershootInterpolator(1.0f)
@@ -229,7 +247,7 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
             override fun onTransitionEnd(transition: Transition) {
                 searchInput.setText("")
                 searchInput.isEnabled = false
-                Utils.hideKeyboardFrom(this@HomeActivity, v)
+                hideKeyboardFrom(searchInput)
             }
             override fun onTransitionResume(transition: Transition) {
             }

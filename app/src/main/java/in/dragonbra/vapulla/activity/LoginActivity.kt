@@ -7,7 +7,6 @@ import `in`.dragonbra.vapulla.anim.TransitionListener
 import `in`.dragonbra.vapulla.anim.VectorAnimCompat
 import `in`.dragonbra.vapulla.extension.*
 import `in`.dragonbra.vapulla.presenter.LoginPresenter
-import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.view.LoginView
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -63,7 +62,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
                 return@click
             }
 
-            Utils.hideKeyboardFrom(this@LoginActivity, it)
+            hideKeyboardFrom(it)
 
             val transition = AutoParallelTransition()
             transition.addListener(object : TransitionListener() {
@@ -219,7 +218,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             return
         }
 
-        Utils.hideKeyboardFrom(this@LoginActivity, login)
+        hideKeyboardFrom(login)
 
         startLoading({ presenter.login(username, password) })
     }

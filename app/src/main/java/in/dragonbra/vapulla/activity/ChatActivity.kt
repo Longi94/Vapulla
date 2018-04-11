@@ -179,7 +179,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun navigateUp() {
-        Utils.hideKeyboardFrom(this, messageBox)
+        hideKeyboardFrom(messageBox)
         NavUtils.navigateUpFromSameTask(this)
     }
 
@@ -356,7 +356,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         emoteList.toggleVisibility()
 
         if (emoteList.isVisible()) {
-            Utils.hideKeyboardFrom(this, messageBox)
+            hideKeyboardFrom(messageBox)
             presenter.requestEmotes()
         }
     }
