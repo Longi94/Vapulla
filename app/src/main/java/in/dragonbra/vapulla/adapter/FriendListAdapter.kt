@@ -58,6 +58,10 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
+    private val webIcon = context.getDrawable(R.drawable.ic_web)
+
+    private val mobileIcon = context.getDrawable(R.drawable.ic_cellphone)
+
     private var updateTime = 0L
 
     private var recentsTimeout = prefs.getString("pref_friends_list_recents", "604800000").toLong()
@@ -224,14 +228,15 @@ class FriendListAdapter(val context: Context, val schemaManager: GameSchemaManag
 
                         (v.statusIndicator.drawable as GradientDrawable).setColor(Utils.getStatusColor(context, state, friend.gameAppId, friend.gameName))
 
-                        v.mobileIndicator.hide()
-                        v.webIndicator.hide()
                         val flags = EPersonaStateFlag.from(friend.stateFlags)
-                        if (flags.contains(EPersonaStateFlag.ClientTypeMobile)) {
-                            v.mobileIndicator.show()
+                        val statusDrawable = if (flags.contains(EPersonaStateFlag.ClientTypeMobile)) {
+                            mobileIcon
                         } else if (flags.contains(EPersonaStateFlag.ClientTypeWeb)) {
-                            v.webIndicator.show()
+                            webIcon
+                        } else {
+                            null
                         }
+                        v.status.setCompoundDrawablesWithIntrinsicBounds(null, null, statusDrawable, null)
 
                         friend.lastMessageTime?.let {
                             v.time.text = DateUtils.formatSameDayTime(it, System.currentTimeMillis(), DateFormat.SHORT, DateFormat.SHORT)

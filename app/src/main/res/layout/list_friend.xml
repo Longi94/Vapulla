@@ -75,24 +75,6 @@
 
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/mobileIndicator"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_cellphone"
-            android:tint="@color/textSecondary"
-            app:layout_constraintStart_toEndOf="@id/status"
-            app:layout_constraintTop_toTopOf="@id/status" />
-
-        <ImageView
-            android:id="@+id/webIndicator"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_web"
-            android:tint="@color/textSecondary"
-            app:layout_constraintStart_toEndOf="@id/status"
-            app:layout_constraintTop_toTopOf="@id/status" />
-
         <TextView
             android:id="@+id/status"
             android:layout_width="wrap_content"
