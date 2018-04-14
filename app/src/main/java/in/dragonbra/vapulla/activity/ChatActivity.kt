@@ -30,6 +30,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -81,6 +82,21 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     private lateinit var emoteAdapter: EmoteAdapter
 
+    private lateinit var layoutManager: LinearLayoutManager
+
+    private var scrollListener = object: RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                val firstVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
+                if (firstVisible == 0 && scrollDownButton.isShown) {
+                    scrollDownButton.hide()
+                } else if (firstVisible != 0 && !scrollDownButton.isShown) {
+                    scrollDownButton.show()
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
         super.onCreate(savedInstanceState)
@@ -89,10 +105,11 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         paperPlane = PaperPlane(this, 18.0f)
         chatAdapter = ChatAdapter(this, paperPlane, clipboard)
 
-        val layoutManager = LinearLayoutManager(this)
+        layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
         chatList.layoutManager = layoutManager
         chatList.adapter = chatAdapter
+        chatList.addOnScrollListener(scrollListener)
 
         chatAdapter.registerAdapterDataObserver(ChatAdapterDataObserver(
                 chatAdapter,
@@ -364,5 +381,14 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     @Suppress("UNUSED_PARAMETER")
     fun sendImage(v: View) {
         presenter.imageButtonClicked()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun scrollToBeginning(v: View) {
+        if (layoutManager.findFirstCompletelyVisibleItemPosition() > 20) {
+            chatList.scrollToPosition(0)
+        } else {
+            chatList.smoothScrollToPosition(0)
+        }
     }
 }
