@@ -82,6 +82,8 @@ class SteamService : Service(), AnkoLogger {
         private const val ONGOING_NOTIFICATION_ID = 100
         private const val MAX_RETRY_COUNT = 5
 
+        private const val RECONNECT_DELAY = 5L * DateUtils.SECOND_IN_MILLIS
+
         /**
          * Time to back off when we receive an echo message because it means that the user is
          * chatting on another device.
@@ -553,7 +555,7 @@ class SteamService : Service(), AnkoLogger {
             disconnectedSubs.forEach { it.invoke(cb) }
         } else {
             info("failed to connect to steam ${++retryCount} times, trying again...")
-            handler.postDelayed({ steamClient.connect() }, 1000L)
+            handler.postDelayed({ steamClient.connect() }, RECONNECT_DELAY)
             setNotification(getString(R.string.notificationLostConnection))
         }
     }
@@ -579,6 +581,7 @@ class SteamService : Service(), AnkoLogger {
         when (it.result) {
             EResult.OK -> {
                 isLoggedIn = true
+                getHandler<SteamFriends>()?.setPersonaState(account.state)
                 getHandler<SteamNotifications>()?.requestOfflineMessageCount()
             }
             EResult.InvalidPassword -> account.loginKey = null

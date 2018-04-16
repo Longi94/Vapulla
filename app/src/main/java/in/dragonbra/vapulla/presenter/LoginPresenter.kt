@@ -1,8 +1,6 @@
 package `in`.dragonbra.vapulla.presenter
 
-import `in`.dragonbra.javasteam.enums.EPersonaState
 import `in`.dragonbra.javasteam.enums.EResult
-import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.vapulla.R
@@ -106,9 +104,6 @@ class LoginPresenter(context: Context) : VapullaPresenter<LoginView>(context) {
         }
 
         expectSteamGuard = false
-        runOnBackgroundThread {
-            steamService?.getHandler<SteamFriends>()?.setPersonaState(EPersonaState.Online)
-        }
 
         ifViewAttached {
             account.username = logOnDetails.username

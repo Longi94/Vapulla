@@ -58,7 +58,7 @@ class AccountManager(private val context: Context) {
         set(value) = editor.putString(KEY_AVATAR_HASH, value).apply()
 
     var state: EPersonaState
-        get() = EPersonaState.from(prefs.getInt(KEY_STATE, 0))
+        get() = EPersonaState.from(prefs.getInt(KEY_STATE, EPersonaState.Online.code()))
         set(value) = editor.putInt(KEY_STATE, value.code()).apply()
 
     var sentrySize: Long
