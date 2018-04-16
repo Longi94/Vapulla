@@ -152,8 +152,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                     .setTitle(getString(R.string.dialogTitleChangeUser))
                     .setPositiveButton(R.string.dialogYes, { _, _ ->
                         runOnBackgroundThread {
-                            runOnBackgroundThread { steamService.disconnect() }
                             clearData()
+                            steamService.logOff()
                         }
                     })
                     .setNegativeButton(R.string.dialogNo, null)

@@ -267,7 +267,7 @@ class SteamService : Service(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
         info("onDestroy")
-        disconnect()
+        logOff()
         handlerThread.quit()
         sendBroadcast(Intent(VapullaBaseActivity.STOP_INTENT))
     }
@@ -310,6 +310,11 @@ class SteamService : Service(), AnkoLogger {
     fun disconnect() {
         expectDisconnect = true
         steamClient.disconnect()
+    }
+
+    fun logOff() {
+        expectDisconnect = true
+        getHandler<SteamUser>()?.logOff()
     }
 
     fun logOn(details: LogOnDetails) {

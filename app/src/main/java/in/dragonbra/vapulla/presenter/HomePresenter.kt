@@ -85,7 +85,7 @@ class HomePresenter(context: Context,
     }
 
     fun disconnect() {
-        runOnBackgroundThread { steamService?.disconnect() }
+        runOnBackgroundThread { steamService?.logOff() }
     }
 
     fun changeStatus(state: EPersonaState) {
