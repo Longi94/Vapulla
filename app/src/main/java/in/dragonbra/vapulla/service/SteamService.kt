@@ -149,6 +149,12 @@ class SteamService : Service(), AnkoLogger {
     @Volatile
     private var chatFriendId: Long? = null
 
+    /**
+     * This boolean indicates wether new messages for [chatFriendId] should be marked read or not
+     */
+    @Volatile
+    private var shouldMarkNewMessagesRead: Boolean = true
+
     private lateinit var remoteInput: RemoteInput
 
     /**
@@ -463,11 +469,17 @@ class SteamService : Service(), AnkoLogger {
 
     fun setChatFriendId(id: SteamID) {
         chatFriendId = id.convertToUInt64()
+        shouldMarkNewMessagesRead = true
         clearMessageNotifications(id)
     }
 
     fun removeChatFriendId() {
         chatFriendId = null
+        shouldMarkNewMessagesRead = true
+    }
+
+    fun shouldMarkNewMessagesRead(mark: Boolean) {
+        shouldMarkNewMessagesRead = mark
     }
 
     fun sendMessage(id: SteamID, message: String, emoteSet: Set<String>) {
@@ -707,7 +719,7 @@ class SteamService : Service(), AnkoLogger {
                         System.currentTimeMillis(),
                         it.sender.convertToUInt64(),
                         false,
-                        chatFriendId != it.sender.convertToUInt64(),
+                        chatFriendId != it.sender.convertToUInt64() || shouldMarkNewMessagesRead,
                         false
                 ))
 

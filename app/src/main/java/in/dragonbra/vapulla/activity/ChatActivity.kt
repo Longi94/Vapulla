@@ -20,9 +20,14 @@ import `in`.dragonbra.vapulla.service.ImgurAuthService
 import `in`.dragonbra.vapulla.util.Utils
 import `in`.dragonbra.vapulla.util.recyclerview.ChatAdapterDataObserver
 import `in`.dragonbra.vapulla.view.ChatView
+import android.annotation.SuppressLint
 import android.arch.paging.PagedList
 import android.content.ClipboardManager
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
@@ -84,18 +89,24 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
 
     private lateinit var layoutManager: LinearLayoutManager
 
-    private var scrollListener = object: RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                val firstVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
-                if (firstVisible == 0 && scrollDownButton.isShown) {
-                    scrollDownButton.hide()
-                } else if (firstVisible != 0 && !scrollDownButton.isShown) {
-                    scrollDownButton.show()
-                }
+    private var scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            val firstVisible = layoutManager.findFirstVisibleItemPosition()
+            if (firstVisible == 0 && scrollDownButton.isShown) {
+                presenter.firstVisible(true)
+                scrollDownButton.hide()
+            } else if (firstVisible != 0 && !scrollDownButton.isShown) {
+                presenter.firstVisible(false)
+                scrollDownButton.show()
             }
         }
     }
+
+    private val fabPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private var fabBaseline = 0.0f
+
+    private var fabHeight = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
@@ -123,7 +134,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
         emoteLayoutManager.flexDirection = FlexDirection.ROW
         emoteLayoutManager.justifyContent = JustifyContent.CENTER
 
-        emoteList.layoutManager = emoteLayoutManager;
+        emoteList.layoutManager = emoteLayoutManager
         emoteList.adapter = emoteAdapter
 
         messageBox.addTextChangedListener(this)
@@ -135,6 +146,13 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             popup.show()
             popup.setOnMenuItemClickListener(this@ChatActivity)
         }
+
+        fabPaint.textSize = Utils.convertDpToPixel(12.0f, this)
+        fabPaint.color = -1
+        fabPaint.textAlign = Paint.Align.LEFT
+
+        fabBaseline = -fabPaint.ascent()
+        fabHeight = (fabBaseline + fabPaint.descent() + 0.0f).toInt()
     }
 
     override fun onDestroy() {
@@ -166,6 +184,12 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
             return
         }
         runOnUiThread {
+            Glide.with(this@ChatActivity)
+                    .load(Utils.getAvatarUrl(friend.avatar))
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .apply(Utils.avatarOptions)
+                    .into(friendAvatar)
+
             val state = EPersonaState.from(friend.state ?: 0)
             friendUsername.text = friend.name
 
@@ -187,12 +211,28 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
                 friendStatus.normal()
             }
 
-            Glide.with(this@ChatActivity)
-                    .load(Utils.getAvatarUrl(friend.avatar))
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .apply(Utils.avatarOptions)
-                    .into(friendAvatar)
+            (friend.newMessageCount ?: 0).let {
+                if (it > 0) {
+                    val text = if (it > 99) ":D" else it.toString()
+                    scrollDownButton.setImageBitmap(textToBitmap(text))
+                    scrollDownButton.backgroundTintList = ColorStateList.valueOf(
+                            ContextCompat.getColor(this, R.color.colorAccent))
+                } else {
+                    scrollDownButton.setImageDrawable(getDrawable(R.drawable.ic_chevron_double_down))
+                    scrollDownButton.backgroundTintList = ColorStateList.valueOf(
+                            ContextCompat.getColor(this, R.color.colorPrimaryLight))
+                }
+            }
         }
+    }
+
+    private fun textToBitmap(text: String): Bitmap {
+        val width = (fabPaint.measureText(text) + 0.0f).toInt()
+        val image = Bitmap.createBitmap(width, fabHeight, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(image)
+        canvas.drawText(text, 0.0f, fabBaseline, fabPaint)
+        return image
     }
 
     override fun navigateUp() {
@@ -262,6 +302,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun showNicknameDialog(nickname: String) {
+        @SuppressLint("InflateParams")
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_nickname, null)
         v.nickname.setText(nickname)
 

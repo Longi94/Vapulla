@@ -297,4 +297,14 @@ class ChatPresenter(context: Context,
             }
         }
     }
+
+    fun firstVisible(firstVisible: Boolean) {
+        steamService?.shouldMarkNewMessagesRead(!firstVisible)
+
+        friendData.value?.let {
+            if (firstVisible && it.newMessageCount ?: 0 > 0) {
+                runOnBackgroundThread { chatMessageDao.markRead(steamId.convertToUInt64()) }
+            }
+        }
+    }
 }

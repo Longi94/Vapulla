@@ -16,7 +16,8 @@ interface SteamFriendDao {
     @Query("SELECT " +
             "  sf.*, " +
             "  max(cm.timestamp) AS last_message_time, " +
-            "  ifnull(gs.name, sf.game_name) AS playing_game_name " +
+            "  ifnull(gs.name, sf.game_name) AS playing_game_name, " +
+            "  sum(cm.unread) as new_message_count " +
             "FROM steam_friend sf " +
             "LEFT JOIN chat_message cm " +
             "ON sf.id = cm.friend_id " +
