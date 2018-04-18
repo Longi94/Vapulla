@@ -5,6 +5,7 @@ import `in`.dragonbra.vapulla.component.DaggerVapullaComponent
 import `in`.dragonbra.vapulla.component.VapullaComponent
 import `in`.dragonbra.vapulla.module.AppModule
 import `in`.dragonbra.vapulla.module.PresenterModule
+import `in`.dragonbra.vapulla.module.SteamModule
 import `in`.dragonbra.vapulla.module.StorageModule
 import android.annotation.SuppressLint
 import android.app.Application
@@ -63,6 +64,7 @@ class VapullaApplication : Application() {
                 .appModule(AppModule(this))
                 .storageModule(StorageModule())
                 .presenterModule(PresenterModule())
+                .steamModule(SteamModule())
                 .build()
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false)

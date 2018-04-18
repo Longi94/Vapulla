@@ -4,17 +4,14 @@ import `in`.dragonbra.vapulla.activity.ChatActivity
 import `in`.dragonbra.vapulla.activity.HomeActivity
 import `in`.dragonbra.vapulla.activity.LoginActivity
 import `in`.dragonbra.vapulla.activity.SettingsActivity
-import `in`.dragonbra.vapulla.module.AppModule
-import `in`.dragonbra.vapulla.module.PresenterModule
-import `in`.dragonbra.vapulla.module.RetrofitModule
-import `in`.dragonbra.vapulla.module.StorageModule
+import `in`.dragonbra.vapulla.module.*
 import `in`.dragonbra.vapulla.service.SteamService
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [AppModule::class, PresenterModule::class, StorageModule::class,
-    RetrofitModule::class])
+    RetrofitModule::class, SteamModule::class])
 interface VapullaComponent {
     fun inject(steamService: SteamService)
     fun inject(homeActivity: HomeActivity)

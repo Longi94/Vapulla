@@ -4,18 +4,11 @@ import `in`.dragonbra.javasteam.enums.EChatEntryType
 import `in`.dragonbra.javasteam.enums.EFriendRelationship
 import `in`.dragonbra.javasteam.enums.EResult
 import `in`.dragonbra.javasteam.handlers.ClientMsgHandler
-import `in`.dragonbra.javasteam.steam.discovery.FileServerListProvider
-import `in`.dragonbra.javasteam.steam.handlers.steamapps.SteamApps
-import `in`.dragonbra.javasteam.steam.handlers.steamcloud.SteamCloud
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.PersonaState
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.SteamFriends
 import `in`.dragonbra.javasteam.steam.handlers.steamfriends.callback.*
-import `in`.dragonbra.javasteam.steam.handlers.steamgamecoordinator.SteamGameCoordinator
-import `in`.dragonbra.javasteam.steam.handlers.steamgameserver.SteamGameServer
-import `in`.dragonbra.javasteam.steam.handlers.steammasterserver.SteamMasterServer
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.SteamNotifications
 import `in`.dragonbra.javasteam.steam.handlers.steamnotifications.callback.OfflineMessageNotificationCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamscreenshots.SteamScreenshots
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.LogOnDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.MachineAuthDetails
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.OTPDetails
@@ -24,14 +17,11 @@ import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOffCallb
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoggedOnCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.LoginKeyCallback
 import `in`.dragonbra.javasteam.steam.handlers.steamuser.callback.UpdateMachineAuthCallback
-import `in`.dragonbra.javasteam.steam.handlers.steamuserstats.SteamUserStats
-import `in`.dragonbra.javasteam.steam.handlers.steamworkshop.SteamWorkshop
 import `in`.dragonbra.javasteam.steam.steamclient.SteamClient
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.CallbackManager
 import `in`.dragonbra.javasteam.steam.steamclient.callbackmgr.ICallbackMsg
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.ConnectedCallback
 import `in`.dragonbra.javasteam.steam.steamclient.callbacks.DisconnectedCallback
-import `in`.dragonbra.javasteam.steam.steamclient.configuration.SteamConfiguration
 import `in`.dragonbra.javasteam.types.SteamID
 import `in`.dragonbra.javasteam.util.Strings
 import `in`.dragonbra.javasteam.util.compat.Consumer
@@ -47,7 +37,7 @@ import `in`.dragonbra.vapulla.data.entity.Emoticon
 import `in`.dragonbra.vapulla.data.entity.SteamFriend
 import `in`.dragonbra.vapulla.extension.vapulla
 import `in`.dragonbra.vapulla.manager.AccountManager
-import `in`.dragonbra.vapulla.steam.VapullaHandler
+import `in`.dragonbra.vapulla.steam.SteamWebAuth
 import `in`.dragonbra.vapulla.steam.callback.EmoticonListCallback
 import `in`.dragonbra.vapulla.threading.runOnBackgroundThread
 import `in`.dragonbra.vapulla.util.PersonaStateBuffer
@@ -71,7 +61,6 @@ import org.jetbrains.anko.info
 import org.jetbrains.anko.intentFor
 import org.spongycastle.util.encoders.Hex
 import java.io.Closeable
-import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -98,15 +87,18 @@ class SteamService : Service(), AnkoLogger {
         const val EXTRA_ACTION = "action"
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_ID = "id"
-
-        const val SERVERS_FILE = "servers.bin"
     }
 
     private val binder: SteamBinder = SteamBinder()
 
+    @Inject
     lateinit var steamClient: SteamClient
 
+    @Inject
     lateinit var callbackMgr: CallbackManager
+
+    @Inject
+    lateinit var webAuth: SteamWebAuth
 
     private val subscriptions: MutableSet<Closeable?> = mutableSetOf()
 
@@ -173,23 +165,6 @@ class SteamService : Service(), AnkoLogger {
         handler = Handler(handlerThread.looper)
 
         stateBuffer = PersonaStateBuffer(db.steamFriendDao())
-
-        val config = SteamConfiguration.create {
-            it.withServerListProvider(FileServerListProvider(File(filesDir, SERVERS_FILE)))
-        }
-        steamClient = SteamClient(config)
-        steamClient.addHandler(VapullaHandler())
-
-        steamClient.removeHandler(SteamApps::class.java)
-        steamClient.removeHandler(SteamCloud::class.java)
-        steamClient.removeHandler(SteamGameCoordinator::class.java)
-        steamClient.removeHandler(SteamGameServer::class.java)
-        steamClient.removeHandler(SteamMasterServer::class.java)
-        steamClient.removeHandler(SteamScreenshots::class.java)
-        steamClient.removeHandler(SteamUserStats::class.java)
-        steamClient.removeHandler(SteamWorkshop::class.java)
-
-        callbackMgr = CallbackManager(steamClient)
 
         subscriptions.add(callbackMgr.subscribe(DisconnectedCallback::class.java, onDisconnected))
         subscriptions.add(callbackMgr.subscribe(ConnectedCallback::class.java, onConnected))
@@ -583,6 +558,10 @@ class SteamService : Service(), AnkoLogger {
                 isLoggedIn = true
                 getHandler<SteamFriends>()?.setPersonaState(account.state)
                 getHandler<SteamNotifications>()?.requestOfflineMessageCount()
+
+                runOnBackgroundThread {
+                    webAuth.authenticate(steamClient, it.webAPIUserNonce)
+                }
             }
             EResult.InvalidPassword -> account.loginKey = null
             else -> {
