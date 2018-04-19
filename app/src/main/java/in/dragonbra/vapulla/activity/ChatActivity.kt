@@ -48,7 +48,6 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.dialog_nickname.view.*
-import org.jetbrains.anko.browse
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.textColor
 import javax.inject.Inject
@@ -316,7 +315,7 @@ class ChatActivity : VapullaBaseActivity<ChatView, ChatPresenter>(), ChatView, T
     }
 
     override fun browseUrl(url: String) {
-        browse(url)
+        startActivity<WebActivity>(WebActivity.EXTRA_URL to url)
     }
 
     override fun showAliases(names: List<String>) {

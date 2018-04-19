@@ -239,7 +239,7 @@ class ChatPresenter(context: Context,
     }
 
     fun viewAccountMenuClicked() {
-        ifViewAttached { it.browseUrl("http://steamcommunity.com/profiles/${steamId.convertToUInt64()}") }
+        ifViewAttached { it.browseUrl("https://steamcommunity.com/profiles/${steamId.convertToUInt64()}") }
     }
 
     fun viewAliasesMenuClicked() {

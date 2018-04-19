@@ -1,9 +1,6 @@
 package `in`.dragonbra.vapulla.component
 
-import `in`.dragonbra.vapulla.activity.ChatActivity
-import `in`.dragonbra.vapulla.activity.HomeActivity
-import `in`.dragonbra.vapulla.activity.LoginActivity
-import `in`.dragonbra.vapulla.activity.SettingsActivity
+import `in`.dragonbra.vapulla.activity.*
 import `in`.dragonbra.vapulla.module.*
 import `in`.dragonbra.vapulla.service.SteamService
 import dagger.Component
@@ -18,4 +15,5 @@ interface VapullaComponent {
     fun inject(loginActivity: LoginActivity)
     fun inject(chatActivity: ChatActivity)
     fun inject(settingsActivity: SettingsActivity)
+    fun inject(webActivity: WebActivity)
 }

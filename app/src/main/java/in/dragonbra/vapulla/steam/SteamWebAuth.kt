@@ -59,6 +59,8 @@ class SteamWebAuth(private val steamUserAuth: WebAPI, private val account: Accou
         token = result["token"].asString()
         tokenSecure = result["tokenSecure"].asString()
 
+        authenticated = true
+
         info { "web authentication successful" }
     }
 
