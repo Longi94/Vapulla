@@ -7,11 +7,17 @@ import `in`.dragonbra.javasteam.util.WebHelpers
 import `in`.dragonbra.javasteam.util.crypto.CryptoHelper
 import `in`.dragonbra.javasteam.util.crypto.RSACrypto
 import `in`.dragonbra.vapulla.manager.AccountManager
+import android.webkit.CookieManager
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.spongycastle.util.encoders.Hex
 
 class SteamWebAuth(private val steamUserAuth: WebAPI, private val account: AccountManager): AnkoLogger {
+
+    companion object {
+        const val MOBILE_VERSION_ID = 3922515
+        const val MOBILE_VERSION_NAME = "2.3.1"
+    }
 
     private var sessionId: String? = null
 
@@ -21,8 +27,7 @@ class SteamWebAuth(private val steamUserAuth: WebAPI, private val account: Accou
 
     private var steamId: Long = 0L
 
-    var authenticated: Boolean = false
-        private set
+    private var authenticated: Boolean = false
 
     fun authenticate(client: CMClient, nonce: String) {
         info { "attempting web authentication" }
@@ -64,10 +69,25 @@ class SteamWebAuth(private val steamUserAuth: WebAPI, private val account: Accou
         info { "web authentication successful" }
     }
 
-    fun buildCookies(): Map<String, String?> = mapOf(
-            "sessionid" to sessionId,
-            "steamLogin" to token,
-            "steamLoginSecure" to tokenSecure,
-            "steamMachineAuth$steamId" to Hex.toHexString(account.readSentryFile())
-    )
+    fun updateCookies() {
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+
+        if (authenticated) {
+            cookieManager.setSteamCookie("sessionid", sessionId)
+            cookieManager.setSteamCookie("steamLogin", token)
+            cookieManager.setSteamCookie("steamLoginSecure", tokenSecure)
+            cookieManager.setSteamCookie("steamMachineAuth$steamId", Hex.toHexString(account.readSentryFile()))
+            cookieManager.setSteamCookie("mobileClient", "android")
+            cookieManager.setSteamCookie("mobileClientVersion", "$MOBILE_VERSION_ID+%28$MOBILE_VERSION_NAME%29")
+
+            cookieManager.flush()
+        }
+    }
+
+    private fun CookieManager.setSteamCookie(key: String, value: String?) {
+        val cookie = "$key=$value"
+        this.setCookie("https://steamcommunity.com", cookie)
+        this.setCookie("https://store.steampowered.com", cookie)
+    }
 }

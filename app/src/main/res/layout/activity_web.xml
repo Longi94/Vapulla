@@ -23,7 +23,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <WebView
+    <in.dragonbra.vapulla.view.SteamWebView
         android:id="@+id/webView"
         android:layout_width="0dp"
         android:layout_height="0dp"

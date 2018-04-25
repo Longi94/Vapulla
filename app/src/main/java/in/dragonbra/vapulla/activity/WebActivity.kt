@@ -6,19 +6,20 @@ import `in`.dragonbra.vapulla.extension.click
 import `in`.dragonbra.vapulla.extension.hide
 import `in`.dragonbra.vapulla.extension.show
 import `in`.dragonbra.vapulla.steam.SteamWebAuth
+import `in`.dragonbra.vapulla.view.SteamWebView
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.*
-import android.webkit.*
 import android.widget.ImageView
 import android.widget.PopupWindow
 import kotlinx.android.synthetic.main.activity_web.*
 import org.jetbrains.anko.find
+import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
-class WebActivity : AppCompatActivity() {
+class WebActivity : AppCompatActivity(), SteamWebView.WebClientListener {
 
     companion object {
         const val EXTRA_URL = "url"
@@ -26,29 +27,6 @@ class WebActivity : AppCompatActivity() {
 
     @Inject
     lateinit var steamWebAuth: SteamWebAuth
-
-    private val chromeClient = object : WebChromeClient() {
-        override fun onReceivedTitle(view: WebView?, title: String?) {
-            this@WebActivity.title = title
-        }
-
-        override fun onProgressChanged(view: WebView?, newProgress: Int) {
-            if (newProgress < 100) {
-                progressBar.show()
-            } else {
-                progressBar.hide()
-            }
-            progressBar.progress = newProgress
-        }
-    }
-
-    private val webClient = object : WebViewClient() {
-        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            view.loadUrl(request.url.toString())
-            supportActionBar?.subtitle = request.url.toString()
-            return true
-        }
-    }
 
     private lateinit var webControls: View
 
@@ -79,32 +57,20 @@ class WebActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.subtitle = url
+        title = ""
 
         progressBar.max = 100
 
-        val cookieManager = CookieManager.getInstance()
-        cookieManager.setAcceptCookie(true)
+        steamWebAuth.updateCookies()
 
-        if (steamWebAuth.authenticated) {
-            steamWebAuth.buildCookies().forEach { key, value ->
-                val cookie = "$key=$value"
-                cookieManager.setCookie("https://steamcommunity.com", cookie)
-                cookieManager.setCookie("https://store.steampowered.com", cookie)
-            }
-
-            cookieManager.flush()
-        }
-
-        webView.settings.builtInZoomControls = true
-        webView.settings.displayZoomControls = false
-        webView.settings.javaScriptEnabled = true
-
-        webView.webChromeClient = chromeClient
-        webView.webViewClient = webClient
+        webView.webListener = this
         webView.loadUrl(url)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        webView.webListener = null
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_web, menu)
@@ -128,6 +94,25 @@ class WebActivity : AppCompatActivity() {
             webView.goBack()
         } else {
             finish()
+        }
+    }
+
+    override fun onProgressChanged(newProgress: Int) {
+        if (newProgress < 100) {
+            progressBar.show()
+        } else {
+            progressBar.hide()
+        }
+        progressBar.progress = newProgress
+    }
+
+    override fun onTitle(title: String?) {
+        this.title = title
+    }
+
+    override fun openChat(steamId: Long?) {
+        steamId?.let {
+            startActivity<ChatActivity>(ChatActivity.INTENT_STEAM_ID to it)
         }
     }
 
