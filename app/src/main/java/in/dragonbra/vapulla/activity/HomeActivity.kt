@@ -23,6 +23,7 @@ import android.support.transition.Transition
 import android.support.transition.TransitionManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.PopupMenu
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateUtils
@@ -58,6 +59,16 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
     private val updateHandler: Handler = Handler()
 
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            if (dy > 0 && addFriendButton.isShown) {
+                addFriendButton.hide()
+            } else if (dy <= 0 && !addFriendButton.isShown) {
+                addFriendButton.show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         vapulla().graph.inject(this)
         super.onCreate(savedInstanceState)
@@ -73,6 +84,8 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
 
         friendList.layoutManager = layoutManager
         friendList.adapter = friendListAdapter
+
+        friendList.addOnScrollListener(scrollListener)
 
         moreButton.click(this::openMoreMenu)
         statusButton.click(this::openStatusMenu)
@@ -263,5 +276,10 @@ class HomeActivity : VapullaBaseActivity<HomeView, HomePresenter>(), HomeView, P
         constraintSet.clone(this, R.layout.home_toolbar)
         TransitionManager.beginDelayedTransition(toolbarLayout, trans)
         constraintSet.applyTo(toolbarLayout)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun addFriend(v: View) {
+        startActivity<WebActivity>(WebActivity.EXTRA_URL to "https://steamcommunity.com/search/users/")
     }
 }
