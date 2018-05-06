@@ -51,7 +51,9 @@ abstract class VapullaPresenter<V : MvpView>(val context: Context) : MvpBasePres
     open fun onPause() {}
     @CallSuper
     open fun onStop() {
-        context.unbindService(connection)
+        if (bound) {
+            context.unbindService(connection)
+        }
         subs.forEach { it?.close() }
         subs.clear()
         bound = false
