@@ -654,7 +654,7 @@ class SteamService : Service(), AnkoLogger {
                 }
             }
 
-            if (inc && friend!!.relation == EFriendRelationship.RequestRecipient.code()) {
+            if (inc && friend != null && friend.relation == EFriendRelationship.RequestRecipient.code()) {
                 requestsToNotify.add(it.steamID)
             }
         }
