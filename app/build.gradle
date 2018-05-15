@@ -41,7 +41,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "android.arch.lifecycle:livedata:1.1.1"
-    implementation "android.arch.paging:runtime:1.0.0-rc1"
+    implementation "android.arch.paging:runtime:1.0.0"
     implementation "android.arch.persistence.room:runtime:$room_version"
     kapt "android.arch.persistence.room:compiler:$room_version"
     implementation "com.android.support:support-annotations:$android_support_version"
