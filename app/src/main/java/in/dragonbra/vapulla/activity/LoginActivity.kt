@@ -42,6 +42,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     lateinit var handler: Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         vapulla().graph.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
