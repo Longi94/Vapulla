@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/vapulla_middle">
-    <target
-        android:name="middleSheet"
-        android:animation="@animator/vapulla_middle_pump"/>
-</animated-vector>

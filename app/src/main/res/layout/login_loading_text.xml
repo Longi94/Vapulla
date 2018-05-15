@@ -10,4 +10,4 @@
     android:layout_marginTop="16dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/vapullaLogoTop" />
+    app:layout_constraintTop_toBottomOf="@+id/vapullaLogo" />

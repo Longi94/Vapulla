@@ -9,5 +9,5 @@
     android:textColor="@color/textError"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/vapullaLogoTop"
+    app:layout_constraintTop_toBottomOf="@+id/vapullaLogo"
     tools:text="Error message" />

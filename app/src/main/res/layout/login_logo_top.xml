@@ -3,33 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
-        android:id="@+id/vapullaLogoBottom"
+        android:id="@+id/vapullaLogo"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="64dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_bottom" />
-
-    <ImageView
-        android:id="@+id/vapullaLogoMiddle"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="64dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_middle" />
-
-    <ImageView
-        android:id="@+id/vapullaLogoTop"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="64dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vapulla_top" />
+        app:srcCompat="@drawable/vapulla" />
 
 </merge>

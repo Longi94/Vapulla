@@ -7,36 +7,14 @@
     tools:context="in.dragonbra.vapulla.activity.LoginActivity">
 
     <ImageView
-        android:id="@+id/vapullaLogoBottom"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_bottom" />
-
-    <ImageView
-        android:id="@+id/vapullaLogoMiddle"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/animated_vapulla_middle" />
-
-    <ImageView
-        android:id="@+id/vapullaLogoTop"
+        android:id="@+id/vapullaLogo"
         android:layout_width="150dp"
         android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vapulla_top" />
+        app:srcCompat="@drawable/vapulla" />
 
     <include
         layout="@layout/login_error_text"
