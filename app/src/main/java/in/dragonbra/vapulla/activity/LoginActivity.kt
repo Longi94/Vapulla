@@ -19,6 +19,7 @@ import android.support.constraint.ConstraintSet
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.transition.Transition
 import android.support.transition.TransitionManager
+import android.text.InputType
 import android.view.animation.AnimationUtils
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.login_button.*
@@ -26,22 +27,26 @@ import kotlinx.android.synthetic.main.login_error_text.*
 import kotlinx.android.synthetic.main.login_loading_text.*
 import kotlinx.android.synthetic.main.login_logo_top.*
 import kotlinx.android.synthetic.main.login_password.*
-import kotlinx.android.synthetic.main.login_retry_button.*
-import kotlinx.android.synthetic.main.login_steam_guard.*
-import kotlinx.android.synthetic.main.login_steam_guard_button.*
 import kotlinx.android.synthetic.main.login_steam_guard_cancel.*
 import kotlinx.android.synthetic.main.login_username.*
-import org.jetbrains.anko.clearTask
-import org.jetbrains.anko.image
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.newTask
+import org.jetbrains.anko.*
 import javax.inject.Inject
 
 
 class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginView {
 
+    companion object {
+        private const val FRAME_SPLASH = 0
+        private const val FRAME_FAILED = 1
+        private const val FRAME_FORM = 2
+        private const val FRAME_LOADING = 3
+        private const val FRAME_STEAMGUARD = 4
+    }
+
     @Inject
     lateinit var loginPresenter: LoginPresenter
+
+    private var frame = FRAME_SPLASH
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -53,51 +58,55 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
         loadingText.inAnimation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in)
         loadingText.outAnimation = AnimationUtils.loadAnimation(this, android.R.anim.fade_out)
 
-        login.click { login() }
+        login.click {
+            when(frame) {
+                FRAME_FORM -> login()
+                FRAME_STEAMGUARD -> {
+                    frame = FRAME_LOADING
+                    val code = username.text.toString()
 
-        steamGuardButton.click {
-            val code = steamGuardInput.text.toString()
+                    if (code.length < 5) {
+                        usernameLayout.error = getString(R.string.editTextErrorSteamGuard)
+                        return@click
+                    }
 
-            if (code.length < 5) {
-                steamGuardLayout.error = getString(R.string.editTextErrorSteamGuard)
-                return@click
+                    hideKeyboardFrom(it)
+
+                    val transition = AutoParallelTransition()
+                    transition.addListener(object : TransitionListener() {
+                        override fun onTransitionEnd(transition: Transition) {
+                            startLoadingAnimation()
+                            presenter.login(code)
+                        }
+                    })
+
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(this, R.layout.activity_login_frame_loading)
+                    TransitionManager.beginDelayedTransition(rootLayout, transition)
+                    constraintSet.applyTo(rootLayout)
+                }
+                FRAME_FAILED -> {
+                    frame = FRAME_LOADING
+                    loadingText.setText(null)
+
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(this, R.layout.activity_login_frame_loading)
+                    TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
+                    constraintSet.applyTo(rootLayout)
+
+                    val faceAnim = getDrawable(R.drawable.animated_vapulla_from_face)
+                    vapullaLogo.setImageDrawable(faceAnim)
+
+                    VectorAnimCompat.registerAnimationCallback(faceAnim as Animatable, object : Animatable2Compat.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable) {
+                            startLoadingAnimation()
+                            presenter.retry()
+                        }
+                    })
+
+                    faceAnim.start()
+                }
             }
-
-            hideKeyboardFrom(it)
-
-            val transition = AutoParallelTransition()
-            transition.addListener(object : TransitionListener() {
-                override fun onTransitionEnd(transition: Transition) {
-                    startLoadingAnimation()
-                    presenter.login(code)
-                }
-            })
-
-            val constraintSet = ConstraintSet()
-            constraintSet.clone(this, R.layout.activity_login_frame_loading)
-            TransitionManager.beginDelayedTransition(rootLayout, transition)
-            constraintSet.applyTo(rootLayout)
-        }
-
-        retryButton.click {
-            loadingText.setText(null)
-
-            val constraintSet = ConstraintSet()
-            constraintSet.clone(this, R.layout.activity_login_frame_loading)
-            TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
-            constraintSet.applyTo(rootLayout)
-
-            val faceAnim = getDrawable(R.drawable.animated_vapulla_from_face)
-            vapullaLogo.setImageDrawable(faceAnim)
-
-            VectorAnimCompat.registerAnimationCallback(faceAnim as Animatable, object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable) {
-                    startLoadingAnimation()
-                    presenter.retry()
-                }
-            })
-
-            faceAnim.start()
         }
 
         steamGuardButtonCancel.click {
@@ -106,7 +115,6 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
 
         username.bindLayout()
         password.bindLayout()
-        steamGuardInput.bindLayout()
     }
 
     override fun createPresenter(): LoginPresenter = loginPresenter
@@ -118,6 +126,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     }
 
     override fun startLoading(finishedAction: (() -> Unit)?) {
+        frame = FRAME_LOADING
         val transition = AutoParallelTransition()
         /*transition.addListener(object : TransitionListener() {
             override fun onTransitionEnd(transition: Transition) {
@@ -141,6 +150,7 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
     }
 
     override fun showSteamGuard(is2Fa: Boolean, errorMessage: String?) {
+        frame = FRAME_STEAMGUARD
         runOnUiThread {
             stopLoadingAnimation()
             loadingText.setText("")
@@ -159,10 +169,17 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             constraintSet.clone(this, layout)
             TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
             constraintSet.applyTo(rootLayout)
+
+            login.text = getString(R.string.buttonSteamGuard)
+            username.setText("")
+            username.inputType = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            username.allCaps = true
+            usernameLayout.hint = getString(R.string.editTextHintSteamGuard)
         }
     }
 
     override fun showLoginForm(errorMessage: String?) {
+        frame = FRAME_FORM
         runOnUiThread {
             stopLoadingAnimation()
             loadingText.setText("")
@@ -178,10 +195,18 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             constraintSet.clone(this, layout)
             TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
             constraintSet.applyTo(rootLayout)
+
+            login.text = getString(R.string.buttonLogin)
+            password.setText("")
+            username.setText("")
+            username.inputType = InputType.TYPE_TEXT_VARIATION_PERSON_NAME
+            username.allCaps = false
+            usernameLayout.hint = getString(R.string.editTextHintUsername)
         }
     }
 
     override fun showFailedScreen() {
+        frame = FRAME_FAILED
         runOnUiThread {
             stopLoadingAnimation()
 
@@ -195,6 +220,8 @@ class LoginActivity : VapullaBaseActivity<LoginView, LoginPresenter>(), LoginVie
             constraintSet.clone(this, R.layout.activity_login_frame_failed)
             TransitionManager.beginDelayedTransition(rootLayout, AutoParallelTransition())
             constraintSet.applyTo(rootLayout)
+
+            login.text = getString(R.string.buttonRetry)
         }
     }
 
