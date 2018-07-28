@@ -39,9 +39,17 @@ android {
 }
 
 dependencies {
+    def android_support_version = '27.1.1'
+    def anko_version='0.10.4'
+    def dagger_version='2.14.1'
+    def room_version='1.1.1'
+    def glide_version='4.7.1'
+    def retrofit_verson='2.3.0'
+    def firebase_version='16.0.1'
+    
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "android.arch.lifecycle:livedata:1.1.1"
-    implementation "android.arch.paging:runtime:1.0.0"
+    implementation "android.arch.paging:runtime:1.0.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
     kapt "android.arch.persistence.room:compiler:$room_version"
     implementation "com.android.support:support-annotations:$android_support_version"
@@ -49,7 +57,7 @@ dependencies {
     implementation "com.android.support:design:$android_support_version"
     implementation "com.android.support:recyclerview-v7:$android_support_version"
     implementation "com.android.support:support-v4:$android_support_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.brandongogetap:stickyheaders:0.5.0'
     implementation "com.github.bumptech.glide:glide:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
@@ -66,7 +74,7 @@ dependencies {
     implementation 'in.dragonbra:javasteam:1.0.0-SNAPSHOT'
     implementation "org.jetbrains.anko:anko:$anko_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
