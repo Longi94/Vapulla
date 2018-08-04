@@ -7,6 +7,7 @@ import `in`.dragonbra.vapulla.module.AppModule
 import `in`.dragonbra.vapulla.module.PresenterModule
 import `in`.dragonbra.vapulla.module.SteamModule
 import `in`.dragonbra.vapulla.module.StorageModule
+import `in`.dragonbra.vapulla.service.SteamService
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.Notification
@@ -22,12 +23,15 @@ class VapullaApplication : Application() {
 
     lateinit var graph: VapullaComponent
 
+    var steamService: SteamService? = null
+
     @SuppressLint("NewApi")
     override fun onCreate() {
         super.onCreate()
 
         FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG)
 
+        // JavaSteam logging
         LogManager.addListener { clazz, message, throwable ->
             Log.d(clazz.simpleName, message, throwable)
         }

@@ -244,7 +244,9 @@ class SteamService : Service(), AnkoLogger {
     override fun onDestroy() {
         super.onDestroy()
         info("onDestroy")
-        logOff()
+        if (isLoggedIn) {
+            logOff()
+        }
         handlerThread.quit()
         sendBroadcast(Intent(VapullaBaseActivity.STOP_INTENT))
     }
@@ -496,7 +498,7 @@ class SteamService : Service(), AnkoLogger {
                         disconnectedSubs.remove(callbackFunc)
                     }
                 }
-                else -> callbackMgr.subscribe(T::class.java, { callbackFunc(it) })
+                else -> callbackMgr.subscribe(T::class.java) { callbackFunc(it) }
             }
 
     private val steamThread: Runnable = Runnable {

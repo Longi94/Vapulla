@@ -5,6 +5,7 @@ import `in`.dragonbra.vapulla.manager.GameSchemaManager
 import `in`.dragonbra.vapulla.retrofit.Imgur
 import `in`.dragonbra.vapulla.retrofit.StoreFront
 import `in`.dragonbra.vapulla.service.ImgurAuthService
+import android.app.Application
 import android.content.ClipboardManager
 import android.content.Context
 import android.support.v4.app.NotificationManagerCompat
@@ -13,11 +14,15 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class AppModule(val context: Context) {
+class AppModule(val application: Application) {
 
     @Provides
     @Singleton
-    fun provideContext() = context
+    fun provideContext() = application as Context
+
+    @Provides
+    @Singleton
+    fun provideApplication() = application
 
     @Provides
     @Singleton
@@ -34,5 +39,5 @@ class AppModule(val context: Context) {
 
     @Provides
     @Singleton
-    fun provideImgurAuthService(imgur: Imgur) = ImgurAuthService(context, imgur)
+    fun provideImgurAuthService(imgur: Imgur) = ImgurAuthService(application, imgur)
 }

@@ -40,17 +40,23 @@ android {
 
 dependencies {
     def android_support_version = '27.1.1'
-    def anko_version='0.10.4'
-    def dagger_version='2.14.1'
-    def room_version='1.1.1'
-    def glide_version='4.7.1'
-    def retrofit_verson='2.3.0'
-    def firebase_version='16.0.1'
-    
+    def anko_version = '0.10.4'
+    def dagger_version = '2.14.1'
+    def room_version = '1.1.1'
+    def glide_version = '4.7.1'
+    def retrofit_version = '2.3.0'
+    def firebase_version = '16.0.1'
+    def nav_version = '1.0.0-alpha04'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "android.arch.lifecycle:livedata:1.1.1"
+    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
     implementation "android.arch.paging:runtime:1.0.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
     kapt "android.arch.persistence.room:compiler:$room_version"
     implementation "com.android.support:support-annotations:$android_support_version"
     implementation "com.android.support:appcompat-v7:$android_support_version"
@@ -69,8 +75,8 @@ dependencies {
     implementation 'com.hannesdorfmann.mosby3:mvp:3.1.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_verson"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_verson"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'in.dragonbra:javasteam:1.0.0-SNAPSHOT'
     implementation "org.jetbrains.anko:anko:$anko_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
